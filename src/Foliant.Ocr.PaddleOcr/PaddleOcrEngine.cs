@@ -291,7 +291,11 @@ public sealed class PaddleOcrEngine : IOcrEngine
     {
         int w = crop.Width, h = crop.Height;
         var px = crop.Pixels;
-        int minWordGap = Math.Max(4, h / 4);         // intra-word letter gaps are narrower
+        // Word-gap threshold at a chunk cut. h/4 fused words on justified/TOC lines: word
+        // gaps compress to ~0.2em (≈h/5–h/6) while intra-word letter gaps stay ≤ ~h/10, so
+        // h/6 separates them with margin. Verified against the reference corpus 2026-06-11
+        // ("CONTRACTMANAGEMENT" / "EquipmentManufacturer" fusion class, 3 per chunked line).
+        int minWordGap = Math.Max(3, h / 6);
 
         var hasInk = new bool[w];
         for (int x = 0; x < w; x++)
@@ -371,6 +375,11 @@ public sealed class PaddleOcrEngine : IOcrEngine
         int steps = output.Dimensions[1], classes = output.Dimensions[2];
 
         // CTC greedy decode: index 0 = blank; 1..dict = chars; last = space (if present)
+        // NOTE: do not second-guess the CTC space class with pixel heuristics here — wide-tracked
+        // digit strings (CLIN "00001") have inter-digit gaps wider than word gaps, so pixel
+        // evidence inside a line is typographically ambiguous (verified on corpus 2026-06-11:
+        // injection regressed SIR p2 from ≥95% to 81.6%). Fusions are a chunk-boundary problem;
+        // see SplitAtWhitespace.
         bool hasSpace = classes >= _dict.Length + 2;
         var chars = new List<char>();
         var confs = new List<float>();

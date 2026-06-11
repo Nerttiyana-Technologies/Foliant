@@ -55,22 +55,30 @@ public static class ModelCatalog
         "5be82ec9d157814ea8616588398d7baec17aed0780b870f7adf24b280ee1b5aa",
         115_694_355);
 
-    // NOTE: the optional PaddleOCR textline-orientation classifier
-    // (textline_orientation.onnx) is intentionally NOT cataloged yet — its exact
-    // Hugging Face path and checksum are pending verification (network was unavailable
-    // when this catalog was authored). The OCR engine treats it as optional and falls
-    // back to dual-rotation recognition; see scripts/download-models.sh.
+    /// <summary>
+    /// PaddleOCR PP-LCNet textline-orientation classifier, 2 classes {0°, 180°} (Apache 2.0).
+    /// Optional: enables single-pass rotated-text recognition; the OCR engine falls back to
+    /// dual-rotation recognition when absent. Validated on the reference corpus 2026-06-11
+    /// (Gate 4: questionnaire-class pages ≥95% recall).
+    /// </summary>
+    public static ModelAsset TextlineOrientation { get; } = new(
+        "textline-orientation",
+        "textline_orientation.onnx",
+        "https://huggingface.co/monkt/paddleocr-onnx/resolve/main/preprocessing/textline-orientation/PP-LCNet_x1_0_textline_ori.onnx",
+        "34ec07c0bcd591da2ae6651924a1d8fb85f7ca60ac9a58ac417ecf12a5fc1e1a",
+        6_774_157);
 
-    /// <summary>Assets the default pipeline requires.</summary>
+    /// <summary>Assets the default pipeline uses (textline orientation is optional but recommended).</summary>
     public static IReadOnlyList<ModelAsset> DefaultPipeline { get; } =
     [
-        LayoutDetection, OcrDetection, OcrRecognitionEnglish, OcrRecognitionEnglishDict, TableStructure,
+        LayoutDetection, OcrDetection, OcrRecognitionEnglish, OcrRecognitionEnglishDict,
+        TableStructure, TextlineOrientation,
     ];
 
     /// <summary>Every cataloged asset.</summary>
     public static IReadOnlyList<ModelAsset> All { get; } =
     [
         LayoutDetection, OcrDetection, OcrRecognitionEnglish, OcrRecognitionEnglishDict,
-        TableStructure, TableDetection,
+        TableStructure, TableDetection, TextlineOrientation,
     ];
 }
