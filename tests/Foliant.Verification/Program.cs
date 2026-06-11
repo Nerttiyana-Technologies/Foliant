@@ -13,23 +13,32 @@
 using System.Globalization;
 using Foliant;
 using Foliant.Pipeline;
+using Foliant.Verification;
 
 string? pdfDir = null;
 string outDir = "verification-out";
 string modelsDir = "models";
 bool ocrOnly = false;
+string? gate3Csv = null;
+string? gate5Dir = null;
+string? inspect = null;
 
 for (int i = 0; i < args.Length; i++)
 {
     if (args[i] == "--models" && i + 1 < args.Length) { modelsDir = args[++i]; continue; }
     if (args[i] == "--ocr-only") { ocrOnly = true; continue; }
+    if (args[i] == "--gate3" && i + 1 < args.Length) { gate3Csv = args[++i]; continue; }
+    if (args[i] == "--gate5" && i + 1 < args.Length) { gate5Dir = args[++i]; continue; }
+    if (args[i] == "--inspect" && i + 1 < args.Length) { inspect = args[++i]; continue; }
     if (pdfDir == null) pdfDir = args[i];
     else outDir = args[i];
 }
 
 if (pdfDir == null || !Directory.Exists(pdfDir))
 {
-    Console.Error.WriteLine("Usage: Foliant.Verification <pdf-dir> [out-dir] [--models <dir>] [--ocr-only]");
+    Console.Error.WriteLine(
+        "Usage: Foliant.Verification <pdf-dir> [out-dir] [--models <dir>] [--ocr-only] " +
+        "[--gate3 <truth.csv>] [--gate5 <truth-dir>]");
     return 2;
 }
 
@@ -44,6 +53,27 @@ using var processor = FoliantProcessor.CreateDefault(modelsDir);
 // assembly only). OCR-only recall is the non-circular quality metric (spike baseline: 98.3%).
 var options = new ProcessingOptions { TextLayer = ocrOnly ? TextLayerMode.Never : TextLayerMode.Auto };
 if (ocrOnly) Console.WriteLine("Mode: --ocr-only (text layer disabled for extraction; still used as recall truth)");
+
+// Inspect mode: dump one page's geometry for debugging — layout overlay PNG,
+// line/region JSON, and the composed Markdown. Usage: --inspect "<pdf-name>:<page>"
+if (inspect != null)
+{
+    int sep = inspect.LastIndexOf(':');
+    string inspectPdf = inspect[..sep];
+    int inspectPage = int.Parse(inspect[(sep + 1)..]);
+    Directory.CreateDirectory(outDir);
+    await Inspector.RunAsync(processor, pdfDir, inspectPdf, inspectPage, options, outDir);
+    return 0;
+}
+
+// Gate modes process only the truth-referenced pages, no corpus sweep.
+if (gate3Csv != null || gate5Dir != null)
+{
+    bool gatesOk = true;
+    if (gate3Csv != null) gatesOk &= await Gate3Runner.RunAsync(processor, pdfDir, gate3Csv, options);
+    if (gate5Dir != null) gatesOk &= await Gate5Runner.RunAsync(processor, pdfDir, gate5Dir, options);
+    return gatesOk ? 0 : 1;
+}
 
 var rows = new List<Row>();
 var total = System.Diagnostics.Stopwatch.StartNew();

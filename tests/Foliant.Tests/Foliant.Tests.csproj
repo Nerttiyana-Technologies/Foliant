@@ -9,6 +9,7 @@
     <ProjectReference Include="..\..\src\Foliant.Pipeline\Foliant.Pipeline.csproj" />
     <ProjectReference Include="..\..\src\Foliant.Models\Foliant.Models.csproj" />
     <ProjectReference Include="..\..\src\Foliant.Ocr.PaddleOcr\Foliant.Ocr.PaddleOcr.csproj" />
+    <ProjectReference Include="..\..\src\Foliant.Tables.TableTransformer\Foliant.Tables.TableTransformer.csproj" />
   </ItemGroup>
 
   <ItemGroup>
