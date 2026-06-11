@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Description>DocLayout-YOLO layout-detection backend for Foliant (ONNX, runs fully local via ONNX Runtime). Classifies page regions: text, title, table, figure, captions, formulas, page furniture.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Foliant.Core\Foliant.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.ML.OnnxRuntime" Version="1.26.0" />
+    <PackageReference Include="SkiaSharp" Version="3.119.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="..\Shared\SkiaInterop.cs" Link="Internal\SkiaInterop.cs" />
+  </ItemGroup>
+
+</Project>
