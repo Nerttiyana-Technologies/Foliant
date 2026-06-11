@@ -1,0 +1,8 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Description>Core interfaces and DTOs for Foliant, a layout-aware PDF document-AI library for .NET. Depend on this package to consume or implement pipeline stages; depend on Foliant.Pipeline for the batteries-included default pipeline.</Description>
+    <!-- Interfaces + DTOs only. No dependencies, by design. Keep it that way. -->
+  </PropertyGroup>
+
+</Project>

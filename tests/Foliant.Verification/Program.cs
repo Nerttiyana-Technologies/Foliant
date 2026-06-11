@@ -1,0 +1,136 @@
+// Quality-gate harness — the spike scorecard (spike/RESULTS.md) rebuilt on the production
+// pipeline. Runs locally against a PDF corpus that is never committed (Test-Data/), writes
+// per-page Markdown + scorecard.csv into a gitignored output directory, and enforces:
+//
+//   Gate 1 (corpus recall):  avg word recall ≥ 98% AND ≥95% recall on ≥98% of scored pages
+//   Gate 2 (zero text loss): coverage-invariant violations = 0 across the corpus
+//
+// Usage:
+//   dotnet run -c Release --project tests/Foliant.Verification -- <pdf-dir> [out-dir] [--models <dir>]
+//
+// Defaults: out-dir = verification-out/, models = models/ (relative to current directory).
+
+using System.Globalization;
+using Foliant;
+using Foliant.Pipeline;
+
+string? pdfDir = null;
+string outDir = "verification-out";
+string modelsDir = "models";
+bool ocrOnly = false;
+
+for (int i = 0; i < args.Length; i++)
+{
+    if (args[i] == "--models" && i + 1 < args.Length) { modelsDir = args[++i]; continue; }
+    if (args[i] == "--ocr-only") { ocrOnly = true; continue; }
+    if (pdfDir == null) pdfDir = args[i];
+    else outDir = args[i];
+}
+
+if (pdfDir == null || !Directory.Exists(pdfDir))
+{
+    Console.Error.WriteLine("Usage: Foliant.Verification <pdf-dir> [out-dir] [--models <dir>] [--ocr-only]");
+    return 2;
+}
+
+var pdfs = Directory.GetFiles(pdfDir, "*.pdf").OrderBy(p => p).ToList();
+if (pdfs.Count == 0) { Console.Error.WriteLine($"No PDFs in {pdfDir}."); return 2; }
+
+Directory.CreateDirectory(outDir);
+using var processor = FoliantProcessor.CreateDefault(modelsDir);
+
+// --ocr-only forces TextLayerMode.Never: on born-digital corpora the default fast path takes
+// words FROM the text layer while recall is measured AGAINST it (trivially ~100%, validates
+// assembly only). OCR-only recall is the non-circular quality metric (spike baseline: 98.3%).
+var options = new ProcessingOptions { TextLayer = ocrOnly ? TextLayerMode.Never : TextLayerMode.Auto };
+if (ocrOnly) Console.WriteLine("Mode: --ocr-only (text layer disabled for extraction; still used as recall truth)");
+
+var rows = new List<Row>();
+var total = System.Diagnostics.Stopwatch.StartNew();
+
+foreach (var pdf in pdfs)
+{
+    var name = Path.GetFileName(pdf);
+    var stem = Path.GetFileNameWithoutExtension(pdf);
+    Console.WriteLine($"\n{name}");
+
+    DocumentResult result;
+    try
+    {
+        result = await processor.ProcessAsync(await File.ReadAllBytesAsync(pdf), options);
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"  ERROR: {ex.Message}");
+        rows.Add(new Row(name, 0, 0, 0, 0, 0, 0, 0, null, true, $"error: {ex.Message}"));
+        continue;
+    }
+
+    foreach (var page in result.Pages)
+    {
+        var v = page.Verification;
+        var (flagged, reason) = Flag(v);
+        rows.Add(new Row(name, page.PageNumber, page.Lines.Count, page.Regions.Count,
+                         v.Seconds, v.LinesLost, v.TruthWords, v.TruthWordsFound,
+                         v.RecallPercent, flagged, reason));
+
+        await File.WriteAllTextAsync(
+            Path.Combine(outDir, $"{stem}_p{page.PageNumber:D3}.md"), page.Markdown);
+
+        var recall = v.RecallPercent is { } r ? $"{r:0.0}%" : "n/a (no text layer)";
+        var cov = v.LinesLost == 0 ? "OK" : $"LOST {v.LinesLost}";
+        var src = page.Source == TextSource.TextLayer ? "layer" : "ocr";
+        Console.WriteLine($"  p{page.PageNumber:D3}  {page.Lines.Count,4} lines  {v.Seconds,5:0.0}s  " +
+                          $"src:{src}  cov:{cov}  recall:{recall}{(flagged ? "  ⚑" : "")}");
+    }
+}
+total.Stop();
+
+// ── Scorecard CSV ────────────────────────────────────────────────────────────
+var csvPath = Path.Combine(outDir, "scorecard.csv");
+await using (var csv = new StreamWriter(csvPath))
+{
+    await csv.WriteLineAsync(
+        "pdf,page,lines,regions,seconds,coverage_missing,truth_words,truth_found,recall_pct,flagged,reason");
+    foreach (var s in rows)
+        await csv.WriteLineAsync(string.Create(CultureInfo.InvariantCulture,
+            $"\"{s.Pdf}\",{s.Page},{s.Lines},{s.Regions},{s.Seconds:0.0},{s.Lost},{s.TruthWords},{s.TruthFound},{(s.Recall.HasValue ? s.Recall.Value.ToString("0.0", CultureInfo.InvariantCulture) : "")},{s.Flagged},\"{s.Reason}\""));
+}
+
+// ── Summary + gates ──────────────────────────────────────────────────────────
+var scored = rows.Where(s => s.Recall.HasValue).ToList();
+var flaggedRows = rows.Where(s => s.Flagged).ToList();
+double avgRecall = scored.Count > 0 ? scored.Average(s => s.Recall!.Value) : 0;
+double pct95 = scored.Count > 0 ? 100.0 * scored.Count(s => s.Recall >= 95) / scored.Count : 0;
+int totalLost = rows.Sum(s => s.Lost);
+
+Console.WriteLine("\n════ SUMMARY ════");
+Console.WriteLine($"pages: {rows.Count}   time: {total.Elapsed.TotalMinutes:0.0} min " +
+                  $"({(rows.Count > 0 ? total.Elapsed.TotalSeconds / rows.Count : 0):0.0}s/page)");
+if (scored.Count > 0)
+    Console.WriteLine($"recall: avg {avgRecall:0.0}%   min {scored.Min(s => s.Recall!.Value):0.0}%   " +
+                      $"pages ≥95%: {scored.Count(s => s.Recall >= 95)}/{scored.Count} ({pct95:0.0}%)");
+Console.WriteLine($"flagged for review: {flaggedRows.Count}/{rows.Count}");
+foreach (var f in flaggedRows.Take(30))
+    Console.WriteLine($"  {f.Pdf} p{f.Page}: {f.Reason}");
+Console.WriteLine($"scorecard → {csvPath}");
+
+bool gate1 = avgRecall >= 98.0 && pct95 >= 98.0;
+bool gate2 = totalLost == 0;
+Console.WriteLine("\n════ GATES (RESULTS.md) ════");
+Console.WriteLine($"Gate 1 corpus recall   : {(gate1 ? "PASS" : "FAIL")}  (avg {avgRecall:0.0}% / ≥95% on {pct95:0.0}% of pages)");
+Console.WriteLine($"Gate 2 zero text loss  : {(gate2 ? "PASS" : "FAIL")}  ({totalLost} lines lost)");
+
+return gate1 && gate2 ? 0 : 1;
+
+static (bool Flagged, string Reason) Flag(PageVerification v)
+{
+    if (v.LinesLost > 0) return (true, $"{v.LinesLost} lines lost");
+    if (v.TruthWords == 0) return (true, "no text layer (needs eyeball)");
+    if (v.RecallPercent < 95.0) return (true, $"recall {v.RecallPercent:0.0}%");
+    return (false, "");
+}
+
+internal sealed record Row(
+    string Pdf, int Page, int Lines, int Regions, double Seconds,
+    int Lost, int TruthWords, int TruthFound, double? Recall, bool Flagged, string Reason);
