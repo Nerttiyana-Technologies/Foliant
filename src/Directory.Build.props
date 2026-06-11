@@ -9,12 +9,20 @@
     <Authors>Suresh Subramanian</Authors>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <PackageTags>pdf;document-ai;layout-detection;ocr;table-extraction;onnx;document-understanding</PackageTags>
-    <!-- TODO: set PackageProjectUrl / RepositoryUrl once GitHub org + visibility are decided -->
+    <PackageProjectUrl>https://github.com/Nerttiyana/Foliant</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/Nerttiyana/Foliant</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <IsPackable>true</IsPackable>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <EnablePackageValidation>true</EnablePackageValidation>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="$(MSBuildThisFileDirectory)..\PACKAGE_README.md" Pack="true" PackagePath="README.md" Visible="false" />
+  </ItemGroup>
 
 </Project>
