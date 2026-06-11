@@ -442,3 +442,5 @@ sample-out/
 .idea/
 # Corpus-derived analysis: quotes RFP content (names/emails) — local only
 spike/RESULTS.md
+# Local NuGet pack output (FLUX consumes via local folder feed)
+nupkgs/
