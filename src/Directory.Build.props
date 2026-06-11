@@ -1,0 +1,20 @@
+<Project>
+
+  <!-- Inherit repo-root settings -->
+  <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
+
+  <!-- NuGet package metadata shared by all shipping packages -->
+  <PropertyGroup>
+    <Version>$(FoliantVersion)</Version>
+    <Authors>Suresh Subramanian</Authors>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <PackageTags>pdf;document-ai;layout-detection;ocr;table-extraction;onnx;document-understanding</PackageTags>
+    <!-- TODO: set PackageProjectUrl / RepositoryUrl once GitHub org + visibility are decided -->
+    <IsPackable>true</IsPackable>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <EnablePackageValidation>true</EnablePackageValidation>
+  </PropertyGroup>
+
+</Project>

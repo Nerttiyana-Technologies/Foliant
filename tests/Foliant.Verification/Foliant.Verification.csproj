@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Quality-gate harness (RESULTS.md gates 1, 2, 4): runs the production pipeline over a
+    local PDF corpus and emits a scorecard CSV + pass/fail summary.
+
+    The corpus is NEVER committed (Test-Data/ and all PDFs are gitignored).
+    Usage:  dotnet run -c Release -\- <pdf-dir> [output-dir] [-\-models <models-dir>]
+  -->
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Foliant.Pipeline\Foliant.Pipeline.csproj" />
+  </ItemGroup>
+
+</Project>

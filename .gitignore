@@ -427,3 +427,18 @@ FodyWeavers.xsd
 *.msix
 *.msm
 *.msp
+
+# ── Foliant: never commit documents or derived extraction output ──
+# RFP corpus and any other PDFs (test data stays local-only)
+*.pdf
+Test-Data/
+# ONNX model weights (downloaded via scripts/download-models.sh / Foliant.Models cache)
+models/
+# Pipeline output artifacts (extracted .md/.json/.png derived from corpus PDFs)
+spike-out/
+verification-out*/
+sample-out/
+.DS_Store
+.idea/
+# Corpus-derived analysis: quotes RFP content (names/emails) — local only
+spike/RESULTS.md

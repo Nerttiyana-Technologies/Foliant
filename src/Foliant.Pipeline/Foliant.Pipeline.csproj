@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Description>Default layout-aware PDF processing pipeline for Foliant: PDF rendering, embedded text-layer fast path, reading-order assembly, Markdown composition, and built-in extraction verification. Wires the Foliant.Core interfaces to the default ONNX backends.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Foliant.Core\Foliant.Core.csproj" />
+    <ProjectReference Include="..\Foliant.Layout.DocLayoutNet\Foliant.Layout.DocLayoutNet.csproj" />
+    <ProjectReference Include="..\Foliant.Ocr.PaddleOcr\Foliant.Ocr.PaddleOcr.csproj" />
+    <ProjectReference Include="..\Foliant.Tables.TableTransformer\Foliant.Tables.TableTransformer.csproj" />
+    <ProjectReference Include="..\Foliant.Models\Foliant.Models.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- PDF rasterization via bundled pdfium (PdfPig cannot rasterize — see spike/NOTES.md) -->
+    <PackageReference Include="PDFtoImage" Version="5.2.1" />
+    <!-- Embedded text-layer extraction (fast path) + verification ground truth -->
+    <PackageReference Include="PdfPig" Version="0.1.14" />
+    <!-- Image plumbing; transitive via PDFtoImage, pinned explicitly -->
+    <PackageReference Include="SkiaSharp" Version="3.119.4" />
+    <PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="3.119.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="..\Shared\SkiaInterop.cs" Link="Internal\SkiaInterop.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Foliant.Tests" />
+  </ItemGroup>
+
+</Project>
