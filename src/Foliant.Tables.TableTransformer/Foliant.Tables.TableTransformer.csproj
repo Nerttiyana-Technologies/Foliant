@@ -17,4 +17,8 @@
     <Compile Include="..\Shared\SkiaInterop.cs" Link="Internal\SkiaInterop.cs" />
   </ItemGroup>
 
+  <ItemGroup>
+    <InternalsVisibleTo Include="Foliant.Tests" />
+  </ItemGroup>
+
 </Project>
