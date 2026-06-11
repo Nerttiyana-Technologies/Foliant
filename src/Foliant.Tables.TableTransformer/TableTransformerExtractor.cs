@@ -41,6 +41,21 @@ public sealed class TableTransformerExtractor : ITableExtractor
         using var bitmap = SkiaInterop.ToBitmap(page);
         var (rows, cols) = PredictGrid(bitmap, table.Bounds);
 
+        // Hybrid (RESULTS.md priority #3): forms draw their cell borders, and TableTransformer
+        // is out-of-distribution on them. Recursive ruling decomposition finds the form's true
+        // (hierarchical) cells; keep whichever structure assigns more of the region's text
+        // lines into cells — directly minimizing the leftover/orphan failure class (e.g.
+        // SF-33 TOC checkbox marks detached from their rows).
+        var leaves = DetectRuledCells(bitmap, table.Bounds);
+        if (leaves != null)
+        {
+            int ttAssigned = CountAssigned(rows, cols, regionLines);
+            int leafAssigned = regionLines.Count(l =>
+                leaves.Any(c => c.Contains(l.Bounds.CenterX, l.Bounds.CenterY)));
+            if (leafAssigned > ttAssigned)
+                return ExtractFromLeaves(leaves, regionLines);
+        }
+
         if (rows.Count == 0 || cols.Count == 0)
             return new TableExtraction(null, regionLines);   // composer degrades to paragraph
 
@@ -67,6 +82,96 @@ public sealed class TableTransformerExtractor : ITableExtractor
         var leftover = regionLines.Where(l => !consumed.Contains(l)).ToList();
         return new TableExtraction(
             new TableStructure(rows.Count, cols.Count, cells), leftover);
+    }
+
+    /// <summary>Number of region lines whose center lands inside some row∩col cell.</summary>
+    private static int CountAssigned(
+        List<SKRect> rows, List<SKRect> cols, IReadOnlyList<TextLine> regionLines)
+    {
+        if (rows.Count == 0 || cols.Count == 0) return 0;
+        return regionLines.Count(l =>
+            rows.Any(r => l.Bounds.CenterY >= r.Top && l.Bounds.CenterY <= r.Bottom) &&
+            cols.Any(c => l.Bounds.CenterX >= c.Left && l.Bounds.CenterX <= c.Right));
+    }
+
+    /// <summary>Crops the region and runs recursive ruling decomposition (page coordinates).</summary>
+    private static List<SKRect>? DetectRuledCells(SKBitmap page, BoundingBox region)
+    {
+        float pad = 8;
+        var crop = SKRect.Create(
+            Math.Max(0, region.X1 - pad), Math.Max(0, region.Y1 - pad),
+            Math.Min(page.Width, region.X2 + pad) - Math.Max(0, region.X1 - pad),
+            Math.Min(page.Height, region.Y2 + pad) - Math.Max(0, region.Y1 - pad));
+
+        int cw = (int)crop.Width, ch = (int)crop.Height;
+        if (cw < 8 || ch < 8) return null;
+
+        using var cropBmp = new SKBitmap(cw, ch, SKColorType.Bgra8888, SKAlphaType.Opaque);
+        using (var canvas = new SKCanvas(cropBmp))
+            canvas.DrawBitmap(page, crop, new SKRect(0, 0, cw, ch));
+
+        return RulingGrid.DetectCells(cropBmp, crop);
+    }
+
+    /// <summary>
+    /// Builds a TableStructure from ruling-decomposition leaf cells: leaves cluster into
+    /// rows by vertical overlap, then order left-to-right for column indices. Rows may have
+    /// differing cell counts (hierarchical forms); the renderer tolerates missing positions.
+    /// </summary>
+    private static TableExtraction ExtractFromLeaves(
+        List<SKRect> leaves, IReadOnlyList<TextLine> regionLines)
+    {
+        // Cluster into rows by TOP edge: leaves of one ruled row share their top band
+        // boundary (the physical ruling line), so tops match within line thickness. A
+        // growing vertical-extent cluster is wrong here — one tall leaf (a spanning cell)
+        // stretches the band and swallows the next row, fusing adjacent form rows
+        // (observed on SF-33 TOC rows E/F, 2026-06-11).
+        const float topTolerance = 6f;
+        var rowClusters = new List<(float Top, List<SKRect> Cells)>();
+        foreach (var leaf in leaves.OrderBy(c => c.Top).ThenBy(c => c.Left))
+        {
+            bool placed = false;
+            for (int i = 0; i < rowClusters.Count; i++)
+            {
+                if (Math.Abs(rowClusters[i].Top - leaf.Top) <= topTolerance)
+                {
+                    rowClusters[i].Cells.Add(leaf);
+                    placed = true;
+                    break;
+                }
+            }
+            if (!placed) rowClusters.Add((leaf.Top, new List<SKRect> { leaf }));
+        }
+
+        var cells = new List<TableCell>();
+        var consumed = new HashSet<TextLine>();
+        int maxCols = 0;
+
+        var orderedRows = rowClusters.OrderBy(r => r.Top).ToList();
+        for (int r = 0; r < orderedRows.Count; r++)
+        {
+            var rowCells = orderedRows[r].Cells.OrderBy(c => c.Left).ToList();
+            maxCols = Math.Max(maxCols, rowCells.Count);
+            for (int c = 0; c < rowCells.Count; c++)
+            {
+                var cellLines = regionLines
+                    .Where(l => rowCells[c].Contains(l.Bounds.CenterX, l.Bounds.CenterY))
+                    .OrderBy(l => l.Bounds.Y1).ThenBy(l => l.Bounds.X1)
+                    .ToList();
+                foreach (var l in cellLines) consumed.Add(l);
+                if (cellLines.Count == 0) continue;   // sparse forms: skip empty leaves
+
+                cells.Add(new TableCell(
+                    r, c,
+                    string.Join(" ", cellLines.Select(l => l.Text)),
+                    new BoundingBox(rowCells[c].Left, rowCells[c].Top,
+                                    rowCells[c].Right, rowCells[c].Bottom)));
+            }
+        }
+
+        var leftover = regionLines.Where(l => !consumed.Contains(l)).ToList();
+        return new TableExtraction(
+            new TableStructure(orderedRows.Count, Math.Max(1, maxCols), cells), leftover);
     }
 
     private (List<SKRect> Rows, List<SKRect> Cols) PredictGrid(SKBitmap page, BoundingBox region)
