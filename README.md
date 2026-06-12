@@ -54,8 +54,12 @@ verifiability as a feature:
 - **Lossless by construction.** A per-page coverage invariant guarantees every extracted line
   provably lands in the output (or is intentional page furniture, reported as such).
 - **Self-scoring.** Pages with an embedded text layer are scored against it — the PDF itself
-  is the answer key. On a 474-page federal-RFP reference corpus: **99.7% average word recall,
-  100% of pages ≥95%, zero text loss, zero fabricated form values.**
+  is the answer key. On a 474-page federal-RFP reference corpus in forced-OCR mode:
+  **99.7% average word recall, 100% of pages ≥95%, zero text loss, zero fabricated form
+  values.** Generalization sweeps across ~1,940 pages (IRS, USCIS, Indian ITR, Air Force
+  solicitations, scanned business forms): **zero text loss, zero crashes**; structure
+  extraction on unseen scanned forms validated by inspection. Known measured limits:
+  non-Latin scripts (multilingual recognition is roadmap) and colored watermark overprint.
 - **Deterministic.** Same input, same output, every run. No temperature, no sampling.
 - **Private by default.** No network calls at processing time; model downloads are the only
   network activity, cache them once and run air-gapped.
@@ -68,7 +72,8 @@ verifiability as a feature:
 | [`Foliant.Core`](https://www.nuget.org/packages/Foliant.Core) | Interfaces + DTOs only; depend on this to consume results or author backends |
 | [`Foliant.Layout.DocLayoutNet`](https://www.nuget.org/packages/Foliant.Layout.DocLayoutNet) | DocLayout-YOLO layout-detection backend |
 | [`Foliant.Ocr.PaddleOcr`](https://www.nuget.org/packages/Foliant.Ocr.PaddleOcr) | PaddleOCR det/rec backend with rotated-text handling |
-| [`Foliant.Tables.TableTransformer`](https://www.nuget.org/packages/Foliant.Tables.TableTransformer) | TableTransformer + ruling-grid table-structure backend |
+| [`Foliant.Tables.TableTransformer`](https://www.nuget.org/packages/Foliant.Tables.TableTransformer) | TableTransformer + ruling-grid table-structure backend (default) |
+| [`Foliant.Tables.PaddleStructure`](https://www.nuget.org/packages/Foliant.Tables.PaddleStructure) | SLANet-plus table backend for raster/screenshot tables (opt-in) |
 | [`Foliant.Models`](https://www.nuget.org/packages/Foliant.Models) | Model catalog + SHA-256-verified local cache |
 
 Model weights (~280 MB) are not inside the packages. They download on first use into the
@@ -124,9 +129,13 @@ spike/      Phase 0 throwaway prototype + measured results (RESULTS.md) — kept
 scripts/    model download helper
 ```
 
+Scanned pages routed to OCR get deterministic preprocessing automatically: deskew (±8°),
+contrast normalization for faded scans, and despeckling (`ProcessingOptions.PreprocessScans`).
+
 ## Roadmap
 
-- Scanned-document preprocessing (orientation, de-warp — models already cataloged)
+- Watermark suppression (colored DRAFT-stamp overprint measurably degrades OCR underneath)
+- Page-orientation and de-warp preprocessing (models already cataloged)
 - Form-field key-value extraction as typed output
 - Languages beyond English (PaddleOCR multilingual recognition models)
 - Additional backends (`Foliant.Ocr.Tesseract`; community backends welcome — the

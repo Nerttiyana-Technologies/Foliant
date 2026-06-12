@@ -302,6 +302,11 @@ public sealed class PaddleOcrEngine : IOcrEngine
         for (int y = 0; y < h; y++)
             if (Luma(px[y * w + x]) < 160) { hasInk[x] = true; break; }
 
+        // NOTE (2026-06-12): a relative rule (cut gap vs the line's widest interior run)
+        // was tried for the scanned cap-kern false-space class ("C lient") and REGRESSED
+        // the reference corpus 99.7%→98.9% (suppressed real spaces on lines with wide
+        // interior voids). Reverted per the evidence-first rule; cap-kern spaces on scans
+        // are a cosmetic defect deferred to the post-OCR LM-correction stage (v1.0).
         var chunks = new List<(int, int, bool)>();
         int segStart = 0;
         bool spaceBefore = false;
