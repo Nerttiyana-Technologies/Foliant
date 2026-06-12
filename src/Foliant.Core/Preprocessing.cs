@@ -5,9 +5,11 @@ public sealed record PreprocessedPage(
     PageImage Image,
     float SkewCorrectedDegrees,
     bool ContrastStretched,
-    bool Denoised)
+    bool Denoised,
+    bool WatermarkSuppressed = false)
 {
-    public bool Changed => SkewCorrectedDegrees != 0f || ContrastStretched || Denoised;
+    public bool Changed =>
+        SkewCorrectedDegrees != 0f || ContrastStretched || Denoised || WatermarkSuppressed;
 }
 
 /// <summary>
