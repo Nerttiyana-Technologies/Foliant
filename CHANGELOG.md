@@ -1,5 +1,21 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- **Untrustworthy text layers now route to OCR** (the "formmsd" class). Old PDFs with
+  non-embedded fonts (e.g. 1990s PageMaker output relying on viewer-substituted
+  Times/Helvetica with `/Differences`-remapped encodings) yield text-layer words whose
+  glyph metrics cannot be resolved — the words exist but their bounding boxes collapse,
+  and the fast path silently discarded them while stray embedded-font fragments kept the
+  page above the word-count threshold (observed: 4% page recall on a "healthy" text
+  layer; the loss was invisible to the coverage invariant because the words died before
+  line-forming). `PdfTextLayerReader` now counts characters lost to degenerate word
+  geometry and exposes `TextLayerPage.DroppedCharFraction`; in `TextLayerMode.Auto`,
+  pages above `ProcessingOptions.MaxTextLayerDroppedCharFraction` (default 0.3) are
+  treated as scanned and routed to OCR. `TextLayerMode.Always` remains an explicit
+  override and is unaffected.
+
 ## 0.2.0 — 2026-06-12
 
 ### Added

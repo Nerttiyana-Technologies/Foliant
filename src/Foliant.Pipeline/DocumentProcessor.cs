@@ -109,7 +109,12 @@ public sealed class DocumentProcessor : IDocumentProcessor, IDisposable
         {
             TextLayerMode.Never => false,
             TextLayerMode.Always => layer is { WordCount: > 0 },
-            _ => layer is not null && layer.WordCount >= options.MinTextLayerWords,
+            // Auto: enough words AND the layer is trustworthy. A page can satisfy the word
+            // count with stray fragments while the body text was discarded for degenerate
+            // geometry (non-embedded-font PDFs, the formmsd class) — those pages must OCR.
+            _ => layer is not null
+                 && layer.WordCount >= options.MinTextLayerWords
+                 && layer.DroppedCharFraction <= options.MaxTextLayerDroppedCharFraction,
         };
 
         // ── Scanned-page cleanup: only when characters must come from pixels ─

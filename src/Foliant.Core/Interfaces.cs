@@ -48,9 +48,17 @@ public interface IReadingOrderAssembler
 /// <summary>The embedded text layer of one PDF page, mapped to raster coordinates.</summary>
 /// <param name="Lines">Text lines grouped from the embedded words, in raster coordinates.</param>
 /// <param name="WordCount">Raw word count before line grouping (drives the Auto fast-path decision).</param>
+/// <param name="DroppedCharFraction">
+/// Fraction of text-layer characters (0..1) that belonged to words discarded for unusable
+/// geometry (degenerate bounding boxes). Old PDFs with non-embedded fonts (e.g. 1990s
+/// PageMaker output where the viewer must substitute Times/Helvetica) can yield words whose
+/// glyph metrics are unresolvable — the text exists but its boxes collapse. A high fraction
+/// means the text layer is present but untrustworthy, and Auto mode routes the page to OCR.
+/// </param>
 public sealed record TextLayerPage(
     IReadOnlyList<TextLine> Lines,
-    int WordCount);
+    int WordCount,
+    float DroppedCharFraction = 0f);
 
 /// <summary>Reads a PDF's embedded text layer (born-digital fast path + verification truth).</summary>
 public interface ITextLayerReader

@@ -25,6 +25,7 @@ public sealed class PdfTextLayerReader : ITextLayerReader
         float pageH = (float)page.Height;
 
         var wordBoxes = new List<(BoundingBox Box, string Text)>(words.Count);
+        long keptChars = 0, droppedChars = 0;
         foreach (var w in words)
         {
             var bb = w.BoundingBox;
@@ -36,12 +37,27 @@ public sealed class PdfTextLayerReader : ITextLayerReader
             var box = new BoundingBox(
                 Math.Min(xA, xB), Math.Min(yA, yB),
                 Math.Max(xA, xB), Math.Max(yA, yB));
-            if (box.Width <= 0 || box.Height <= 0) continue;   // degenerate glyph boxes
+            if (box.Width <= 0 || box.Height <= 0)
+            {
+                // Degenerate glyph boxes. Usually a stray artifact — but on old PDFs with
+                // non-embedded fonts (formmsd class: 1998 PageMaker + base-14 Times/Helvetica,
+                // /Differences-remapped encodings) PdfPig cannot resolve glyph metrics, the
+                // advance widths collapse, and ENTIRE PARAGRAPHS arrive as fused words with
+                // zero-size boxes. Dropping them is still right (no usable geometry), but it
+                // must be COUNTED: this is exactly the silent text loss that hid behind
+                // coverage_missing=0 in the TD-6 sweep (recall 4% on a "text layer" page).
+                droppedChars += w.Text.Trim().Length;
+                continue;
+            }
+            keptChars += w.Text.Trim().Length;
             wordBoxes.Add((box, w.Text));
         }
         if (wordBoxes.Count == 0) return null;
 
-        return new TextLayerPage(GroupWordsIntoRuns(wordBoxes), wordBoxes.Count);
+        long totalChars = keptChars + droppedChars;
+        float droppedFraction = totalChars == 0 ? 0f : (float)droppedChars / totalChars;
+
+        return new TextLayerPage(GroupWordsIntoRuns(wordBoxes), wordBoxes.Count, droppedFraction);
     }
 
     /// <summary>
