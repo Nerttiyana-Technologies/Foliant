@@ -40,4 +40,10 @@ public sealed record ProcessingOptions
 
     /// <summary>1-based page numbers to process; null processes all pages.</summary>
     public IReadOnlyCollection<int>? Pages { get; init; }
+
+    /// <summary>
+    /// Run image preprocessing (deskew, contrast, despeckle) on pages routed to OCR.
+    /// Has no effect on text-layer fast-path pages, which never need it.
+    /// </summary>
+    public bool PreprocessScans { get; init; } = true;
 }
