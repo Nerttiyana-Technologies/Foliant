@@ -9,6 +9,7 @@
     <ProjectReference Include="..\Foliant.Layout.DocLayoutNet\Foliant.Layout.DocLayoutNet.csproj" />
     <ProjectReference Include="..\Foliant.Ocr.PaddleOcr\Foliant.Ocr.PaddleOcr.csproj" />
     <ProjectReference Include="..\Foliant.Tables.TableTransformer\Foliant.Tables.TableTransformer.csproj" />
+    <ProjectReference Include="..\Foliant.Tables.PaddleStructure\Foliant.Tables.PaddleStructure.csproj" />
     <ProjectReference Include="..\Foliant.Models\Foliant.Models.csproj" />
   </ItemGroup>
 

@@ -68,6 +68,19 @@ public static class ModelCatalog
         "34ec07c0bcd591da2ae6651924a1d8fb85f7ca60ac9a58ac417ecf12a5fc1e1a",
         6_774_157);
 
+    /// <summary>
+    /// SLANet-plus table-structure recognition, official PaddlePaddle ONNX export (Apache 2.0).
+    /// v0.2.0 raster-table backend (Foliant.Tables.PaddleStructure); emits HTML structure
+    /// tokens with row/column spans + per-cell quads. Not yet the default — the default
+    /// switches only if the corpus cell-accuracy scorecard proves it (KICKOFF quality roadmap).
+    /// </summary>
+    public static ModelAsset TableStructureSlanetPlus { get; } = new(
+        "table-slanet-plus",
+        "table_slanet_plus.onnx",
+        "https://huggingface.co/PaddlePaddle/SLANet_plus_onnx/resolve/main/inference.onnx",
+        "7790c0c13ce064782c9d22ebeb16b4da8216f83d3ba576da962c106ef58386da",
+        7_782_138);
+
     /// <summary>Assets the default pipeline uses (textline orientation is optional but recommended).</summary>
     public static IReadOnlyList<ModelAsset> DefaultPipeline { get; } =
     [
@@ -79,6 +92,6 @@ public static class ModelCatalog
     public static IReadOnlyList<ModelAsset> All { get; } =
     [
         LayoutDetection, OcrDetection, OcrRecognitionEnglish, OcrRecognitionEnglishDict,
-        TableStructure, TableDetection, TextlineOrientation,
+        TableStructure, TableDetection, TextlineOrientation, TableStructureSlanetPlus,
     ];
 }
