@@ -22,6 +22,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Foliant.Tables.TableTransfo
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Foliant.Models", "src\Foliant.Models\Foliant.Models.csproj", "{A1B2C3D4-0007-4000-9000-000000000007}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Foliant.Tables.PaddleStructure", "src\Foliant.Tables.PaddleStructure\Foliant.Tables.PaddleStructure.csproj", "{A1B2C3D4-000B-4000-9000-00000000000B}"
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Foliant.Tests", "tests\Foliant.Tests\Foliant.Tests.csproj", "{A1B2C3D4-0008-4000-9000-000000000008}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Foliant.Verification", "tests\Foliant.Verification\Foliant.Verification.csproj", "{A1B2C3D4-0009-4000-9000-000000000009}"
@@ -76,6 +78,10 @@ Global
 		{A1B2C3D4-0001-4000-9000-000000000001}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A1B2C3D4-0001-4000-9000-000000000001}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A1B2C3D4-0001-4000-9000-000000000001}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A1B2C3D4-000B-4000-9000-00000000000B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A1B2C3D4-000B-4000-9000-00000000000B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A1B2C3D4-000B-4000-9000-00000000000B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A1B2C3D4-000B-4000-9000-00000000000B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{A1B2C3D4-0002-4000-9000-000000000002} = {D9A1F3B0-1000-4000-9000-000000000010}
@@ -88,6 +94,7 @@ Global
 		{A1B2C3D4-0009-4000-9000-000000000009} = {D9A1F3B0-1000-4000-9000-000000000020}
 		{A1B2C3D4-000A-4000-9000-00000000000A} = {D9A1F3B0-1000-4000-9000-000000000030}
 		{A1B2C3D4-0001-4000-9000-000000000001} = {D9A1F3B0-1000-4000-9000-000000000040}
+		{A1B2C3D4-000B-4000-9000-00000000000B} = {D9A1F3B0-1000-4000-9000-000000000010}
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

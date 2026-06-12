@@ -22,6 +22,7 @@ bool ocrOnly = false;
 string? gate3Csv = null;
 string? gate5Dir = null;
 string? inspect = null;
+var tableBackend = TableBackend.TableTransformer;
 
 for (int i = 0; i < args.Length; i++)
 {
@@ -30,6 +31,16 @@ for (int i = 0; i < args.Length; i++)
     if (args[i] == "--gate3" && i + 1 < args.Length) { gate3Csv = args[++i]; continue; }
     if (args[i] == "--gate5" && i + 1 < args.Length) { gate5Dir = args[++i]; continue; }
     if (args[i] == "--inspect" && i + 1 < args.Length) { inspect = args[++i]; continue; }
+    if (args[i] == "--table-backend" && i + 1 < args.Length)
+    {
+        tableBackend = args[++i].ToLowerInvariant() switch
+        {
+            "slanet" or "paddlestructure" or "paddle" => TableBackend.PaddleStructure,
+            "tt" or "tabletransformer" => TableBackend.TableTransformer,
+            var v => throw new ArgumentException($"Unknown --table-backend '{v}' (use tt | slanet)"),
+        };
+        continue;
+    }
     if (pdfDir == null) pdfDir = args[i];
     else outDir = args[i];
 }
@@ -38,7 +49,7 @@ if (pdfDir == null || !Directory.Exists(pdfDir))
 {
     Console.Error.WriteLine(
         "Usage: Foliant.Verification <pdf-dir> [out-dir] [--models <dir>] [--ocr-only] " +
-        "[--gate3 <truth.csv>] [--gate5 <truth-dir>]");
+        "[--gate3 <truth.csv>] [--gate5 <truth-dir>] [--table-backend tt|slanet]");
     return 2;
 }
 
@@ -46,7 +57,9 @@ var pdfs = Directory.GetFiles(pdfDir, "*.pdf").OrderBy(p => p).ToList();
 if (pdfs.Count == 0) { Console.Error.WriteLine($"No PDFs in {pdfDir}."); return 2; }
 
 Directory.CreateDirectory(outDir);
-using var processor = FoliantProcessor.CreateDefault(modelsDir);
+using var processor = FoliantProcessor.CreateDefault(modelsDir, tableBackend);
+if (tableBackend != TableBackend.TableTransformer)
+    Console.WriteLine($"Table backend: {tableBackend}");
 
 // --ocr-only forces TextLayerMode.Never: on born-digital corpora the default fast path takes
 // words FROM the text layer while recall is measured AGAINST it (trivially ~100%, validates

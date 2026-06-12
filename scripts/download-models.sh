@@ -40,4 +40,11 @@ hf_get "Xenova/table-transformer-detection" "onnx/model.onnx"    "table_detect.o
 hf_get "Xenova/table-transformer-structure-recognition-v1.1-all" \
        "onnx/model.onnx" "table_structure.onnx"
 
+# [4b] Tables — SLANet-plus (official PaddlePaddle ONNX export, Apache 2.0, 7.8 MB).
+#      v0.2.0 PaddleStructure backend: raster-table structure (HTML tokens + cell quads).
+#      Pre/post-processing contract + token dict: inference.yml in the same repo.
+#      sha256: 7790c0c13ce064782c9d22ebeb16b4da8216f83d3ba576da962c106ef58386da
+hf_get "PaddlePaddle/SLANet_plus_onnx" "inference.onnx"          "table_slanet_plus.onnx"
+hf_get "PaddlePaddle/SLANet_plus_onnx" "inference.yml"           "table_slanet_plus.config.yml"
+
 echo "Done. Models in $MODELS_DIR"

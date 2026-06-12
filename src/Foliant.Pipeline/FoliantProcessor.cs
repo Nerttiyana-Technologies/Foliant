@@ -4,9 +4,22 @@
 using Foliant.Layout.DocLayoutNet;
 using Foliant.Models;
 using Foliant.Ocr.PaddleOcr;
+using Foliant.Tables.PaddleStructure;
 using Foliant.Tables.TableTransformer;
 
 namespace Foliant.Pipeline;
+
+/// <summary>
+/// Table-structure backend selection for <see cref="FoliantProcessor.CreateDefault(string, TableBackend)"/>.
+/// TableTransformer (+ ruling-line hybrid) is the current default; PaddleStructure (SLANet-plus)
+/// is the v0.2.0 raster-table candidate. The default switches only when the Gate 5 cell-accuracy
+/// scorecard proves it on the reference corpus (KICKOFF quality roadmap).
+/// </summary>
+public enum TableBackend
+{
+    TableTransformer,
+    PaddleStructure,
+}
 
 public static class FoliantProcessor
 {
@@ -17,7 +30,8 @@ public static class FoliantProcessor
     /// Creates the default pipeline from a directory of pre-downloaded models
     /// (see scripts/download-models.sh for file names).
     /// </summary>
-    public static DocumentProcessor CreateDefault(string modelsDirectory)
+    public static DocumentProcessor CreateDefault(
+        string modelsDirectory, TableBackend tableBackend = TableBackend.TableTransformer)
     {
         string Require(string fileName)
         {
@@ -38,7 +52,12 @@ public static class FoliantProcessor
             Require(ModelCatalog.OcrRecognitionEnglish.FileName),
             Require(ModelCatalog.OcrRecognitionEnglishDict.FileName),
             orientation);
-        var tables = new TableTransformerExtractor(Require(ModelCatalog.TableStructure.FileName));
+        ITableExtractor tables = tableBackend switch
+        {
+            TableBackend.PaddleStructure =>
+                new SlanetPlusExtractor(Require(ModelCatalog.TableStructureSlanetPlus.FileName)),
+            _ => new TableTransformerExtractor(Require(ModelCatalog.TableStructure.FileName)),
+        };
 
         return new DocumentProcessor(
             new PdfPageRenderer(), layout, ocr, tables,
