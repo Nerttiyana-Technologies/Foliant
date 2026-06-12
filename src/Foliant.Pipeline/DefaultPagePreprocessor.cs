@@ -39,6 +39,7 @@ public sealed class DefaultPagePreprocessor : IPagePreprocessor
         for (int i = 0, p = 0; i < luma.Length; i++, p += 4)
             luma[i] = (byte)((pixels[p] * 114 + pixels[p + 1] * 587 + pixels[p + 2] * 299) / 1000);
 
+        bool watermark = SuppressWatermarkIfPresent(pixels, luma, w, h);
         bool contrast = StretchContrastIfFlat(pixels, luma);
         bool denoised = DespeckleIfNoisy(pixels, luma, w, h);
         float skew = EstimateSkewDegrees(luma, w, h);
@@ -46,9 +47,113 @@ public sealed class DefaultPagePreprocessor : IPagePreprocessor
         bool rotate = Math.Abs(skew) >= MinSkew && Math.Abs(skew) <= MaxSkew;
         PageImage image = rotate
             ? Rotate(new PageImage(w, h, page.Dpi, pixels), -skew)
-            : (contrast || denoised ? new PageImage(w, h, page.Dpi, pixels) : page);
+            : (watermark || contrast || denoised ? new PageImage(w, h, page.Dpi, pixels) : page);
 
-        return new PreprocessedPage(image, rotate ? skew : 0f, contrast, denoised);
+        return new PreprocessedPage(image, rotate ? skew : 0f, contrast, denoised, watermark);
+    }
+
+    // ── Watermark suppression ────────────────────────────────────────────────
+    // Colored stamp overlays ("DRAFT" diagonals) measurably corrupt OCR underneath
+    // (PWS corpus: 64.6% recall on affected pages, 2026-06-12). Signature: one
+    // dominant saturated hue whose pixels are SPARSE STROKES SPREAD ACROSS A LARGE
+    // AREA. Guards keep legitimate colored content: compact headers fail the bbox
+    // test, solid figures/charts fail the density test, black text has no chroma.
+    private const int WatermarkChromaMin = 55;
+    private const double WatermarkMinPixelFraction = 0.01;   // < 1% = negligible
+    private const double WatermarkMaxPixelFraction = 0.18;   // > 18% = real content
+    private const double WatermarkMinBboxFraction = 0.30;    // must span the page
+    private const double WatermarkMaxBboxDensity = 0.40;     // strokes, not fills
+    // Stamps are DIAGONAL; colored text (hyperlinks, headers) lies in horizontal rows.
+    // |corr(x,y)| of the hue pixels separates them — measured false positive 2026-06-12:
+    // FAR clause pages full of scattered blue links matched the sparse+spanning signature
+    // and lost up to 22 recall points. Links: corr ≈ 0. Diagonal stamp: corr ≥ ~0.5.
+    private const double WatermarkMinDiagonalCorrelation = 0.35;
+
+    private static bool SuppressWatermarkIfPresent(byte[] pixels, byte[] luma, int w, int h)
+    {
+        const int bins = 12;                                   // 30° hue buckets
+        var count = new int[bins];
+        var minX = new int[bins]; var minY = new int[bins];
+        var maxX = new int[bins]; var maxY = new int[bins];
+        var sx = new double[bins]; var sy = new double[bins];
+        var sxx = new double[bins]; var syy = new double[bins]; var sxy = new double[bins];
+        for (int b = 0; b < bins; b++) { minX[b] = minY[b] = int.MaxValue; maxX[b] = maxY[b] = -1; }
+
+        // Pass 1, sampled: dominant saturated hue + its spatial extent + orientation moments
+        const int step = 2;
+        long sampled = 0;
+        for (int y = 0; y < h; y += step)
+        {
+            int row = y * w;
+            for (int x = 0; x < w; x += step)
+            {
+                sampled++;
+                int p = (row + x) * 4;
+                int bin = HueBin(pixels[p], pixels[p + 1], pixels[p + 2], WatermarkChromaMin);
+                if (bin < 0) continue;
+                count[bin]++;
+                if (x < minX[bin]) minX[bin] = x;
+                if (x > maxX[bin]) maxX[bin] = x;
+                if (y < minY[bin]) minY[bin] = y;
+                if (y > maxY[bin]) maxY[bin] = y;
+                sx[bin] += x; sy[bin] += y;
+                sxx[bin] += (double)x * x; syy[bin] += (double)y * y; sxy[bin] += (double)x * y;
+            }
+        }
+
+        int best = 0;
+        for (int b = 1; b < bins; b++) if (count[b] > count[best]) best = b;
+        if (count[best] == 0) return false;
+
+        double pixelFraction = (double)count[best] / sampled;
+        if (pixelFraction < WatermarkMinPixelFraction || pixelFraction > WatermarkMaxPixelFraction)
+            return false;
+
+        double bw = maxX[best] - minX[best], bh = maxY[best] - minY[best];
+        if (bw * bh / ((double)w * h) < WatermarkMinBboxFraction) return false;
+
+        double cellsInBbox = (bw / step) * (bh / step);
+        if (cellsInBbox <= 0 || count[best] / cellsInBbox > WatermarkMaxBboxDensity) return false;
+
+        // Diagonal-orientation guard: covariance correlation of the hue pixels' coordinates
+        double n = count[best];
+        double mx = sx[best] / n, my = sy[best] / n;
+        double cxx = sxx[best] / n - mx * mx;
+        double cyy = syy[best] / n - my * my;
+        double cxy = sxy[best] / n - mx * my;
+        if (cxx <= 0 || cyy <= 0) return false;
+        double corr = Math.Abs(cxy) / Math.Sqrt(cxx * cyy);
+        if (corr < WatermarkMinDiagonalCorrelation) return false;
+
+        // Pass 2, full resolution: whiten the dominant hue (±1 bin, relaxed chroma)
+        for (int i = 0, p = 0; i < w * h; i++, p += 4)
+        {
+            int bin = HueBin(pixels[p], pixels[p + 1], pixels[p + 2], 40);
+            if (bin < 0) continue;
+            int d = Math.Abs(bin - best);
+            if (d > 1 && d != bins - 1) continue;              // hue wheel wraps
+            pixels[p] = pixels[p + 1] = pixels[p + 2] = 255;
+            luma[i] = 255;
+        }
+        return true;
+    }
+
+    /// <summary>Coarse 30° hue bucket for a BGR pixel, or -1 when not saturated enough
+    /// (low chroma = grayscale ink/paper) or too dark to be an overlay tint.</summary>
+    private static int HueBin(byte bB, byte bG, byte bR, int chromaMin)
+    {
+        int r = bR, g = bG, b = bB;
+        int max = Math.Max(r, Math.Max(g, b));
+        int min = Math.Min(r, Math.Min(g, b));
+        int chroma = max - min;
+        if (chroma < chromaMin || max < 70) return -1;
+
+        double hue;
+        if (max == r) hue = 60.0 * (g - b) / chroma;
+        else if (max == g) hue = 60.0 * (b - r) / chroma + 120.0;
+        else hue = 60.0 * (r - g) / chroma + 240.0;
+        if (hue < 0) hue += 360.0;
+        return (int)(hue / 30.0) % 12;
     }
 
     // ── Contrast ─────────────────────────────────────────────────────────────
