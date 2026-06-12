@@ -28,16 +28,27 @@ public sealed class MarkdownComposer
         PageImage page, IReadOnlyList<LayoutRegion> rawRegions, IReadOnlyList<TextLine> lines)
     {
         var ordered = _readingOrder.Order(XyCutReadingOrder.SuppressDuplicates(rawRegions));
-        var assigned = new HashSet<TextLine>();
         var furniture = new List<TextLine>();
         var blocks = new List<(float Y, string Md, Region Region)>();
+
+        // Claim pass: every line gets EXACTLY ONE owning region, so overlapping regions of
+        // different labels can no longer emit the same text twice (e.g. a title claimed by
+        // both a Caption and a Title region). Claim priority: Tables first (an overlapping
+        // text region must never hollow out a table's cells), then Titles (headings beat
+        // captions for shared text), then the rest in reading order.
+        var owner = new Dictionary<TextLine, LayoutRegion>();
+        foreach (var region in ordered.Where(r => r.Type == RegionType.Table)
+                     .Concat(ordered.Where(r => r.Type == RegionType.Title))
+                     .Concat(ordered.Where(r => r.Type is not RegionType.Table and not RegionType.Title)))
+        foreach (var l in lines)
+            if (!owner.ContainsKey(l) && region.Bounds.ContainsCenterOf(l.Bounds))
+                owner[l] = region;
 
         foreach (var region in ordered)
         {
             var regionLines = lines
-                .Where(l => region.Bounds.ContainsCenterOf(l.Bounds))
+                .Where(l => owner.TryGetValue(l, out var o) && o == region)
                 .ToList();
-            foreach (var l in regionLines) assigned.Add(l);
 
             if (region.Type == RegionType.PageFurniture)
             {
@@ -56,7 +67,9 @@ public sealed class MarkdownComposer
                     break;
 
                 case RegionType.Table:
-                    var extraction = _tables.Extract(page, region, lines);
+                    // Pass only the lines this table OWNS — lines claimed by other regions
+                    // must not be re-emitted inside the grid.
+                    var extraction = _tables.Extract(page, region, regionLines);
                     table = extraction.Structure;
                     md = RenderTable(extraction);
                     break;
@@ -80,7 +93,7 @@ public sealed class MarkdownComposer
 
         // Orphans: lines outside every region. Grouped into visual rows and inserted by Y —
         // text outside detected regions must never be lost.
-        var orphans = lines.Where(l => !assigned.Contains(l)).ToList();
+        var orphans = lines.Where(l => !owner.ContainsKey(l)).ToList();
         foreach (var group in LineGrouping.GroupLines(orphans))
         {
             var bounds = group.Select(l => l.Bounds).Aggregate(BoundingBox.Union);

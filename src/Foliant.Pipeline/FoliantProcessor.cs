@@ -62,7 +62,8 @@ public static class FoliantProcessor
         return new DocumentProcessor(
             new PdfPageRenderer(), layout, ocr, tables,
             new XyCutReadingOrder(), new PdfTextLayerReader(),
-            ownsComponents: true);
+            ownsComponents: true,
+            preprocessor: new DefaultPagePreprocessor());
     }
 
     /// <summary>

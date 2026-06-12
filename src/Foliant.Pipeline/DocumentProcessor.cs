@@ -18,6 +18,7 @@ public sealed class DocumentProcessor : IDocumentProcessor, IDisposable
     private readonly IReadingOrderAssembler _readingOrder;
     private readonly ITextLayerReader _textLayer;
     private readonly ITableExtractor _tables;
+    private readonly IPagePreprocessor? _preprocessor;
     private readonly MarkdownComposer _composer;
     private readonly bool _ownsComponents;
 
@@ -28,6 +29,8 @@ public sealed class DocumentProcessor : IDocumentProcessor, IDisposable
     /// <param name="readingOrder">Reading-order assembler.</param>
     /// <param name="textLayer">Embedded text-layer reader (fast path + verification).</param>
     /// <param name="ownsComponents">When true, disposing this processor disposes the backends.</param>
+    /// <param name="preprocessor">Optional scanned-page cleanup (deskew/contrast/despeckle), applied
+    /// only to pages routed to OCR and only when <see cref="ProcessingOptions.PreprocessScans"/> is on.</param>
     public DocumentProcessor(
         IPageRenderer renderer,
         ILayoutDetector layout,
@@ -35,7 +38,8 @@ public sealed class DocumentProcessor : IDocumentProcessor, IDisposable
         ITableExtractor tables,
         IReadingOrderAssembler readingOrder,
         ITextLayerReader textLayer,
-        bool ownsComponents = false)
+        bool ownsComponents = false,
+        IPagePreprocessor? preprocessor = null)
     {
         _renderer = renderer;
         _layout = layout;
@@ -43,6 +47,7 @@ public sealed class DocumentProcessor : IDocumentProcessor, IDisposable
         _tables = tables;
         _readingOrder = readingOrder;
         _textLayer = textLayer;
+        _preprocessor = preprocessor;
         _composer = new MarkdownComposer(readingOrder, tables);
         _ownsComponents = ownsComponents;
     }
@@ -106,6 +111,10 @@ public sealed class DocumentProcessor : IDocumentProcessor, IDisposable
             TextLayerMode.Always => layer is { WordCount: > 0 },
             _ => layer is not null && layer.WordCount >= options.MinTextLayerWords,
         };
+
+        // ── Scanned-page cleanup: only when characters must come from pixels ─
+        if (!useLayer && options.PreprocessScans && _preprocessor != null)
+            image = _preprocessor.Process(image).Image;
 
         var lines = useLayer ? layer!.Lines : _ocr.Recognize(image);
 
