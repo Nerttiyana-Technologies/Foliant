@@ -1,6 +1,6 @@
-// Gate 3 (form-field truthfulness) and Gate 5 (table cell correctness) runners.
-// Truth files are hand-labeled once (Test-Data/truth/, gitignored — see its README.md)
-// and scored mechanically here on every release.
+// Gate 3 (form-field truthfulness), Gate 5 (table cell correctness) and Gate 6
+// (reading-order correctness) runners. Truth files are hand-labeled once
+// (Test-Data*/truth*, gitignored) and scored mechanically here on every release.
 
 using System.Text.RegularExpressions;
 using Foliant;
@@ -162,6 +162,139 @@ internal static class Gate3Scoring
             // Anchor not inside a single cell (split across cells) — fall through.
         }
         return GateCommon.HasCheckMark(line);
+    }
+}
+
+/// <summary>
+/// Gate 6 — reading-order correctness. Truth files are text files, one per page:
+/// first line "#pdf=&lt;name&gt;;page=&lt;n&gt;", then short snippets (≥3 words, unique on the
+/// page) one per line in TRUE reading order. The runner locates each snippet in the
+/// composed Markdown and scores Kendall's tau between the truth order and the order
+/// of the snippets' positions in the output. Tau = 1.0 means perfect order; 0 means
+/// uncorrelated; negative means reversed. Labeling truth is "read the page and type
+/// the first words of each block in order" — no geometry needed, and the same truth
+/// scores any reading-order backend (run with --reading-order xycut vs xycut++ to A/B).
+/// </summary>
+internal static class Gate6Runner
+{
+    public static async Task<bool> RunAsync(
+        DocumentProcessor processor, string pdfDir, string truthDir, ProcessingOptions options)
+    {
+        var truthFiles = Directory.GetFiles(truthDir, "*.txt").OrderBy(p => p).ToList();
+        if (truthFiles.Count == 0)
+        {
+            Console.Error.WriteLine($"gate6: no truth .txt files in {truthDir}");
+            return false;
+        }
+
+        Console.WriteLine($"\n════ GATE 6 — reading-order correctness ({truthFiles.Count} pages) ════");
+        var cache = new Dictionary<(string, int), PageResult?>();
+        var taus = new List<double>();
+        bool allScored = true;
+        int totalSnippets = 0, totalFound = 0;
+
+        foreach (var file in truthFiles)
+        {
+            var lines = await File.ReadAllLinesAsync(file);
+            string name = Path.GetFileNameWithoutExtension(file);
+            if (lines.Length < 2 || !lines[0].StartsWith('#'))
+            {
+                Console.WriteLine($"\n{name}: SKIPPED (missing #pdf=...;page=... metadata)");
+                allScored = false;
+                continue;
+            }
+
+            var meta = lines[0].TrimStart('#').Split(';')
+                .Select(kv => kv.Split('=', 2))
+                .Where(kv => kv.Length == 2)
+                .ToDictionary(kv => kv[0].Trim(), kv => kv[1].Trim());
+            string pdfName = meta["pdf"];
+            int pageNo = int.Parse(meta["page"]);
+
+            var snippets = lines.Skip(1)
+                .Where(l => !string.IsNullOrWhiteSpace(l) && !l.StartsWith('#') && !l.Contains("PREFILL-ME"))
+                .Select(GateCommon.Norm)
+                .Where(s => s.Length >= 6)
+                .ToList();
+            if (snippets.Count < 3)
+            {
+                Console.WriteLine($"\n{name}: SKIPPED (needs ≥3 usable snippets — finish the truth file)");
+                allScored = false;
+                continue;
+            }
+
+            var page = await GateCommon.ProcessPageAsync(processor, pdfDir, pdfName, pageNo, options, cache);
+            if (page == null)
+            {
+                Console.WriteLine($"\n{name}: PAGE NOT PROCESSABLE");
+                allScored = false;
+                continue;
+            }
+
+            // Main-flow order only: page furniture is excluded from the reading flow by
+            // design, so a snippet landing there counts as not-found (reported distinctly).
+            string mdNorm = GateCommon.Norm(page.Markdown);
+            string furnitureNorm = GateCommon.Norm(string.Join(" ", page.PageFurniture.Select(l => l.Text)));
+
+            var positions = new List<int>();
+            int notFound = 0, inFurniture = 0, ambiguous = 0;
+            foreach (var s in snippets)
+            {
+                int idx = mdNorm.IndexOf(s, StringComparison.Ordinal);
+                if (idx < 0)
+                {
+                    if (furnitureNorm.Contains(s)) inFurniture++; else notFound++;
+                    continue;
+                }
+                if (mdNorm.IndexOf(s, idx + 1, StringComparison.Ordinal) >= 0) ambiguous++;
+                positions.Add(idx);
+            }
+
+            totalSnippets += snippets.Count;
+            totalFound += positions.Count;
+
+            if (positions.Count < 3)
+            {
+                Console.WriteLine($"\n{name}: UNSCORED — only {positions.Count}/{snippets.Count} snippets found " +
+                                  $"({inFurniture} in furniture, {notFound} missing)");
+                allScored = false;
+                continue;
+            }
+
+            double tau = KendallTau(positions);
+            taus.Add(tau);
+            string warn = (inFurniture + notFound > 0 ? $"  ({inFurniture} furniture, {notFound} missing)" : "") +
+                          (ambiguous > 0 ? $"  ({ambiguous} ambiguous — make snippets longer)" : "");
+            Console.WriteLine($"{name}: tau {tau:0.000}  ({positions.Count}/{snippets.Count} snippets){warn}");
+        }
+
+        if (taus.Count > 0)
+        {
+            Console.WriteLine($"\nGate 6 result: avg tau {taus.Average():0.000}  min {taus.Min():0.000}  " +
+                              $"pages tau=1.0: {taus.Count(t => t >= 0.9995)}/{taus.Count}  " +
+                              $"snippet coverage {totalFound}/{totalSnippets}");
+        }
+        Console.WriteLine("Pass condition: compare backends on the same truth set (--reading-order xycut");
+        Console.WriteLine("vs xycut++); the default flips when the candidate wins. Reported; not yet enforced.");
+        return allScored && taus.Count > 0;
+    }
+
+    /// <summary>
+    /// Kendall's tau for a sequence whose truth order is the list order: concordant pairs
+    /// have increasing positions, discordant decreasing. Ties (equal positions — snippets
+    /// matching at the same offset) count neither way.
+    /// </summary>
+    internal static double KendallTau(IReadOnlyList<int> positions)
+    {
+        int n = positions.Count, concordant = 0, discordant = 0;
+        for (int i = 0; i < n; i++)
+            for (int j = i + 1; j < n; j++)
+            {
+                if (positions[j] > positions[i]) concordant++;
+                else if (positions[j] < positions[i]) discordant++;
+            }
+        int pairs = n * (n - 1) / 2;
+        return pairs == 0 ? 1.0 : (double)(concordant - discordant) / pairs;
     }
 }
 
