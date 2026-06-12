@@ -2,6 +2,32 @@
 
 ## Unreleased
 
+### Added
+- **`XyCutPlusPlusReadingOrder`** — reading-order backend adapted from XY-Cut++
+  (arXiv 2504.10258): cross-layout elements (full-width titles/tables/figures spanning
+  multiple columns, detected via β×median-width threshold) are masked out of the cut and
+  re-inserted as band separators, and the cut axis is chosen by widest whitespace gap
+  instead of horizontal-first. Fixes the classic XY-cut failure where row-aligned column
+  blocks read interleaved (L1, R1, L2, R2) instead of column-major. Pure geometry — no
+  model download, no inference cost. Selectable via
+  `FoliantProcessor.CreateDefault(dir, readingOrder: ReadingOrderBackend.XyCutPlusPlus)`
+  or `--reading-order xycut|xycut++` in the verification harness. **Default as of this
+  release** — proven on the Gate 6 truth set (31 hand-verified pages, ebooks + magazines):
+  ebooks tau 0.967 (tie — masking rarely fires on clean book pages), magazines 0.962 vs
+  0.886 with 6/7 vs 5/7 pages perfectly ordered; reference corpus regression unchanged
+  (99.7% recall, 0 flags). Known measured boundary: numbered step-grid layouts order by
+  step number, a semantic cue geometry cannot see (both backends 0.733 on that page).
+  Replaces the KICKOFF's planned LayoutReader integration: the production LayoutReader
+  model is fine-tuned from LayoutLMv3 weights licensed CC-BY-NC-SA (non-commercial),
+  which a commercially published library cannot ship.
+
+- **Gate 6 — reading-order correctness** (`--gate6 <truth-dir>` in the verification
+  harness). Truth files are ordered text snippets per page (no geometry to label);
+  the runner locates each snippet in the composed Markdown and scores Kendall's tau
+  between truth order and output order. Built to A/B `--reading-order xycut` vs
+  `xycut++` on the same truth set; the reading-order default flips only when the
+  candidate wins.
+
 ### Fixed
 - **Untrustworthy text layers now route to OCR** (the "formmsd" class). Old PDFs with
   non-embedded fonts (e.g. 1990s PageMaker output relying on viewer-substituted

@@ -21,8 +21,10 @@ string modelsDir = "models";
 bool ocrOnly = false;
 string? gate3Csv = null;
 string? gate5Dir = null;
+string? gate6Dir = null;
 string? inspect = null;
 var tableBackend = TableBackend.TableTransformer;
+var readingOrder = ReadingOrderBackend.XyCutPlusPlus;
 
 for (int i = 0; i < args.Length; i++)
 {
@@ -30,6 +32,7 @@ for (int i = 0; i < args.Length; i++)
     if (args[i] == "--ocr-only") { ocrOnly = true; continue; }
     if (args[i] == "--gate3" && i + 1 < args.Length) { gate3Csv = args[++i]; continue; }
     if (args[i] == "--gate5" && i + 1 < args.Length) { gate5Dir = args[++i]; continue; }
+    if (args[i] == "--gate6" && i + 1 < args.Length) { gate6Dir = args[++i]; continue; }
     if (args[i] == "--inspect" && i + 1 < args.Length) { inspect = args[++i]; continue; }
     if (args[i] == "--table-backend" && i + 1 < args.Length)
     {
@@ -41,6 +44,16 @@ for (int i = 0; i < args.Length; i++)
         };
         continue;
     }
+    if (args[i] == "--reading-order" && i + 1 < args.Length)
+    {
+        readingOrder = args[++i].ToLowerInvariant() switch
+        {
+            "xycut++" or "xy++" or "plusplus" => ReadingOrderBackend.XyCutPlusPlus,
+            "xycut" or "xy" => ReadingOrderBackend.XyCut,
+            var v => throw new ArgumentException($"Unknown --reading-order '{v}' (use xycut | xycut++)"),
+        };
+        continue;
+    }
     if (pdfDir == null) pdfDir = args[i];
     else outDir = args[i];
 }
@@ -49,7 +62,8 @@ if (pdfDir == null || !Directory.Exists(pdfDir))
 {
     Console.Error.WriteLine(
         "Usage: Foliant.Verification <pdf-dir> [out-dir] [--models <dir>] [--ocr-only] " +
-        "[--gate3 <truth.csv>] [--gate5 <truth-dir>] [--table-backend tt|slanet]");
+        "[--gate3 <truth.csv>] [--gate5 <truth-dir>] [--gate6 <truth-dir>] " +
+        "[--table-backend tt|slanet] [--reading-order xycut|xycut++]");
     return 2;
 }
 
@@ -57,9 +71,11 @@ var pdfs = Directory.GetFiles(pdfDir, "*.pdf").OrderBy(p => p).ToList();
 if (pdfs.Count == 0) { Console.Error.WriteLine($"No PDFs in {pdfDir}."); return 2; }
 
 Directory.CreateDirectory(outDir);
-using var processor = FoliantProcessor.CreateDefault(modelsDir, tableBackend);
+using var processor = FoliantProcessor.CreateDefault(modelsDir, tableBackend, readingOrder);
 if (tableBackend != TableBackend.TableTransformer)
     Console.WriteLine($"Table backend: {tableBackend}");
+if (readingOrder != ReadingOrderBackend.XyCutPlusPlus)
+    Console.WriteLine($"Reading order: {readingOrder}");
 
 // --ocr-only forces TextLayerMode.Never: on born-digital corpora the default fast path takes
 // words FROM the text layer while recall is measured AGAINST it (trivially ~100%, validates
@@ -80,11 +96,12 @@ if (inspect != null)
 }
 
 // Gate modes process only the truth-referenced pages, no corpus sweep.
-if (gate3Csv != null || gate5Dir != null)
+if (gate3Csv != null || gate5Dir != null || gate6Dir != null)
 {
     bool gatesOk = true;
     if (gate3Csv != null) gatesOk &= await Gate3Runner.RunAsync(processor, pdfDir, gate3Csv, options);
     if (gate5Dir != null) gatesOk &= await Gate5Runner.RunAsync(processor, pdfDir, gate5Dir, options);
+    if (gate6Dir != null) gatesOk &= await Gate6Runner.RunAsync(processor, pdfDir, gate6Dir, options);
     return gatesOk ? 0 : 1;
 }
 

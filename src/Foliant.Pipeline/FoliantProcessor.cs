@@ -21,6 +21,20 @@ public enum TableBackend
     PaddleStructure,
 }
 
+/// <summary>
+/// Reading-order backend selection. XyCutPlusPlus (cross-layout masking + widest-gap axis
+/// selection, adapted from arXiv 2504.10258) is the default as of v0.3.0, proven on the
+/// Gate 6 truth set: ebooks tau 0.967 (tie with XyCut), magazines 0.962 vs 0.886, with the
+/// only sub-1.0 page being a numbered step-grid whose true order is semantic (both backends
+/// 0.733 — geometry cannot see step numbers; documented boundary). Reference corpus
+/// regression unchanged (99.7%, 0 flags). XyCut remains available for comparison runs.
+/// </summary>
+public enum ReadingOrderBackend
+{
+    XyCut,
+    XyCutPlusPlus,
+}
+
 public static class FoliantProcessor
 {
     /// <summary>Optional textline-orientation model file name (used when present).</summary>
@@ -31,7 +45,9 @@ public static class FoliantProcessor
     /// (see scripts/download-models.sh for file names).
     /// </summary>
     public static DocumentProcessor CreateDefault(
-        string modelsDirectory, TableBackend tableBackend = TableBackend.TableTransformer)
+        string modelsDirectory,
+        TableBackend tableBackend = TableBackend.TableTransformer,
+        ReadingOrderBackend readingOrder = ReadingOrderBackend.XyCutPlusPlus)
     {
         string Require(string fileName)
         {
@@ -59,9 +75,15 @@ public static class FoliantProcessor
             _ => new TableTransformerExtractor(Require(ModelCatalog.TableStructure.FileName)),
         };
 
+        IReadingOrderAssembler assembler = readingOrder switch
+        {
+            ReadingOrderBackend.XyCutPlusPlus => new XyCutPlusPlusReadingOrder(),
+            _ => new XyCutReadingOrder(),
+        };
+
         return new DocumentProcessor(
             new PdfPageRenderer(), layout, ocr, tables,
-            new XyCutReadingOrder(), new PdfTextLayerReader(),
+            assembler, new PdfTextLayerReader(),
             ownsComponents: true,
             preprocessor: new DefaultPagePreprocessor());
     }
