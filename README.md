@@ -1,4 +1,4 @@
-# Foliant
+![Foliant Header](header.jpg)
 
 **Layout-aware PDF document AI for .NET — fully local, no Python sidecar, no cloud APIs.**
 
