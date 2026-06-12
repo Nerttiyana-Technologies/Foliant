@@ -33,6 +33,18 @@ public sealed record ProcessingOptions
     public int MinTextLayerWords { get; init; } = 5;
 
     /// <summary>
+    /// In <see cref="TextLayerMode.Auto"/>, pages whose text layer lost more than this
+    /// fraction of its characters to unusable word geometry (see
+    /// <see cref="TextLayerPage.DroppedCharFraction"/>) are treated as having an
+    /// untrustworthy layer and routed to OCR. Guards against old PDFs with non-embedded
+    /// fonts whose words exist in the layer but carry degenerate boxes (the "formmsd"
+    /// class found in corpus verification: page recall 4% while the fast path reported
+    /// a healthy word count). 0.3 keeps normal pages (fraction ~0) on the fast path
+    /// while firing decisively on the broken class (fraction &gt; 0.9 observed).
+    /// </summary>
+    public float MaxTextLayerDroppedCharFraction { get; init; } = 0.3f;
+
+    /// <summary>
     /// Compute per-page verification (coverage invariant + text-layer word recall).
     /// Cheap; leave on except in throughput-critical scenarios.
     /// </summary>
