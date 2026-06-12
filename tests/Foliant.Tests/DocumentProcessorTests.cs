@@ -48,6 +48,7 @@ public class DocumentProcessorTests
     private sealed class FakeTextLayer : ITextLayerReader
     {
         public int WordCount { get; init; } = 50;
+        public float DroppedCharFraction { get; init; } = 0f;
         public TextLayerPage? Read(byte[] pdf, int pageNumber, int dpi)
         {
             if (WordCount <= 0) return null;
@@ -56,7 +57,8 @@ public class DocumentProcessorTests
                 {
                     new TextLine(new BoundingBox(5, 5, 60, 15), "embedded layer text", 1f, TextSource.TextLayer),
                 },
-                WordCount);
+                WordCount,
+                DroppedCharFraction);
         }
     }
 
@@ -91,6 +93,50 @@ public class DocumentProcessorTests
 
         Assert.All(result.Pages, p => Assert.Equal(TextSource.Ocr, p.Source));
         Assert.Equal(2, ocr.Calls);
+    }
+
+    [Fact]
+    public async Task Auto_UntrustworthyTextLayer_FallsBackToOcr()
+    {
+        // The formmsd class: plenty of words in the layer, but most characters belonged
+        // to words discarded for degenerate geometry (non-embedded fonts). Word count
+        // alone says "fast path"; the dropped-char guard must say OCR.
+        var ocr = new FakeOcr();
+        using var processor = NewProcessor(
+            ocr, new FakeTextLayer { WordCount = 100, DroppedCharFraction = 0.9f });
+
+        var result = await processor.ProcessAsync(FakePdf, new ProcessingOptions { Verify = false });
+
+        Assert.All(result.Pages, p => Assert.Equal(TextSource.Ocr, p.Source));
+        Assert.Equal(2, ocr.Calls);
+    }
+
+    [Fact]
+    public async Task Auto_DroppedFractionAtThreshold_StaysOnFastPath()
+    {
+        var ocr = new FakeOcr();
+        using var processor = NewProcessor(
+            ocr, new FakeTextLayer { WordCount = 100, DroppedCharFraction = 0.3f });
+
+        var result = await processor.ProcessAsync(FakePdf, new ProcessingOptions { Verify = false });
+
+        Assert.All(result.Pages, p => Assert.Equal(TextSource.TextLayer, p.Source));
+        Assert.Equal(0, ocr.Calls);
+    }
+
+    [Fact]
+    public async Task Always_IgnoresDroppedCharGuard()
+    {
+        // Always is an explicit user override: any words at all → use the layer.
+        var ocr = new FakeOcr();
+        using var processor = NewProcessor(
+            ocr, new FakeTextLayer { WordCount = 100, DroppedCharFraction = 0.9f });
+
+        var result = await processor.ProcessAsync(
+            FakePdf, new ProcessingOptions { TextLayer = TextLayerMode.Always, Verify = false });
+
+        Assert.All(result.Pages, p => Assert.Equal(TextSource.TextLayer, p.Source));
+        Assert.Equal(0, ocr.Calls);
     }
 
     [Fact]
