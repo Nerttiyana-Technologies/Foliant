@@ -1,5 +1,41 @@
 # Changelog
 
+## Unreleased (0.4.0 — scanned-document support)
+
+### Added
+- **`OrientationDetector` + `ProcessingOptions.DetectOrientation`** (default on) — coarse
+  page-orientation detection and correction (0/90/180/270°) for pages routed to OCR, by an
+  OCR-confidence vote: the page is OCR'd at each cardinal rotation on a downscaled thumbnail and
+  scored by Σ(confidence × recognized-text-length); the winning rotation is applied to the full
+  page before fine deskew and the main OCR pass. Two guards prevent bad flips: an upright bias
+  (a rotation must clearly beat the 0° reading) and a minimum-signal floor (the winning
+  orientation must recognize enough text to be trusted), so low-text illustration/plate pages
+  are left upright rather than flipped on noise. Pure — reuses the existing OCR engine, no new
+  model or license dependency. Measured boundary: on decorative front-matter (covers, blank
+  endpapers, library-seal pages) OCR can hallucinate characters from repeating patterns and the
+  page may be rotated spuriously — harmless, as these carry no document content; no genuine
+  body-text page was misrotated across the real-scan validation set. Targets the largest gap Gate 7 measured (a 180° page recovers from ~3%
+  word recall toward baseline; 90°/270° likewise). Costs four thumbnail OCR passes per
+  OCR-routed page; never runs on text-layer fast-path pages.
+- **`IPageImageTransform` + `ProcessingOptions.ImageTransform`** — an optional pure transform
+  applied to each rendered page image immediately after rasterization, before text-layer
+  extraction, layout detection and OCR. Lets a caller inject their own preprocessing without
+  forking the processor, and is the seam the degradation harness uses. Default `null` (no-op);
+  born-digital pages still take the fast path unless combined with `TextLayerMode.Never`.
+- **`ScanDegrader`** (`Foliant.Pipeline`) — deterministic, scan-like degradations as
+  `IPageImageTransform` factories: rotation (fine skew and coarse 90/180/270°), JPEG
+  recompression, Gaussian noise, Gaussian blur, low-DPI downscale-and-restore, and contrast
+  fade, plus `Compose`. Pure and reproducible (same page + params → same pixels), built on the
+  existing SkiaSharp dependency. Exists to *measure* robustness, not improve it.
+- **Gate 7 — degradation robustness** (`--gate7 <born-digital-dir> [--gate7-pages N]` in the
+  verification harness). Needs no hand-labeling: it runs on born-digital pages whose embedded
+  text layer is exact ground truth, applies the `ScanDegrader` matrix in forced-OCR mode, and
+  scores word recall against the text layer. Emits a per-degradation ledger
+  (`gate7-ledger.csv`) and a console table of average recall and drop-from-baseline. The drop
+  is the measured cost of each artifact and the yardstick for the scanned-doc features landing
+  next (orientation detection, dewarp, super-res). Ledger-first: informational, does not fail
+  the build (thresholds to be set once real numbers exist).
+
 ## 0.3.0 — 2026-06-13
 
 ### Added

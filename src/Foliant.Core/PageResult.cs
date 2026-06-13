@@ -38,6 +38,10 @@ public sealed record PageVerification(
 /// unreachable without an Adobe engine). Null on normal pages. When set, callers should
 /// treat the page as needing review rather than trusting <paramref name="Markdown"/>.
 /// </param>
+/// <param name="OrientationApplied">
+/// Coarse rotation (degrees clockwise: 0/90/180/270) the orientation detector applied to bring
+/// this page upright before OCR. 0 when the page was already upright or detection was disabled.
+/// </param>
 public sealed record PageResult(
     int PageNumber,
     int WidthPx,
@@ -49,4 +53,5 @@ public sealed record PageResult(
     TextSource Source,
     string Markdown,
     PageVerification Verification,
-    string? Notice = null);
+    string? Notice = null,
+    int OrientationApplied = 0);
