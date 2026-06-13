@@ -22,6 +22,10 @@ bool ocrOnly = false;
 string? gate3Csv = null;
 string? gate5Dir = null;
 string? gate6Dir = null;
+string? gate7Dir = null;
+int gate7Pages = 2;
+bool orientCheck = false;
+int orientPages = 5;
 string? inspect = null;
 var tableBackend = TableBackend.TableTransformer;
 var readingOrder = ReadingOrderBackend.XyCutPlusPlus;
@@ -33,6 +37,10 @@ for (int i = 0; i < args.Length; i++)
     if (args[i] == "--gate3" && i + 1 < args.Length) { gate3Csv = args[++i]; continue; }
     if (args[i] == "--gate5" && i + 1 < args.Length) { gate5Dir = args[++i]; continue; }
     if (args[i] == "--gate6" && i + 1 < args.Length) { gate6Dir = args[++i]; continue; }
+    if (args[i] == "--gate7" && i + 1 < args.Length) { gate7Dir = args[++i]; continue; }
+    if (args[i] == "--gate7-pages" && i + 1 < args.Length) { gate7Pages = int.Parse(args[++i]); continue; }
+    if (args[i] == "--orient-check") { orientCheck = true; continue; }
+    if (args[i] == "--orient-pages" && i + 1 < args.Length) { orientPages = int.Parse(args[++i]); continue; }
     if (args[i] == "--inspect" && i + 1 < args.Length) { inspect = args[++i]; continue; }
     if (args[i] == "--table-backend" && i + 1 < args.Length)
     {
@@ -63,6 +71,8 @@ if (pdfDir == null || !Directory.Exists(pdfDir))
     Console.Error.WriteLine(
         "Usage: Foliant.Verification <pdf-dir> [out-dir] [--models <dir>] [--ocr-only] " +
         "[--gate3 <truth.csv>] [--gate5 <truth-dir>] [--gate6 <truth-dir>] " +
+        "[--gate7 <born-digital-dir> [--gate7-pages N]] " +
+        "[--orient-check [--orient-pages N]] " +
         "[--table-backend tt|slanet] [--reading-order xycut|xycut++]");
     return 2;
 }
@@ -95,13 +105,20 @@ if (inspect != null)
     return 0;
 }
 
+// Orientation check: report the detected/applied rotation per page on real (possibly rotated) scans.
+if (orientCheck)
+    return await OrientCheckRunner.RunAsync(processor, pdfDir, orientPages) ? 0 : 1;
+
 // Gate modes process only the truth-referenced pages, no corpus sweep.
-if (gate3Csv != null || gate5Dir != null || gate6Dir != null)
+if (gate3Csv != null || gate5Dir != null || gate6Dir != null || gate7Dir != null)
 {
     bool gatesOk = true;
     if (gate3Csv != null) gatesOk &= await Gate3Runner.RunAsync(processor, pdfDir, gate3Csv, options);
     if (gate5Dir != null) gatesOk &= await Gate5Runner.RunAsync(processor, pdfDir, gate5Dir, options);
     if (gate6Dir != null) gatesOk &= await Gate6Runner.RunAsync(processor, pdfDir, gate6Dir, options);
+    // Gate 7 manages its own per-page options (forced OCR + degradation transforms), so it takes
+    // the born-digital dir directly rather than the shared `options`/`pdfDir`.
+    if (gate7Dir != null) gatesOk &= await Gate7Runner.RunAsync(processor, gate7Dir, outDir, gate7Pages);
     return gatesOk ? 0 : 1;
 }
 
