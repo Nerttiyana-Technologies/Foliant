@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.3.0 — 2026-06-13
 
 ### Added
 - **`XyCutPlusPlusReadingOrder`** — reading-order backend adapted from XY-Cut++
@@ -26,9 +26,31 @@
   the runner locates each snippet in the composed Markdown and scores Kendall's tau
   between truth order and output order. Built to A/B `--reading-order xycut` vs
   `xycut++` on the same truth set; the reading-order default flips only when the
-  candidate wins.
+  candidate wins. Truth covers ebooks, magazines, and two-page landscape spreads;
+  numbered-mosaic pages (step grids, numbered tip boxes), whose reading order is
+  semantic rather than geometric, are kept as documented boundary cases outside the
+  scored average (see `truth-gate6/boundary-cases/README.md`).
+
+- **Dynamic XFA forms are now detected and flagged** instead of silently emitting the
+  Adobe placeholder. Some fillable forms (many FDA forms, several inspection reports)
+  store their content in an XFA XML packet; a non-Adobe viewer — and the rasterizer, and
+  therefore OCR — see only the "Please wait… If this message is not eventually replaced…"
+  placeholder. Previously that placeholder flowed into the output as if it were document
+  text. `PdfTextLayerReader.IsDynamicXfaPlaceholder` now detects it; the page is emitted
+  with an explanatory `<!-- Foliant: dynamic XFA form … -->` marker, a structured
+  `PageResult.Notice`, and no spurious content, and is flagged for review. The content
+  itself is unrecoverable without an Adobe XFA engine (documented limitation).
 
 ### Fixed
+- **Undecodable CID text layers now route to OCR** (the "magazine optimizer" class).
+  Some PDFs (observed: consumer magazines re-saved through a "PDF optimization" tool)
+  carry subset CID fonts with no usable ToUnicode map. Unlike the formmsd class, the
+  glyphs have valid bounding boxes — so the geometry-based guard never fires — yet they
+  extract as C0/C1 control codes (the `(cid:N)` fingerprint), producing control-character
+  garbage at ~0% recall while the page renders perfectly. `PdfTextLayerReader` now also
+  reports `TextLayerPage.UndecodableCharFraction`, and `TextLayerMode.Auto` routes pages
+  above `ProcessingOptions.MaxTextLayerUndecodableFraction` (default 0.2) to OCR. Found by
+  the Test-Data-12 magazine sweep, which this fix turns from a Gate 1 failure back to green.
 - **Untrustworthy text layers now route to OCR** (the "formmsd" class). Old PDFs with
   non-embedded fonts (e.g. 1990s PageMaker output relying on viewer-substituted
   Times/Helvetica with `/Differences`-remapped encodings) yield text-layer words whose
@@ -41,6 +63,16 @@
   pages above `ProcessingOptions.MaxTextLayerDroppedCharFraction` (default 0.3) are
   treated as scanned and routed to OCR. `TextLayerMode.Always` remains an explicit
   override and is unaffected.
+
+### Verification
+- Expanded to **1,681 documents / 40,355 pages across 14 corpora** (government & tax forms,
+  federal RFP/solicitation packages, complex AcroForm/XFA forms, academic ebooks, consumer
+  magazines, and newspapers including multi-column Devanagari). **Zero text loss on every
+  page.** Reference corpus holds **99.7% word recall in forced-OCR mode** (the non-circular
+  metric); reading order **0.967 τ on ebooks, 0.962 on magazines**; **48/48 form fields,
+  zero fabrication**. Measured boundaries are documented, not hidden: optimizer-corrupted
+  CID text layers, dynamic XFA forms, semantic numbered layouts, and multi-article newspaper
+  reading order. Full ledger and per-gate methodology in the README.
 
 ## 0.2.0 — 2026-06-12
 

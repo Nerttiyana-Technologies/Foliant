@@ -32,6 +32,12 @@ public sealed record PageVerification(
 /// <param name="Source">Whether this page's text came from OCR or the embedded text layer.</param>
 /// <param name="Markdown">The page's composed Markdown.</param>
 /// <param name="Verification">Per-page self-verification results.</param>
+/// <param name="Notice">
+/// Optional structured notice when the page could not be normally extracted for a known
+/// structural reason (e.g. a dynamic XFA form whose content lives in an XFA packet and is
+/// unreachable without an Adobe engine). Null on normal pages. When set, callers should
+/// treat the page as needing review rather than trusting <paramref name="Markdown"/>.
+/// </param>
 public sealed record PageResult(
     int PageNumber,
     int WidthPx,
@@ -42,4 +48,5 @@ public sealed record PageResult(
     IReadOnlyList<TextLine> PageFurniture,
     TextSource Source,
     string Markdown,
-    PageVerification Verification);
+    PageVerification Verification,
+    string? Notice = null);
