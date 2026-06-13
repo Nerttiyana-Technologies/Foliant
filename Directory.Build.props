@@ -14,7 +14,7 @@
 
   <PropertyGroup>
     <!-- Single source of truth for the package version -->
-    <FoliantVersion>0.2.0</FoliantVersion>
+    <FoliantVersion>0.3.0</FoliantVersion>
   </PropertyGroup>
 
 </Project>

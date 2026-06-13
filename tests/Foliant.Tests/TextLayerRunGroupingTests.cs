@@ -3,6 +3,25 @@ using Xunit;
 
 namespace Foliant.Tests;
 
+public class UndecodableCharTests
+{
+    [Theory]
+    [InlineData('A', false)]
+    [InlineData('7', false)]
+    [InlineData(' ', false)]
+    [InlineData('\t', false)]
+    [InlineData('\n', false)]
+    [InlineData('\u00E9', false)]   // decodable Latin-1 (e-acute)
+    [InlineData('\u2014', false)]   // em dash, a real glyph
+    [InlineData('\uFFFD', true)]    // replacement char
+    [InlineData('\u0002', true)]    // C0 control (the (cid:2) fingerprint)
+    [InlineData('\u001F', true)]    // C0 control
+    [InlineData('\u0090', true)]    // C1 control
+    [InlineData('\uE000', true)]    // private use area
+    public void IsUndecodable_ClassifiesGlyphs(char c, bool expected) =>
+        Assert.Equal(expected, PdfTextLayerReader.IsUndecodable(c));
+}
+
 public class TextLayerRunGroupingTests
 {
     private static (BoundingBox, string) W(string text, float x1, float y1, float x2, float y2) =>

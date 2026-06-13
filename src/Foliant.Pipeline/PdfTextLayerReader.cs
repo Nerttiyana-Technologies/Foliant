@@ -25,9 +25,10 @@ public sealed class PdfTextLayerReader : ITextLayerReader
         float pageH = (float)page.Height;
 
         var wordBoxes = new List<(BoundingBox Box, string Text)>(words.Count);
-        long keptChars = 0, droppedChars = 0;
+        long keptChars = 0, droppedChars = 0, undecodableChars = 0;
         foreach (var w in words)
         {
+            undecodableChars += w.Text.Count(IsUndecodable);
             var bb = w.BoundingBox;
             // bb.Top is the larger PDF-Y (Y-up), so after the flip it becomes the smaller
             // raster Y1. Min/Max normalization guards rotated-text rectangles where
@@ -56,8 +57,47 @@ public sealed class PdfTextLayerReader : ITextLayerReader
 
         long totalChars = keptChars + droppedChars;
         float droppedFraction = totalChars == 0 ? 0f : (float)droppedChars / totalChars;
+        // Undecodable fraction is over ALL text-layer chars (kept + dropped): a CID page's
+        // glyphs have valid boxes, so they're all "kept" yet still garbage.
+        long allChars = words.Sum(w => (long)w.Text.Length);
+        float undecodableFraction = allChars == 0 ? 0f : (float)undecodableChars / allChars;
 
-        return new TextLayerPage(GroupWordsIntoRuns(wordBoxes), wordBoxes.Count, droppedFraction);
+        return new TextLayerPage(
+            GroupWordsIntoRuns(wordBoxes), wordBoxes.Count, droppedFraction, undecodableFraction);
+    }
+
+    /// <summary>
+    /// A character that survived PDF text extraction but carries no real textual meaning —
+    /// the fingerprint of a font with no usable ToUnicode map (subset CID fonts from some
+    /// "PDF optimizer" tools). PdfPig returns the raw glyph code, which lands as a C0/C1
+    /// control char, the Unicode replacement char, or a private-use-area code point. Tab,
+    /// newline and normal whitespace are decodable and excluded.
+    /// </summary>
+    /// <summary>
+    /// True when the text layer is the Adobe LiveCycle "dynamic XFA" placeholder — the page
+    /// a non-Adobe viewer shows ("Please wait... If this message is not eventually replaced
+    /// by the proper contents of the document..."). For these forms the real content lives in
+    /// an XFA XML packet, not the page content stream; the placeholder is ALSO what the page
+    /// renders to, so OCR cannot recover the content either. Detecting it lets the pipeline
+    /// flag the page honestly instead of emitting the placeholder as if it were document text.
+    /// </summary>
+    public static bool IsDynamicXfaPlaceholder(IEnumerable<TextLine> lines)
+    {
+        string joined = string.Join(" ", lines.Select(l => l.Text));
+        return joined.Contains("If this message is not eventually replaced",
+                   StringComparison.OrdinalIgnoreCase)
+            && joined.Contains("proper contents of the document",
+                   StringComparison.OrdinalIgnoreCase);
+    }
+
+    internal static bool IsUndecodable(char c)
+    {
+        if (c is '\t' or '\n' or '\r' or ' ') return false;
+        if (c == '\uFFFD') return true;                     // replacement char
+        if (c < '\u0020') return true;                      // C0 control
+        if (c is >= '\u007F' and <= '\u009F') return true; // DEL + C1 control
+        if (c is >= '\uE000' and <= '\uF8FF') return true; // BMP private use area
+        return false;
     }
 
     /// <summary>

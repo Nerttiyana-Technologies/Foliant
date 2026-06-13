@@ -55,10 +55,18 @@ public interface IReadingOrderAssembler
 /// glyph metrics are unresolvable — the text exists but its boxes collapse. A high fraction
 /// means the text layer is present but untrustworthy, and Auto mode routes the page to OCR.
 /// </param>
+/// <param name="UndecodableCharFraction">
+/// Fraction of text-layer characters (0..1) that are control/non-printable — the fingerprint
+/// of a subset CID font with no usable ToUnicode map (seen on magazines run through some
+/// "PDF optimizer" tools). Unlike <paramref name="DroppedCharFraction"/>, these glyphs have
+/// VALID boxes, so they pass geometry checks while still being garbage; the page renders fine
+/// and must go to OCR. A high fraction routes the page to OCR in Auto mode.
+/// </param>
 public sealed record TextLayerPage(
     IReadOnlyList<TextLine> Lines,
     int WordCount,
-    float DroppedCharFraction = 0f);
+    float DroppedCharFraction = 0f,
+    float UndecodableCharFraction = 0f);
 
 /// <summary>Reads a PDF's embedded text layer (born-digital fast path + verification truth).</summary>
 public interface ITextLayerReader

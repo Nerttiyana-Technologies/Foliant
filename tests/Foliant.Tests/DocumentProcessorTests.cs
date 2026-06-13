@@ -49,6 +49,7 @@ public class DocumentProcessorTests
     {
         public int WordCount { get; init; } = 50;
         public float DroppedCharFraction { get; init; } = 0f;
+        public float UndecodableCharFraction { get; init; } = 0f;
         public TextLayerPage? Read(byte[] pdf, int pageNumber, int dpi)
         {
             if (WordCount <= 0) return null;
@@ -58,7 +59,8 @@ public class DocumentProcessorTests
                     new TextLine(new BoundingBox(5, 5, 60, 15), "embedded layer text", 1f, TextSource.TextLayer),
                 },
                 WordCount,
-                DroppedCharFraction);
+                DroppedCharFraction,
+                UndecodableCharFraction);
         }
     }
 
@@ -112,6 +114,34 @@ public class DocumentProcessorTests
     }
 
     [Fact]
+    public async Task Auto_UndecodableCidTextLayer_FallsBackToOcr()
+    {
+        // The CID-magazine class: valid word geometry (DroppedCharFraction = 0) but the
+        // glyphs are control codes with no ToUnicode map. The undecodable guard must fire.
+        var ocr = new FakeOcr();
+        using var processor = NewProcessor(
+            ocr, new FakeTextLayer { WordCount = 100, UndecodableCharFraction = 0.85f });
+
+        var result = await processor.ProcessAsync(FakePdf, new ProcessingOptions { Verify = false });
+
+        Assert.All(result.Pages, p => Assert.Equal(TextSource.Ocr, p.Source));
+        Assert.Equal(2, ocr.Calls);
+    }
+
+    [Fact]
+    public async Task Auto_UndecodableFractionAtThreshold_StaysOnFastPath()
+    {
+        var ocr = new FakeOcr();
+        using var processor = NewProcessor(
+            ocr, new FakeTextLayer { WordCount = 100, UndecodableCharFraction = 0.2f });
+
+        var result = await processor.ProcessAsync(FakePdf, new ProcessingOptions { Verify = false });
+
+        Assert.All(result.Pages, p => Assert.Equal(TextSource.TextLayer, p.Source));
+        Assert.Equal(0, ocr.Calls);
+    }
+
+    [Fact]
     public async Task Auto_DroppedFractionAtThreshold_StaysOnFastPath()
     {
         var ocr = new FakeOcr();
@@ -137,6 +167,38 @@ public class DocumentProcessorTests
 
         Assert.All(result.Pages, p => Assert.Equal(TextSource.TextLayer, p.Source));
         Assert.Equal(0, ocr.Calls);
+    }
+
+    private sealed class XfaPlaceholderTextLayer : ITextLayerReader
+    {
+        public TextLayerPage? Read(byte[] pdf, int pageNumber, int dpi) =>
+            new(new[]
+            {
+                new TextLine(new BoundingBox(5, 5, 200, 20), "Please wait...", 1f, TextSource.TextLayer),
+                new TextLine(new BoundingBox(5, 25, 400, 40),
+                    "If this message is not eventually replaced by the proper contents of the document",
+                    1f, TextSource.TextLayer),
+            }, WordCount: 14);
+    }
+
+    [Fact]
+    public async Task DynamicXfaPlaceholder_FlaggedAndSuppressed_NotOcrd()
+    {
+        var ocr = new FakeOcr();
+        using var processor = NewProcessor(ocr, new XfaPlaceholderTextLayer());
+
+        var result = await processor.ProcessAsync(FakePdf, new ProcessingOptions { Verify = false });
+
+        Assert.All(result.Pages, p =>
+        {
+            Assert.NotNull(p.Notice);
+            Assert.Contains("XFA", p.Notice);
+            // The placeholder BODY must not leak through as content (the notice itself may
+            // quote the words "Please wait", so assert on the unique placeholder sentence).
+            Assert.DoesNotContain("If this message is not eventually replaced", p.Markdown);
+            Assert.Empty(p.Lines);
+        });
+        Assert.Equal(0, ocr.Calls);   // OCR can't help — don't waste it
     }
 
     [Fact]

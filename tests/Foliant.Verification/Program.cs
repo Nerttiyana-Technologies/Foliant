@@ -129,7 +129,7 @@ foreach (var pdf in pdfs)
     foreach (var page in result.Pages)
     {
         var v = page.Verification;
-        var (flagged, reason) = Flag(v);
+        var (flagged, reason) = Flag(v, page.Notice);
         rows.Add(new Row(name, page.PageNumber, page.Lines.Count, page.Regions.Count,
                          v.Seconds, v.LinesLost, v.TruthWords, v.TruthWordsFound,
                          v.RecallPercent, flagged, reason));
@@ -183,8 +183,9 @@ Console.WriteLine($"Gate 2 zero text loss  : {(gate2 ? "PASS" : "FAIL")}  ({tota
 
 return gate1 && gate2 ? 0 : 1;
 
-static (bool Flagged, string Reason) Flag(PageVerification v)
+static (bool Flagged, string Reason) Flag(PageVerification v, string? notice = null)
 {
+    if (notice != null) return (true, notice);
     if (v.LinesLost > 0) return (true, $"{v.LinesLost} lines lost");
     if (v.TruthWords == 0) return (true, "no text layer (needs eyeball)");
     if (v.RecallPercent < 95.0) return (true, $"recall {v.RecallPercent:0.0}%");
