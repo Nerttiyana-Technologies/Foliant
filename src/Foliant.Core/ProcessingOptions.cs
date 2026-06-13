@@ -70,4 +70,22 @@ public sealed record ProcessingOptions
     /// Has no effect on text-layer fast-path pages, which never need it.
     /// </summary>
     public bool PreprocessScans { get; init; } = true;
+
+    /// <summary>
+    /// Detect and correct coarse page orientation (0/90/180/270°) on pages routed to OCR, by
+    /// an OCR-confidence vote, before fine deskew and the main OCR pass. Fixes sideways and
+    /// upside-down scans (Gate 7: a 180° page recovers from ~3% to near-baseline recall). Costs
+    /// four thumbnail OCR passes per OCR-routed page; never runs on text-layer fast-path pages.
+    /// </summary>
+    public bool DetectOrientation { get; init; } = true;
+
+    /// <summary>
+    /// Optional transform applied to each rendered page image immediately after rasterization,
+    /// before text-layer extraction, layout detection and OCR. Default <c>null</c> (no-op).
+    /// Lets a caller inject their own preprocessing, and lets the verification harness inject
+    /// synthetic degradations for robustness measurement (Gate 7). Because it runs before the
+    /// text-layer decision, a born-digital page still takes the fast path unless the transform
+    /// is combined with <see cref="TextLayerMode.Never"/>.
+    /// </summary>
+    public IPageImageTransform? ImageTransform { get; init; }
 }
