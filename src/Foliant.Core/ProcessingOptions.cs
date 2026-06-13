@@ -45,6 +45,18 @@ public sealed record ProcessingOptions
     public float MaxTextLayerDroppedCharFraction { get; init; } = 0.3f;
 
     /// <summary>
+    /// In <see cref="TextLayerMode.Auto"/>, pages whose text layer is more than this fraction
+    /// control/non-printable characters (see <see cref="TextLayerPage.UndecodableCharFraction"/>)
+    /// are treated as having an undecodable layer and routed to OCR. Guards against subset CID
+    /// fonts with no ToUnicode map (some "PDF optimizer" tools strip it), where the glyphs have
+    /// valid geometry but extract as garbage control codes — observed on magazine corpora where
+    /// affected pages scored 0% recall while the page renders perfectly. 0.2 fires decisively on
+    /// the broken class (fraction &gt; 0.8 observed) while leaving normal pages (fraction ~0)
+    /// on the fast path; a stray bullet glyph or two never trips it.
+    /// </summary>
+    public float MaxTextLayerUndecodableFraction { get; init; } = 0.2f;
+
+    /// <summary>
     /// Compute per-page verification (coverage invariant + text-layer word recall).
     /// Cheap; leave on except in throughput-critical scenarios.
     /// </summary>

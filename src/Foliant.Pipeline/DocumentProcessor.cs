@@ -109,13 +109,34 @@ public sealed class DocumentProcessor : IDocumentProcessor, IDisposable
         {
             TextLayerMode.Never => false,
             TextLayerMode.Always => layer is { WordCount: > 0 },
-            // Auto: enough words AND the layer is trustworthy. A page can satisfy the word
-            // count with stray fragments while the body text was discarded for degenerate
-            // geometry (non-embedded-font PDFs, the formmsd class) — those pages must OCR.
+            // Auto: enough words AND the layer is trustworthy on both signals. A page can
+            // satisfy the word count yet be unusable: body text discarded for degenerate
+            // geometry (formmsd class → DroppedCharFraction), or glyphs with valid boxes but
+            // no ToUnicode map (CID-magazine class → UndecodableCharFraction). Either routes OCR.
             _ => layer is not null
                  && layer.WordCount >= options.MinTextLayerWords
-                 && layer.DroppedCharFraction <= options.MaxTextLayerDroppedCharFraction,
+                 && layer.DroppedCharFraction <= options.MaxTextLayerDroppedCharFraction
+                 && layer.UndecodableCharFraction <= options.MaxTextLayerUndecodableFraction,
         };
+
+        // ── Dynamic XFA forms: content is locked in an XFA packet; the text layer AND the
+        //    rendered page are both just the Adobe "Please wait…" placeholder, so neither the
+        //    fast path nor OCR can recover anything. Emit an honest notice instead of passing
+        //    the placeholder downstream as if it were document content. ──────────────────────
+        if (layer is not null && PdfTextLayerReader.IsDynamicXfaPlaceholder(layer.Lines))
+        {
+            sw.Stop();
+            const string notice = "dynamic XFA form — content is stored in an XFA packet and " +
+                "cannot be extracted without an Adobe XFA engine (the page renders only the " +
+                "viewer's \"Please wait\" placeholder)";
+            return new PageResult(
+                pageNumber, image.Width, image.Height, options.Dpi,
+                Array.Empty<Region>(), Array.Empty<TextLine>(), Array.Empty<TextLine>(),
+                TextSource.TextLayer,
+                $"<!-- Foliant: {notice}. -->\n",
+                new PageVerification(0, 0, 0, sw.Elapsed.TotalSeconds),
+                Notice: notice);
+        }
 
         // ── Scanned-page cleanup: only when characters must come from pixels ─
         if (!useLayer && options.PreprocessScans && _preprocessor != null)
