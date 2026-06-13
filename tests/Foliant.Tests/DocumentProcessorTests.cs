@@ -64,6 +64,16 @@ public class DocumentProcessorTests
         }
     }
 
+    private sealed class ResizeTransform : IPageImageTransform
+    {
+        public int Calls;
+        public PageImage Transform(PageImage image)
+        {
+            Calls++;
+            return new PageImage(50, 50, image.Dpi, new byte[50 * 50 * 4]);
+        }
+    }
+
     private static DocumentProcessor NewProcessor(FakeOcr ocr, ITextLayerReader textLayer) =>
         new(new FakeRenderer(), new FakeLayout(), ocr, new FakeTables(),
             new XyCutReadingOrder(), textLayer);
@@ -86,12 +96,33 @@ public class DocumentProcessorTests
     }
 
     [Fact]
+    public async Task ImageTransform_IsAppliedToEachPage_BeforeProcessing()
+    {
+        var ocr = new FakeOcr();
+        using var processor = NewProcessor(ocr, new FakeTextLayer { WordCount = 50 });
+        var transform = new ResizeTransform();
+
+        var result = await processor.ProcessAsync(FakePdf, new ProcessingOptions
+        {
+            Verify = false,
+            TextLayer = TextLayerMode.Never, // force OCR so the transformed pixels are what gets read
+            ImageTransform = transform,
+        });
+
+        Assert.Equal(2, transform.Calls); // FakeRenderer reports 2 pages → one transform call each
+        // PageResult dimensions come from the image the pipeline actually used downstream.
+        Assert.All(result.Pages, p => Assert.Equal(50, p.WidthPx));
+        Assert.All(result.Pages, p => Assert.Equal(50, p.HeightPx));
+    }
+
+    [Fact]
     public async Task Auto_SparseTextLayer_FallsBackToOcr()
     {
         var ocr = new FakeOcr();
         using var processor = NewProcessor(ocr, new FakeTextLayer { WordCount = 3 });   // < MinTextLayerWords
 
-        var result = await processor.ProcessAsync(FakePdf, new ProcessingOptions { Verify = false });
+        // Orientation off: isolate the text-layer-vs-OCR decision (it would add thumbnail OCR calls).
+        var result = await processor.ProcessAsync(FakePdf, new ProcessingOptions { Verify = false, DetectOrientation = false });
 
         Assert.All(result.Pages, p => Assert.Equal(TextSource.Ocr, p.Source));
         Assert.Equal(2, ocr.Calls);
@@ -107,7 +138,7 @@ public class DocumentProcessorTests
         using var processor = NewProcessor(
             ocr, new FakeTextLayer { WordCount = 100, DroppedCharFraction = 0.9f });
 
-        var result = await processor.ProcessAsync(FakePdf, new ProcessingOptions { Verify = false });
+        var result = await processor.ProcessAsync(FakePdf, new ProcessingOptions { Verify = false, DetectOrientation = false });
 
         Assert.All(result.Pages, p => Assert.Equal(TextSource.Ocr, p.Source));
         Assert.Equal(2, ocr.Calls);
@@ -122,7 +153,7 @@ public class DocumentProcessorTests
         using var processor = NewProcessor(
             ocr, new FakeTextLayer { WordCount = 100, UndecodableCharFraction = 0.85f });
 
-        var result = await processor.ProcessAsync(FakePdf, new ProcessingOptions { Verify = false });
+        var result = await processor.ProcessAsync(FakePdf, new ProcessingOptions { Verify = false, DetectOrientation = false });
 
         Assert.All(result.Pages, p => Assert.Equal(TextSource.Ocr, p.Source));
         Assert.Equal(2, ocr.Calls);
@@ -208,7 +239,7 @@ public class DocumentProcessorTests
         using var processor = NewProcessor(ocr, new FakeTextLayer { WordCount = 500 });
 
         var result = await processor.ProcessAsync(
-            FakePdf, new ProcessingOptions { TextLayer = TextLayerMode.Never, Verify = false });
+            FakePdf, new ProcessingOptions { TextLayer = TextLayerMode.Never, Verify = false, DetectOrientation = false });
 
         Assert.All(result.Pages, p => Assert.Equal(TextSource.Ocr, p.Source));
         Assert.Equal(2, ocr.Calls);

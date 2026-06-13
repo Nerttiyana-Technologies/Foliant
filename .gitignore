@@ -438,6 +438,8 @@ models/
 spike-out/
 verification-out*/
 sample-out/
+# Harness output dirs (gate ledgers, orient-check, inspect renders) — all local artifacts
+out-*/
 .DS_Store
 .idea/
 # Corpus-derived analysis: quotes RFP content (names/emails) — local only

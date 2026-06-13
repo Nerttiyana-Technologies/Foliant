@@ -19,6 +19,7 @@ public sealed class DocumentProcessor : IDocumentProcessor, IDisposable
     private readonly ITextLayerReader _textLayer;
     private readonly ITableExtractor _tables;
     private readonly IPagePreprocessor? _preprocessor;
+    private readonly OrientationDetector _orientation;
     private readonly MarkdownComposer _composer;
     private readonly bool _ownsComponents;
 
@@ -31,6 +32,9 @@ public sealed class DocumentProcessor : IDocumentProcessor, IDisposable
     /// <param name="ownsComponents">When true, disposing this processor disposes the backends.</param>
     /// <param name="preprocessor">Optional scanned-page cleanup (deskew/contrast/despeckle), applied
     /// only to pages routed to OCR and only when <see cref="ProcessingOptions.PreprocessScans"/> is on.</param>
+    /// <param name="orientation">Coarse page-orientation detector (0/90/180/270°), applied to pages
+    /// routed to OCR when <see cref="ProcessingOptions.DetectOrientation"/> is on. Defaults to a new
+    /// <see cref="OrientationDetector"/> with standard settings.</param>
     public DocumentProcessor(
         IPageRenderer renderer,
         ILayoutDetector layout,
@@ -39,7 +43,8 @@ public sealed class DocumentProcessor : IDocumentProcessor, IDisposable
         IReadingOrderAssembler readingOrder,
         ITextLayerReader textLayer,
         bool ownsComponents = false,
-        IPagePreprocessor? preprocessor = null)
+        IPagePreprocessor? preprocessor = null,
+        OrientationDetector? orientation = null)
     {
         _renderer = renderer;
         _layout = layout;
@@ -48,6 +53,7 @@ public sealed class DocumentProcessor : IDocumentProcessor, IDisposable
         _readingOrder = readingOrder;
         _textLayer = textLayer;
         _preprocessor = preprocessor;
+        _orientation = orientation ?? new OrientationDetector();
         _composer = new MarkdownComposer(readingOrder, tables);
         _ownsComponents = ownsComponents;
     }
@@ -100,6 +106,11 @@ public sealed class DocumentProcessor : IDocumentProcessor, IDisposable
 
         var image = _renderer.Render(pdf, pageNumber, options.Dpi);
 
+        // Optional caller/test transform on the raw raster (external preprocessing, or
+        // synthetic degradation for Gate 7). Runs before the text-layer decision and OCR.
+        if (options.ImageTransform is { } transform)
+            image = transform.Transform(image);
+
         // ── Characters: text layer when trustworthy, OCR otherwise ──────────
         TextLayerPage? layer = options.TextLayer == TextLayerMode.Never
             ? null
@@ -138,9 +149,16 @@ public sealed class DocumentProcessor : IDocumentProcessor, IDisposable
                 Notice: notice);
         }
 
-        // ── Scanned-page cleanup: only when characters must come from pixels ─
-        if (!useLayer && options.PreprocessScans && _preprocessor != null)
-            image = _preprocessor.Process(image).Image;
+        // ── Scanned pages: correct coarse orientation, then fine cleanup, before OCR ─
+        //    Both run only when characters must come from pixels (the OCR path).
+        int orientationApplied = 0;
+        if (!useLayer)
+        {
+            if (options.DetectOrientation)
+                (image, orientationApplied) = _orientation.Correct(image, _ocr);
+            if (options.PreprocessScans && _preprocessor != null)
+                image = _preprocessor.Process(image).Image;
+        }
 
         var lines = useLayer ? layer!.Lines : _ocr.Recognize(image);
 
@@ -166,7 +184,8 @@ public sealed class DocumentProcessor : IDocumentProcessor, IDisposable
             composed.Regions, lines, composed.PageFurniture,
             useLayer ? TextSource.TextLayer : TextSource.Ocr,
             composed.Markdown,
-            new PageVerification(lost, truthWords, truthFound, sw.Elapsed.TotalSeconds));
+            new PageVerification(lost, truthWords, truthFound, sw.Elapsed.TotalSeconds),
+            OrientationApplied: orientationApplied);
     }
 
     public void Dispose()
