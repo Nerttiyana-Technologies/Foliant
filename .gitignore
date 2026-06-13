@@ -444,3 +444,5 @@ sample-out/
 spike/RESULTS.md
 # Local NuGet pack output (FLUX consumes via local folder feed)
 nupkgs/
+# Internal release collateral — decks, release emails (local only, not published)
+docs/
