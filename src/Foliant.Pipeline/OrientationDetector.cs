@@ -34,6 +34,8 @@ public sealed class OrientationDetector
     private readonly int _detectionMaxDim;
     private readonly double _uprightBias;
     private readonly int _minDecisionChars;
+    private readonly double _minMeanConfidence;
+    private readonly double _minDistinctWordRatio;
 
     /// <param name="detectionMaxDim">
     /// Longest edge (px) of the thumbnail OCR'd during detection. Smaller is faster but loses
@@ -50,11 +52,29 @@ public sealed class OrientationDetector
     /// makes any noise "beat" it), so a low-text / illustration / near-blank page is left upright
     /// rather than flipped on noise. Real rotated text pages clear this easily once corrected.
     /// </param>
-    public OrientationDetector(int detectionMaxDim = 1000, double uprightBias = 1.15, int minDecisionChars = 100)
+    /// <param name="minMeanConfidence">
+    /// Minimum mean OCR confidence (Σ confidence·len / Σ len) at the winning orientation before a
+    /// rotation is applied. Decorative front-matter (covers, blank endpapers, library-seal pages)
+    /// can OCR into a page-worth of low-confidence garbage from repeating patterns and texture;
+    /// requiring genuine confidence keeps those upright. Real body text clears this comfortably
+    /// (PaddleOCR confidences on real text run well above this). Default 0.5.
+    /// </param>
+    /// <param name="minDistinctWordRatio">
+    /// Minimum lexical diversity (distinct words / total words, alphanumeric-normalized) at the
+    /// winning orientation before a rotation is applied. A library seal or patterned border OCRs as
+    /// the SAME token repeated many times — high char count, high confidence, but near-zero
+    /// diversity — which the count and confidence guards miss. Real prose is diverse and clears this
+    /// easily. Default 0.30.
+    /// </param>
+    public OrientationDetector(
+        int detectionMaxDim = 1000, double uprightBias = 1.15, int minDecisionChars = 100,
+        double minMeanConfidence = 0.5, double minDistinctWordRatio = 0.30)
     {
         _detectionMaxDim = Math.Max(200, detectionMaxDim);
         _uprightBias = Math.Max(1.0, uprightBias);
         _minDecisionChars = Math.Max(0, minDecisionChars);
+        _minMeanConfidence = Math.Clamp(minMeanConfidence, 0.0, 1.0);
+        _minDistinctWordRatio = Math.Clamp(minDistinctWordRatio, 0.0, 1.0);
     }
 
     /// <summary>
@@ -73,21 +93,30 @@ public sealed class OrientationDetector
         int best = 0;
         double bestScore = double.NegativeInfinity;
         int bestChars = 0;
+        IReadOnlyList<TextLine> bestLines = Array.Empty<TextLine>();
 
         foreach (int c in Candidates)
         {
             var candidate = c == 0 ? thumb : ScanDegrader.Rotate(c).Transform(thumb);
-            var (score, chars) = Measure(ocr.Recognize(candidate));
+            var lines = ocr.Recognize(candidate);
+            var (score, chars) = Measure(lines);
             if (c == 0) score0 = score;
-            if (score > bestScore) { bestScore = score; best = c; bestChars = chars; }
+            if (score > bestScore) { bestScore = score; best = c; bestChars = chars; bestLines = lines; }
         }
 
-        // Two guards before flipping a page:
-        //  • ratio bias — the winner must clearly beat the upright (0°) reading; and
-        //  • minimum signal — the winner must actually recognize enough text to be trusted.
-        // The second matters because on a near-textless page score0 ≈ 0, so the ratio alone lets
-        // OCR noise "win"; requiring real recognized text keeps illustration/plate pages upright.
-        if (best != 0 && (bestScore < score0 * _uprightBias || bestChars < _minDecisionChars))
+        // Guards before flipping a page (all must hold; otherwise the page is left upright):
+        //  • ratio bias    — the winner must clearly beat the upright (0°) reading;
+        //  • minimum signal — the winner must recognize enough text to be trusted at all;
+        //  • mean confidence — the winning text must be confident, not low-conf texture garbage;
+        //  • lexical diversity — the winning text must be varied, not one token repeated.
+        // The last two close the decorative-front-matter hole: covers, blank endpapers and
+        // library-seal pages OCR into a page of repeating/low-confidence "text" from patterns,
+        // which clears the count and ratio guards but is not real text — and must stay upright.
+        if (best != 0 &&
+            (bestScore < score0 * _uprightBias
+             || bestChars < _minDecisionChars
+             || MeanConfidence(bestLines) < _minMeanConfidence
+             || DistinctWordRatio(bestLines) < _minDistinctWordRatio))
             best = 0;
 
         return best == 0 ? (page, 0) : (ScanDegrader.Rotate(best).Transform(page), best);
@@ -107,6 +136,41 @@ public sealed class OrientationDetector
             if (len > 0) { s += (double)l.Confidence * len; chars += len; }
         }
         return (s, chars);
+    }
+
+    /// <summary>Char-length-weighted mean OCR confidence over recognized lines (0 when empty).</summary>
+    private static double MeanConfidence(IReadOnlyList<TextLine> lines)
+    {
+        double s = 0;
+        int chars = 0;
+        foreach (var l in lines)
+        {
+            int len = l.Text?.Trim().Length ?? 0;
+            if (len > 0) { s += (double)l.Confidence * len; chars += len; }
+        }
+        return chars == 0 ? 0 : s / chars;
+    }
+
+    /// <summary>
+    /// Distinct words / total words over the recognized text, words normalized to lower-case
+    /// alphanumerics. Near 1.0 for varied prose; near 0 for a single token repeated (a seal or
+    /// patterned border). Returns 1.0 when there are no words so it never causes a false rejection
+    /// on its own — the char-count and confidence guards handle the no-text case.
+    /// </summary>
+    private static double DistinctWordRatio(IReadOnlyList<TextLine> lines)
+    {
+        var words = new List<string>();
+        foreach (var l in lines)
+        {
+            if (string.IsNullOrWhiteSpace(l.Text)) continue;
+            foreach (var tok in l.Text.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries))
+            {
+                var norm = new string(tok.Where(char.IsLetterOrDigit).Select(char.ToLowerInvariant).ToArray());
+                if (norm.Length > 0) words.Add(norm);
+            }
+        }
+        if (words.Count == 0) return 1.0;
+        return (double)words.Distinct().Count() / words.Count;
     }
 
     /// <summary>Downscale so the longest edge is at most <paramref name="maxDim"/>; returns a copy unchanged if already small.</summary>
