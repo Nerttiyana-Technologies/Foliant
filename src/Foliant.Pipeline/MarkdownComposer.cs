@@ -8,12 +8,12 @@ using System.Text;
 namespace Foliant.Pipeline;
 
 /// <summary>Composed output for one page.</summary>
-public sealed record ComposedPage(
+internal sealed record ComposedPage(
     string Markdown,
     IReadOnlyList<Region> Regions,
     IReadOnlyList<TextLine> PageFurniture);
 
-public sealed class MarkdownComposer
+internal sealed class MarkdownComposer
 {
     private readonly IReadingOrderAssembler _readingOrder;
     private readonly ITableExtractor _tables;

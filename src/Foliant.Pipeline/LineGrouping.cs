@@ -1,6 +1,6 @@
 namespace Foliant.Pipeline;
 
-public static class LineGrouping
+internal static class LineGrouping
 {
     /// <summary>Clusters text lines sharing a baseline into visual rows (Y-overlap), top-to-bottom.</summary>
     public static List<List<TextLine>> GroupLines(IEnumerable<TextLine> lines)

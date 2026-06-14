@@ -263,7 +263,8 @@ Next:
 - Post-OCR language-model correction (local, optional)
 
 `IDocumentProcessor` and the `Foliant.Core` contracts are treated as stable from 1.0;
-backends iterate freely.
+backends iterate freely. The full public contract, extension points, and semver policy are
+documented in [`API-STABILITY.md`](API-STABILITY.md).
 
 ## Built on
 
