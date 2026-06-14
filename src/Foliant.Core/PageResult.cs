@@ -53,6 +53,11 @@ public sealed record PageVerification(
 /// an advisory signal that this scan is low-resolution and its OCR is lower-confidence. The page's
 /// <paramref name="Markdown"/> is still produced and usable; this never suppresses output.
 /// </param>
+/// <param name="FormFields">
+/// Typed key-value form fields extracted from this page (<see cref="FormField"/>), or null when
+/// extraction was not requested (<see cref="ProcessingOptions.ExtractFormFields"/> off) or no
+/// extractor is wired. Empty when extraction ran but found no fields.
+/// </param>
 public sealed record PageResult(
     int PageNumber,
     int WidthPx,
@@ -67,4 +72,5 @@ public sealed record PageResult(
     string? Notice = null,
     int OrientationApplied = 0,
     int? EffectiveDpi = null,
-    bool LowResolution = false);
+    bool LowResolution = false,
+    IReadOnlyList<FormField>? FormFields = null);
