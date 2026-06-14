@@ -22,6 +22,7 @@ public sealed class DocumentProcessor : IDocumentProcessor, IDisposable
     private readonly OrientationDetector _orientation;
     private readonly IScanResolutionEstimator? _scanResolution;
     private readonly IScanUpscaler? _upscaler;
+    private readonly IFormFieldExtractor? _formFields;
     private readonly MarkdownComposer _composer;
     private readonly bool _ownsComponents;
 
@@ -57,7 +58,8 @@ public sealed class DocumentProcessor : IDocumentProcessor, IDisposable
         IPagePreprocessor? preprocessor = null,
         OrientationDetector? orientation = null,
         IScanResolutionEstimator? scanResolution = null,
-        IScanUpscaler? scanUpscaler = null)
+        IScanUpscaler? scanUpscaler = null,
+        IFormFieldExtractor? formFields = null)
     {
         _renderer = renderer;
         _layout = layout;
@@ -69,6 +71,7 @@ public sealed class DocumentProcessor : IDocumentProcessor, IDisposable
         _orientation = orientation ?? new OrientationDetector();
         _scanResolution = scanResolution;
         _upscaler = scanUpscaler;
+        _formFields = formFields;
         _composer = new MarkdownComposer(readingOrder, tables);
         _ownsComponents = ownsComponents;
     }
@@ -222,6 +225,12 @@ public sealed class DocumentProcessor : IDocumentProcessor, IDisposable
             (truthWords, truthFound) = ExtractionVerifier.TextLayerRecall(pdf, pageNumber, recallText);
         }
 
+        // ── Typed key-value form fields (opt-in) ─────────────────────────────
+        // AcroForm dictionary when present; geometric fallback (later) uses the page's lines.
+        IReadOnlyList<FormField>? formFields = null;
+        if (options.ExtractFormFields && _formFields is not null)
+            formFields = _formFields.Extract(pdf, pageNumber, image, lines);
+
         sw.Stop();
         return new PageResult(
             pageNumber, image.Width, image.Height, options.Dpi,
@@ -231,7 +240,8 @@ public sealed class DocumentProcessor : IDocumentProcessor, IDisposable
             new PageVerification(lost, truthWords, truthFound, sw.Elapsed.TotalSeconds),
             OrientationApplied: orientationApplied,
             EffectiveDpi: effectiveDpi,
-            LowResolution: lowResolution);
+            LowResolution: lowResolution,
+            FormFields: formFields);
     }
 
     public void Dispose()
