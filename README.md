@@ -243,6 +243,9 @@ Scanned pages also report their estimated *effective* resolution: `PageResult.Ef
 the native pixel size of the page's scan image relative to its physical size (not the fixed render
 DPI), and `PageResult.LowResolution` flags pages below `ProcessingOptions.MinScanDpi` (default 150)
 so callers can surface low-confidence scans. Advisory only — the page's Markdown is still produced.
+Opting into `ProcessingOptions.UpscaleLowResolutionScans` enlarges those flagged pages with a
+classical (bicubic) upscaler before OCR; it's off by default until the scorecard proves a gain, and
+is the seam where an ML super-resolution backend can later drop in via `IScanUpscaler`.
 
 ## Roadmap
 

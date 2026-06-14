@@ -94,6 +94,26 @@ public class DocumentProcessorTests
         new(new FakeRenderer(), new FakeLayout(), ocr, new FakeTables(),
             new XyCutReadingOrder(), textLayer, scanResolution: scanResolution);
 
+    private sealed class FakeUpscaler : IScanUpscaler
+    {
+        public int Calls;
+        public float LastFactor;
+        public PageImage Upscale(PageImage image, float factor)
+        {
+            Calls++;
+            LastFactor = factor;
+            int w = (int)(image.Width * factor), h = (int)(image.Height * factor);
+            return new PageImage(w, h, image.Dpi, new byte[w * h * 4]);
+        }
+    }
+
+    private static DocumentProcessor NewProcessor(
+        FakeOcr ocr, ITextLayerReader textLayer,
+        IScanResolutionEstimator scanResolution, IScanUpscaler scanUpscaler) =>
+        new(new FakeRenderer(), new FakeLayout(), ocr, new FakeTables(),
+            new XyCutReadingOrder(), textLayer,
+            scanResolution: scanResolution, scanUpscaler: scanUpscaler);
+
     private static readonly byte[] FakePdf = { 0x25, 0x50, 0x44, 0x46 };   // "%PDF" — fakes ignore it
 
     // ── Tests ────────────────────────────────────────────────────────────────
@@ -333,6 +353,66 @@ public class DocumentProcessorTests
             FakePdf, new ProcessingOptions { Verify = false, DetectOrientation = false, MinScanDpi = 300 });
 
         Assert.All(result.Pages, p => Assert.True(p.LowResolution));
+    }
+
+    [Fact]
+    public async Task LowResolutionPage_Upscaled_WhenOptionOn()
+    {
+        var ocr = new FakeOcr();
+        var estimator = new FakeScanResolution { Dpi = 120 };       // below 150 → flagged
+        var upscaler = new FakeUpscaler();
+        using var processor = NewProcessor(ocr, new FakeTextLayer { WordCount = 0 }, estimator, upscaler);
+
+        var result = await processor.ProcessAsync(FakePdf, new ProcessingOptions
+        {
+            Verify = false,
+            DetectOrientation = false,
+            UpscaleLowResolutionScans = true,
+            LowResolutionUpscaleFactor = 2.0f,
+        });
+
+        Assert.Equal(2, upscaler.Calls);            // one per OCR-routed page (FakeRenderer = 2 pages)
+        Assert.Equal(2.0f, upscaler.LastFactor);
+        // Downstream dimensions reflect the upscaled raster (FakeRenderer renders 100×100 → 200×200).
+        Assert.All(result.Pages, p => Assert.Equal(200, p.WidthPx));
+        // The advisory fields still describe the ORIGINAL source scan, not the upscale.
+        Assert.All(result.Pages, p => Assert.Equal(120, p.EffectiveDpi));
+        Assert.All(result.Pages, p => Assert.True(p.LowResolution));
+    }
+
+    [Fact]
+    public async Task LowResolutionPage_NotUpscaled_WhenOptionOff()
+    {
+        var ocr = new FakeOcr();
+        var estimator = new FakeScanResolution { Dpi = 120 };
+        var upscaler = new FakeUpscaler();
+        using var processor = NewProcessor(ocr, new FakeTextLayer { WordCount = 0 }, estimator, upscaler);
+
+        // UpscaleLowResolutionScans defaults to false.
+        var result = await processor.ProcessAsync(
+            FakePdf, new ProcessingOptions { Verify = false, DetectOrientation = false });
+
+        Assert.Equal(0, upscaler.Calls);
+        Assert.All(result.Pages, p => Assert.Equal(100, p.WidthPx));   // unchanged
+    }
+
+    [Fact]
+    public async Task AdequateResolutionPage_NotUpscaled_EvenWhenOptionOn()
+    {
+        var ocr = new FakeOcr();
+        var estimator = new FakeScanResolution { Dpi = 300 };          // not low-res
+        var upscaler = new FakeUpscaler();
+        using var processor = NewProcessor(ocr, new FakeTextLayer { WordCount = 0 }, estimator, upscaler);
+
+        var result = await processor.ProcessAsync(FakePdf, new ProcessingOptions
+        {
+            Verify = false,
+            DetectOrientation = false,
+            UpscaleLowResolutionScans = true,
+        });
+
+        Assert.Equal(0, upscaler.Calls);
+        Assert.All(result.Pages, p => Assert.False(p.LowResolution));
     }
 
     [Fact]
