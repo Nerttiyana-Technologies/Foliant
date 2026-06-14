@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.6.0 — unreleased
+
+### Added
+- **Typed key-value form-field extraction (foundation) — `FormField` / `FieldKind` /
+  `FormFieldSource`, `IFormFieldExtractor`, `PageResult.FormFields`, and
+  `ProcessingOptions.ExtractFormFields` (default off).** When extraction is enabled and an
+  `IFormFieldExtractor` is wired, each page reports its form fields as typed `FormField`
+  records (Name, Value, Kind, Bounds, Confidence, Source). This increment ships the
+  `AcroFormFieldExtractor`, which reads exact field names and values from a PDF's fillable
+  AcroForm dictionary via PdfPig (text fields and checkboxes); it returns nothing on
+  flattened/scanned forms, which the forthcoming geometric label→value fallback will handle
+  behind the same seam. Wired into `FoliantProcessor.CreateDefault`; off by default until the
+  Gate 3 extraction scorecard proves it. Additive to `PageResult` (the field defaults to null).
+
 ## 0.5.0 — 2026-06-14 (low-DPI flag, reading-order & orientation refinement, API freeze)
 
 ### Changed

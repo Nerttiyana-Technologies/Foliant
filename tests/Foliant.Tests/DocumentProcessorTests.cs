@@ -114,6 +114,22 @@ public class DocumentProcessorTests
             new XyCutReadingOrder(), textLayer,
             scanResolution: scanResolution, scanUpscaler: scanUpscaler);
 
+    private sealed class FakeFormFields : IFormFieldExtractor
+    {
+        public int Calls;
+        public IReadOnlyList<FormField> Extract(
+            byte[] pdf, int pageNumber, PageImage image, IReadOnlyList<TextLine> lines)
+        {
+            Calls++;
+            return new[] { new FormField("solicitation_number", "697DCK-25-R-00302", FieldKind.Text) };
+        }
+    }
+
+    private static DocumentProcessor NewProcessor(
+        FakeOcr ocr, ITextLayerReader textLayer, IFormFieldExtractor formFields) =>
+        new(new FakeRenderer(), new FakeLayout(), ocr, new FakeTables(),
+            new XyCutReadingOrder(), textLayer, formFields: formFields);
+
     private static readonly byte[] FakePdf = { 0x25, 0x50, 0x44, 0x46 };   // "%PDF" — fakes ignore it
 
     // ── Tests ────────────────────────────────────────────────────────────────
@@ -413,6 +429,52 @@ public class DocumentProcessorTests
 
         Assert.Equal(0, upscaler.Calls);
         Assert.All(result.Pages, p => Assert.False(p.LowResolution));
+    }
+
+    [Fact]
+    public async Task FormFields_Extracted_WhenOptionOnAndExtractorWired()
+    {
+        var ocr = new FakeOcr();
+        var extractor = new FakeFormFields();
+        using var processor = NewProcessor(ocr, new FakeTextLayer { WordCount = 50 }, extractor);
+
+        var result = await processor.ProcessAsync(
+            FakePdf, new ProcessingOptions { Verify = false, ExtractFormFields = true });
+
+        Assert.Equal(2, extractor.Calls);   // one per page
+        Assert.All(result.Pages, p =>
+        {
+            Assert.NotNull(p.FormFields);
+            var f = Assert.Single(p.FormFields!);
+            Assert.Equal("solicitation_number", f.Name);
+            Assert.Equal("697DCK-25-R-00302", f.Value);
+            Assert.Equal(FieldKind.Text, f.Kind);
+        });
+    }
+
+    [Fact]
+    public async Task FormFields_Null_WhenOptionOff()
+    {
+        var ocr = new FakeOcr();
+        var extractor = new FakeFormFields();
+        using var processor = NewProcessor(ocr, new FakeTextLayer { WordCount = 50 }, extractor);
+
+        // ExtractFormFields defaults to false.
+        var result = await processor.ProcessAsync(FakePdf, new ProcessingOptions { Verify = false });
+
+        Assert.Equal(0, extractor.Calls);
+        Assert.All(result.Pages, p => Assert.Null(p.FormFields));
+    }
+
+    [Fact]
+    public async Task FormFields_Null_WhenNoExtractorWired()
+    {
+        using var processor = NewProcessor(new FakeOcr(), new FakeTextLayer { WordCount = 50 });
+
+        var result = await processor.ProcessAsync(
+            FakePdf, new ProcessingOptions { Verify = false, ExtractFormFields = true });
+
+        Assert.All(result.Pages, p => Assert.Null(p.FormFields));   // option on, but no extractor → no-op
     }
 
     [Fact]
