@@ -1,10 +1,15 @@
 // Classical (bicubic) upscaling for low-resolution scanned pages, applied before OCR.
 //
 // This cannot invent detail absent from the source — that needs an ML super-resolution model. It
-// presents the existing glyphs at a larger pixel scale with smooth edges, which can nudge the
-// recognizer on borderline scans. It is deliberately the cheap, dependency-free first cut: the
-// IScanUpscaler seam lets an ML backend replace it later without any pipeline change. Whether it
-// ships on by default is decided by the Gate scorecard, not by assumption.
+// presents the existing glyphs at a larger pixel scale with smooth edges. The IScanUpscaler seam
+// lets an ML backend replace it later without any pipeline change.
+//
+// VERDICT (Gate 8, born-digital corpus, forced OCR): classical upscaling is NET-NEGATIVE for OCR
+// recall at every simulated low-DPI level (150/100/72 → Δ −0.2 to −3.9 vs no upscale; worst at the
+// lowest DPI, where it enlarges blur and artifacts the recognizer then reads worse). So it is NOT
+// wired into FoliantProcessor.CreateDefault and ProcessingOptions.UpscaleLowResolutionScans is off
+// by default. This class is retained as the IScanUpscaler reference implementation and the Gate 8
+// measurement driver; reach for an ML backend, not this, when revisiting super-resolution.
 
 using Foliant.Internal;
 using SkiaSharp;
