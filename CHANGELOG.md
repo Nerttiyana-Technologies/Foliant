@@ -1,5 +1,38 @@
 # Changelog
 
+## 0.6.0 — 2026-06-14 (form-field key-value extraction)
+
+### Added
+- **Typed key-value form-field extraction (foundation) — `FormField` / `FieldKind` /
+  `FormFieldSource`, `IFormFieldExtractor`, `PageResult.FormFields`, and
+  `ProcessingOptions.ExtractFormFields` (default off).** When extraction is enabled and an
+  `IFormFieldExtractor` is wired, each page reports its form fields as typed `FormField`
+  records (Name, Value, Kind, Bounds, Confidence, Source). This increment ships the
+  `AcroFormFieldExtractor`, which reads exact field names and values from a PDF's fillable
+  AcroForm dictionary via PdfPig (text fields and checkboxes); it returns nothing on
+  flattened/scanned forms, which the geometric label→value fallback handles behind the same seam.
+  Wired into `FoliantProcessor.CreateDefault`; off by default until the Gate 3 extraction scorecard
+  proves it. Additive to `PageResult` (the field defaults to null).
+- **Label-anchored geometric extraction for flattened forms — `FormProfile` / `FormFieldSpec` /
+  `ValueAnchor`, `GeometricFormFieldExtractor`, `CompositeFormFieldExtractor`.** A deterministic
+  (no-model, no-license) path for forms with no usable AcroForm: given a profile of label→field
+  specs for a known form family (e.g. SF-33 / SIR solicitations), it locates each label on the
+  page's recognized text and reads the associated value — inline (after the label), to the right,
+  or below — and reads checkboxes by a mark glyph on the label's row. A min-label-match guard keeps
+  it off pages that aren't the profile's form. `CompositeFormFieldExtractor` tries AcroForm first,
+  then geometric, behind the `IFormFieldExtractor` seam. Profiles are caller-supplied domain
+  knowledge, so the geometric path is opt-in (the default pipeline wires AcroForm only).
+- **Gate 3 extraction scorer (`--gate3-extract`)** — scores the typed `FormFields` against the
+  hand-labeled truth (value match for text, checked-state for checkboxes), reporting
+  correct/wrong/missing. First measurement on the SF-33 solicitation profile: **4/5 profiled text
+  fields and 13/17 checkboxes correct, with zero fabrication** (after column-scoped checkbox
+  detection fixed the two-column TOC, and the buried `offer_due_date` was left unprofiled rather
+  than guessed). The headline conclusion: deterministic label-anchored extraction
+  is **viable and low-fabrication**; overall coverage is bounded by profiling effort (one profile
+  per form family), not by extraction quality. `ExtractFormFields` stays off by default — it
+  requires caller-supplied profiles — and is the deterministic baseline an ML form-understanding
+  model would later have to beat.
+
 ## 0.5.0 — 2026-06-14 (low-DPI flag, reading-order & orientation refinement, API freeze)
 
 ### Changed

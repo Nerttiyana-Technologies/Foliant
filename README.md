@@ -250,6 +250,11 @@ super-resolution backend rather than enabled by default.
 
 ## Roadmap
 
+Shipped in 0.6.0: typed key-value **form-field extraction** (`PageResult.FormFields`) — exact
+values from fillable AcroForm PDFs, plus a deterministic, label-anchored *geometric* path for
+flattened forms via caller-supplied `FormProfile`s, behind the `IFormFieldExtractor` seam. Opt-in
+(`ProcessingOptions.ExtractFormFields`); measured zero-fabrication on the sample SF-33 profile.
+
 Shipped in 0.5.0: low-resolution scan warning (`PageResult.EffectiveDpi` / `LowResolution`),
 orientation-detection refinement (confidence + word-diversity guards that stop decorative-page
 misfires), enumerator-aware reading order for numbered mosaics (opt-in), and the 1.0 API
@@ -258,17 +263,19 @@ with coarse-orientation correction (0.4.0), watermark/stamp suppression, XY-Cut+
 and text-layer trust guards (legacy non-embedded fonts, optimizer-corrupted CID fonts, dynamic-XFA).
 
 Measured and parked: classical (bicubic) super-resolution was measured net-negative for OCR recall
-on low-DPI scans (Gate 8) and is off by default; ML super-resolution is unshippable on CPU
-(minutes/page) and is deferred to a GPU execution path. The `IScanUpscaler` seam is in place for it.
+on low-DPI scans (Gate 8) and is off by default; ML super-resolution is deferred to a GPU path. An
+ML form-understanding model (LayoutLMv3 / XFUND) is the deferred lever for arbitrary, non-profiled
+forms. The `IScanUpscaler` and `IFormFieldExtractor` seams are in place for both.
 
 Next:
 
-- Form-field key-value extraction as typed output
 - Languages beyond English (PaddleOCR multilingual recognition models)
-- Page de-warp and GPU-path ML super-resolution
+- Internationalize form-field extraction (right-to-left and vertical scripts, non-Latin marks) —
+  on top of multilingual OCR; Foliant is a general library, not a US-forms tool
+- Post-OCR language-model correction (local, optional)
+- Page de-warp; GPU-path ML super-resolution; ML form understanding for the open-ended long tail
 - Additional backends (`Foliant.Ocr.Tesseract`; community backends welcome — the
   interfaces are the contract, no central gatekeeping)
-- Post-OCR language-model correction (local, optional)
 
 `IDocumentProcessor` and the `Foliant.Core` contracts are treated as stable from 1.0;
 backends iterate freely. The full public contract, extension points, and semver policy are
