@@ -12,6 +12,14 @@
   as the blessed entry point.
 
 ### Added
+- **Orientation-detection refinement — text-quality guards against decorative-page misfires.**
+  `OrientationDetector` now requires the winning rotation's recognized text to clear a **mean-confidence**
+  floor (`minMeanConfidence`, default 0.5) and a **lexical-diversity** floor (`minDistinctWordRatio`,
+  default 0.30) before a page is flipped, in addition to the existing upright-bias and min-character
+  guards. This closes the decorative-front-matter hole: covers, blank endpapers and library-seal pages
+  OCR into a page of repeating/low-confidence "text" from patterns — enough characters at enough
+  confidence to clear the old guards — and were occasionally rotated spuriously. Genuine rotated body
+  text (diverse, confident) clears the new floors comfortably, so real corrections are unaffected.
 - **Enumerator-aware reading order — `ProcessingOptions.EnumeratorReadingOrder` (default off).** A
   post-pass after geometric ordering that reorders regions carrying a clean leading-number run
   (1,2,3,…) into numeric order, fixing numbered mosaics (magazine quizzes, instructional step grids)
