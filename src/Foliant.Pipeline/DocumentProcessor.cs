@@ -169,7 +169,17 @@ public sealed class DocumentProcessor : IDocumentProcessor, IDisposable
         // ── Self-verification ────────────────────────────────────────────────
         int lost = ExtractionVerifier.CountLostLines(composed.Markdown, lines, composed.PageFurniture);
         int truthWords = 0, truthFound = 0;
-        if (options.Verify)
+
+        // Don't verify against a text layer we rejected as undecodable garbage (subset CID fonts
+        // with no ToUnicode map — control-char codes). The "truth" would be the corruption itself,
+        // so a recall score against it is meaningless. Such pages are OCR'd and reported with no
+        // text-layer truth (RecallPercent == null), surfacing as "needs review" rather than a
+        // misleading ~0%. The dropped-char (formmsd) class is intentionally NOT excluded: its
+        // word text is usually real (only the glyph geometry is degenerate), so it stays valid truth.
+        bool undecodableLayer = layer is not null
+            && layer.UndecodableCharFraction > options.MaxTextLayerUndecodableFraction;
+
+        if (options.Verify && !undecodableLayer)
         {
             // Furniture counts as extracted: it is intentionally kept aside, not lost —
             // otherwise near-blank pages with only headers/footers would score 0%.
