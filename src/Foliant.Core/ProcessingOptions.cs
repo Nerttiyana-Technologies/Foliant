@@ -39,7 +39,7 @@ public sealed record ProcessingOptions
     /// Upscale pages flagged <see cref="PageResult.LowResolution"/> with the pipeline's injected
     /// <see cref="IScanUpscaler"/> by <see cref="LowResolutionUpscaleFactor"/> before OCR. Off by
     /// default, and a no-op unless an upscaler is supplied: the default pipeline
-    /// (<see cref="FoliantProcessor.CreateDefault"/>) wires <b>none</b>, because the Gate 8 ledger
+    /// (<c>FoliantProcessor.CreateDefault</c>) wires <b>none</b>, because the Gate 8 ledger
     /// measured the classical upscaler as net-negative for OCR recall on low-DPI scans. The seam
     /// remains so an ML super-resolution backend can be injected and re-measured. No effect on
     /// text-layer fast-path pages or pages not flagged low-resolution.
