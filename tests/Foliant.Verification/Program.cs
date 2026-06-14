@@ -29,6 +29,7 @@ int gate8Pages = 2;
 bool orientCheck = false;
 int orientPages = 5;
 bool noOrientation = false;
+bool enumeratorOrder = false;
 string? inspect = null;
 var tableBackend = TableBackend.TableTransformer;
 var readingOrder = ReadingOrderBackend.XyCutPlusPlus;
@@ -47,6 +48,7 @@ for (int i = 0; i < args.Length; i++)
     if (args[i] == "--orient-check") { orientCheck = true; continue; }
     if (args[i] == "--orient-pages" && i + 1 < args.Length) { orientPages = int.Parse(args[++i]); continue; }
     if (args[i] == "--no-orientation") { noOrientation = true; continue; }
+    if (args[i] == "--enumerator-order") { enumeratorOrder = true; continue; }
     if (args[i] == "--inspect" && i + 1 < args.Length) { inspect = args[++i]; continue; }
     if (args[i] == "--table-backend" && i + 1 < args.Length)
     {
@@ -79,7 +81,7 @@ if (pdfDir == null || !Directory.Exists(pdfDir))
         "[--gate3 <truth.csv>] [--gate5 <truth-dir>] [--gate6 <truth-dir>] " +
         "[--gate7 <born-digital-dir> [--gate7-pages N]] " +
         "[--gate8 <born-digital-dir> [--gate8-pages N]] " +
-        "[--orient-check [--orient-pages N]] [--no-orientation] " +
+        "[--orient-check [--orient-pages N]] [--no-orientation] [--enumerator-order] " +
         "[--table-backend tt|slanet] [--reading-order xycut|xycut++]");
     return 2;
 }
@@ -101,7 +103,9 @@ var options = new ProcessingOptions
 {
     TextLayer = ocrOnly ? TextLayerMode.Never : TextLayerMode.Auto,
     DetectOrientation = !noOrientation,
+    EnumeratorReadingOrder = enumeratorOrder,
 };
+if (enumeratorOrder) Console.WriteLine("Mode: --enumerator-order (numbered-mosaic reading-order post-pass on)");
 if (ocrOnly) Console.WriteLine("Mode: --ocr-only (text layer disabled for extraction; still used as recall truth)");
 if (noOrientation) Console.WriteLine("Mode: --no-orientation (page-orientation detection disabled; faster, recall on upright corpora unchanged)");
 

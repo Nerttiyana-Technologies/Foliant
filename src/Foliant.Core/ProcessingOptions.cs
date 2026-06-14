@@ -90,6 +90,16 @@ public sealed record ProcessingOptions
     /// </summary>
     public bool Verify { get; init; } = true;
 
+    /// <summary>
+    /// After geometric reading order, reorder regions that carry a clean leading-number sequence
+    /// (1,2,3,…) into numeric order — fixes numbered mosaics (magazine quizzes, step grids) whose
+    /// true order is the printed number, which geometry alone cannot see. Strict by design: it acts
+    /// only on a complete consecutive run starting at 1 and otherwise leaves geometry untouched, so
+    /// it cannot reorder a normally-ordered page. Off by default until the Gate 6 ledger proves the
+    /// τ gain with no reference-corpus regression (proven-by-scorecard, like the reading-order backend).
+    /// </summary>
+    public bool EnumeratorReadingOrder { get; init; } = false;
+
     /// <summary>1-based page numbers to process; null processes all pages.</summary>
     public IReadOnlyCollection<int>? Pages { get; init; }
 
