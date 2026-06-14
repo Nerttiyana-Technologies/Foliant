@@ -26,6 +26,7 @@ string? gate7Dir = null;
 int gate7Pages = 2;
 bool orientCheck = false;
 int orientPages = 5;
+bool noOrientation = false;
 string? inspect = null;
 var tableBackend = TableBackend.TableTransformer;
 var readingOrder = ReadingOrderBackend.XyCutPlusPlus;
@@ -41,6 +42,7 @@ for (int i = 0; i < args.Length; i++)
     if (args[i] == "--gate7-pages" && i + 1 < args.Length) { gate7Pages = int.Parse(args[++i]); continue; }
     if (args[i] == "--orient-check") { orientCheck = true; continue; }
     if (args[i] == "--orient-pages" && i + 1 < args.Length) { orientPages = int.Parse(args[++i]); continue; }
+    if (args[i] == "--no-orientation") { noOrientation = true; continue; }
     if (args[i] == "--inspect" && i + 1 < args.Length) { inspect = args[++i]; continue; }
     if (args[i] == "--table-backend" && i + 1 < args.Length)
     {
@@ -72,7 +74,7 @@ if (pdfDir == null || !Directory.Exists(pdfDir))
         "Usage: Foliant.Verification <pdf-dir> [out-dir] [--models <dir>] [--ocr-only] " +
         "[--gate3 <truth.csv>] [--gate5 <truth-dir>] [--gate6 <truth-dir>] " +
         "[--gate7 <born-digital-dir> [--gate7-pages N]] " +
-        "[--orient-check [--orient-pages N]] " +
+        "[--orient-check [--orient-pages N]] [--no-orientation] " +
         "[--table-backend tt|slanet] [--reading-order xycut|xycut++]");
     return 2;
 }
@@ -90,8 +92,13 @@ if (readingOrder != ReadingOrderBackend.XyCutPlusPlus)
 // --ocr-only forces TextLayerMode.Never: on born-digital corpora the default fast path takes
 // words FROM the text layer while recall is measured AGAINST it (trivially ~100%, validates
 // assembly only). OCR-only recall is the non-circular quality metric (spike baseline: 98.3%).
-var options = new ProcessingOptions { TextLayer = ocrOnly ? TextLayerMode.Never : TextLayerMode.Auto };
+var options = new ProcessingOptions
+{
+    TextLayer = ocrOnly ? TextLayerMode.Never : TextLayerMode.Auto,
+    DetectOrientation = !noOrientation,
+};
 if (ocrOnly) Console.WriteLine("Mode: --ocr-only (text layer disabled for extraction; still used as recall truth)");
+if (noOrientation) Console.WriteLine("Mode: --no-orientation (page-orientation detection disabled; faster, recall on upright corpora unchanged)");
 
 // Inspect mode: dump one page's geometry for debugging — layout overlay PNG,
 // line/region JSON, and the composed Markdown. Usage: --inspect "<pdf-name>:<page>"
