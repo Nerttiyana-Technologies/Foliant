@@ -25,8 +25,9 @@
 - **Gate 3 extraction scorer (`--gate3-extract`)** — scores the typed `FormFields` against the
   hand-labeled truth (value match for text, checked-state for checkboxes), reporting
   correct/wrong/missing. First measurement on the SF-33 solicitation profile: **4/5 profiled text
-  fields and 12/17 checkboxes correct, with a single fabrication** (the buried `offer_due_date`,
-  since removed from the profile). The headline conclusion: deterministic label-anchored extraction
+  fields and 13/17 checkboxes correct, with zero fabrication** (after column-scoped checkbox
+  detection fixed the two-column TOC, and the buried `offer_due_date` was left unprofiled rather
+  than guessed). The headline conclusion: deterministic label-anchored extraction
   is **viable and low-fabrication**; overall coverage is bounded by profiling effort (one profile
   per form family), not by extraction quality. `ExtractFormFields` stays off by default — it
   requires caller-supplied profiles — and is the deterministic baseline an ML form-understanding

@@ -87,6 +87,34 @@ public class GeometricFormFieldExtractorTests
     }
 
     [Fact]
+    public void Checkbox_MarkInOtherColumn_DoesNotCount()
+    {
+        // Two-column TOC: this label's own (left) checkbox is empty, but a mark sits on the same
+        // visual row in the RIGHT column (after the label). It must NOT mark this field — the bug
+        // that produced the lone Gate 3 fabrication (toc_A read "checked" from column I's mark).
+        var lines = new[]
+        {
+            L("SOLICITATION NO. 697DCK-25-R-00302", 10, 10, 300, 20),
+            L("DATE ISSUED", 10, 30, 90, 40),
+            L("08/07/2025", 120, 30, 200, 40),
+            L("SOLICITATION/CONTRACT FORM", 30, 85, 200, 95),   // left-column item, no mark to its left
+            L("X", 260, 85, 270, 95),                           // mark belongs to the RIGHT column
+            L("CONTRACT CLAUSES", 280, 85, 380, 95),            // right-column item
+        };
+        var profile = new FormProfile("toc", new[]
+        {
+            new FormFieldSpec("toc_A", "SOLICITATION/CONTRACT FORM", FieldKind.Checkbox, ValueAnchor.Mark),
+            new FormFieldSpec("solicitation_number", "SOLICITATION NO", FieldKind.Text, ValueAnchor.RightThenBelow),
+            new FormFieldSpec("date_issued", "DATE ISSUED", FieldKind.Text, ValueAnchor.Right),
+        });
+        var extractor = new GeometricFormFieldExtractor(new[] { profile });
+
+        var fields = extractor.Extract(Pdf, 1, Img, lines);
+
+        Assert.Equal("unchecked", Field(fields, "toc_A").Value);
+    }
+
+    [Fact]
     public void Composite_PrefersFirstExtractorThatYields()
     {
         // A geometric-only composite: empty extractor first, geometric second → geometric wins.
