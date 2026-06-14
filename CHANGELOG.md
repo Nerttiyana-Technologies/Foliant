@@ -3,6 +3,19 @@
 ## 0.5.0 — unreleased
 
 ### Added
+- **Enumerator-aware reading order — `ProcessingOptions.EnumeratorReadingOrder` (default off).** A
+  post-pass after geometric ordering that reorders regions carrying a clean leading-number run
+  (1,2,3,…) into numeric order, fixing numbered mosaics (magazine quizzes, instructional step grids)
+  whose true order is the printed number — the documented Gate 6 τ≈0.733 boundary geometry can't see.
+  Strict guard: it acts only on a complete consecutive run starting at 1 (≥3 regions, no gaps or
+  duplicates) and otherwise leaves geometry completely untouched, so it cannot reorder a
+  normally-ordered page; non-numbered regions keep their geometric slots. The geometric backends
+  (`XyCut`, `XyCut++`) are unchanged. New verification flag `--enumerator-order` to A/B it on Gate 6.
+  - **Measured neutral on the current Gate 6 magazine corpus** (avg τ 0.944 identical with and
+    without the pass): the low-τ pages there are flowing multi-column *prose*, not numbered, while
+    the one genuinely numbered page already orders correctly by geometry — so the strict guard found
+    no qualifying page. It neither helped nor regressed. Kept as a default-off option for genuinely
+    mis-ordered numbered documents (recipes, exams, step lists) outside this corpus.
 - **Pre-OCR super-resolution seam — `IScanUpscaler` + `ProcessingOptions.UpscaleLowResolutionScans`
   (default off) + `LowResolutionUpscaleFactor`.** When an `IScanUpscaler` is injected and the option
   is on, pages flagged `LowResolution` are upscaled before orientation, preprocessing and OCR. The

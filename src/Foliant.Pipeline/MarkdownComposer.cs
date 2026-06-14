@@ -25,7 +25,8 @@ public sealed class MarkdownComposer
     }
 
     public ComposedPage Compose(
-        PageImage page, IReadOnlyList<LayoutRegion> rawRegions, IReadOnlyList<TextLine> lines)
+        PageImage page, IReadOnlyList<LayoutRegion> rawRegions, IReadOnlyList<TextLine> lines,
+        bool enumeratorReadingOrder = false)
     {
         var ordered = _readingOrder.Order(XyCutReadingOrder.SuppressDuplicates(rawRegions));
         var furniture = new List<TextLine>();
@@ -43,6 +44,17 @@ public sealed class MarkdownComposer
         foreach (var l in lines)
             if (!owner.ContainsKey(l) && region.Bounds.ContainsCenterOf(l.Bounds))
                 owner[l] = region;
+
+        // Enumerator-aware post-pass: now that text is attached, reorder regions that carry a clean
+        // leading-number run (1,2,3,…) into numeric order. Strict guard inside; geometry is the
+        // default and is left untouched unless a normally-ordered page is provably a numbered mosaic.
+        if (enumeratorReadingOrder)
+        {
+            var linesByRegion = ordered.ToDictionary(
+                r => r,
+                r => lines.Where(l => owner.TryGetValue(l, out var o) && o == r).ToList());
+            ordered = EnumeratorReadingOrder.Apply(ordered, linesByRegion);
+        }
 
         foreach (var region in ordered)
         {

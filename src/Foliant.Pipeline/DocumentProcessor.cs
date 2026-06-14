@@ -198,7 +198,7 @@ public sealed class DocumentProcessor : IDocumentProcessor, IDisposable
 
         // ── Structure: always from pixels ────────────────────────────────────
         var regions = _layout.Detect(image);
-        var composed = _composer.Compose(image, regions, lines);
+        var composed = _composer.Compose(image, regions, lines, options.EnumeratorReadingOrder);
 
         // ── Self-verification ────────────────────────────────────────────────
         int lost = ExtractionVerifier.CountLostLines(composed.Markdown, lines, composed.PageFurniture);
