@@ -86,7 +86,8 @@ public static class FoliantProcessor
             assembler, new PdfTextLayerReader(),
             ownsComponents: true,
             preprocessor: new DefaultPagePreprocessor(),
-            scanResolution: new PdfImageScanResolutionEstimator());
+            scanResolution: new PdfImageScanResolutionEstimator(),
+            formFields: new AcroFormFieldExtractor());
         // No IScanUpscaler is wired by default: the Gate 8 ledger measured classical (bicubic)
         // upscaling as net-negative for OCR recall on low-DPI scans (it enlarges artifacts it
         // cannot add detail to). The IScanUpscaler seam stays for a future ML super-resolution
