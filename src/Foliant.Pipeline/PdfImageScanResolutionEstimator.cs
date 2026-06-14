@@ -46,8 +46,8 @@ public sealed class PdfImageScanResolutionEstimator : IScanResolutionEstimator
 
         foreach (IPdfImage image in page.GetImages())
         {
-            double placedWidth = image.Bounds.Width;
-            double placedHeight = image.Bounds.Height;
+            double placedWidth = image.BoundingBox.Width;
+            double placedHeight = image.BoundingBox.Height;
             if (placedWidth <= 0 || placedHeight <= 0) continue;
             if (image.WidthInSamples <= 0 || image.HeightInSamples <= 0) continue;
 

@@ -10,7 +10,7 @@ using Foliant.Tables.TableTransformer;
 namespace Foliant.Pipeline;
 
 /// <summary>
-/// Table-structure backend selection for <see cref="FoliantProcessor.CreateDefault(string, TableBackend)"/>.
+/// Table-structure backend selection for <see cref="FoliantProcessor.CreateDefault(string, TableBackend, ReadingOrderBackend)"/>.
 /// TableTransformer (+ ruling-line hybrid) is the current default; PaddleStructure (SLANet-plus)
 /// is the v0.2.0 raster-table candidate. The default switches only when the Gate 5 cell-accuracy
 /// scorecard proves it on the reference corpus (KICKOFF quality roadmap).
