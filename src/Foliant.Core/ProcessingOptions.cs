@@ -35,6 +35,22 @@ public sealed record ProcessingOptions
     /// </summary>
     public int MinScanDpi { get; init; } = 150;
 
+    /// <summary>
+    /// Upscale pages flagged <see cref="PageResult.LowResolution"/> with the pipeline's classical
+    /// (bicubic) upscaler by <see cref="LowResolutionUpscaleFactor"/> before OCR. Off by default:
+    /// this is a measure-first feature whose default flips only once the Gate scorecard proves a
+    /// recall gain on the low-DPI corpora (the same proven-by-scorecard discipline the table and
+    /// reading-order backends follow). No effect on text-layer fast-path pages or pages not flagged
+    /// low-resolution, and no effect unless an <see cref="IScanUpscaler"/> is wired into the pipeline.
+    /// </summary>
+    public bool UpscaleLowResolutionScans { get; init; } = false;
+
+    /// <summary>
+    /// Linear scale factor applied when <see cref="UpscaleLowResolutionScans"/> upscales a
+    /// low-resolution page. 2.0 doubles each dimension. Values ≤ 1 disable the upscale.
+    /// </summary>
+    public float LowResolutionUpscaleFactor { get; init; } = 2.0f;
+
     public TextLayerMode TextLayer { get; init; } = TextLayerMode.Auto;
 
     /// <summary>

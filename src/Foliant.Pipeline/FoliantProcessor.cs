@@ -86,7 +86,8 @@ public static class FoliantProcessor
             assembler, new PdfTextLayerReader(),
             ownsComponents: true,
             preprocessor: new DefaultPagePreprocessor(),
-            scanResolution: new PdfImageScanResolutionEstimator());
+            scanResolution: new PdfImageScanResolutionEstimator(),
+            scanUpscaler: new ClassicalScanUpscaler());
     }
 
     /// <summary>

@@ -3,6 +3,17 @@
 ## 0.5.0 — unreleased
 
 ### Added
+- **Classical pre-OCR upscaling for low-resolution scans — `IScanUpscaler` +
+  `ClassicalScanUpscaler` + `ProcessingOptions.UpscaleLowResolutionScans` (default off) +
+  `LowResolutionUpscaleFactor` (default 2.0).** When enabled, pages flagged `LowResolution`
+  are enlarged by a Catmull-Rom cubic resampler before orientation, preprocessing and OCR.
+  This presents existing glyphs at a larger pixel scale; it does not invent detail absent from
+  the source (that requires an ML super-resolution model, which the `IScanUpscaler` seam lets a
+  backend supply later without pipeline changes). Default-off on purpose: the toggle flips only
+  once the Gate scorecard proves a recall gain on the low-DPI corpora — the same
+  proven-by-scorecard discipline as the table and reading-order backends. The advisory
+  `EffectiveDpi`/`LowResolution` fields continue to describe the original source scan, not the
+  upscaled raster. Wired into `FoliantProcessor.CreateDefault`; off in the bare constructor.
 - **Low-resolution scan warning — `IScanResolutionEstimator` + `ProcessingOptions.MinScanDpi`
   (default 150) + `PageResult.EffectiveDpi` / `PageResult.LowResolution`.** OCR-routed pages now
   report the estimated *effective* source resolution of their scan and are flagged when it falls

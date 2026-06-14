@@ -62,6 +62,20 @@ public interface IScanResolutionEstimator
     int? EstimateEffectiveDpi(byte[] pdf, int pageNumber);
 }
 
+/// <summary>
+/// Upscales a low-resolution scanned page image before OCR. The default backend is classical
+/// (bicubic) resampling; an ML super-resolution backend can replace it without pipeline changes.
+/// Applied only to pages flagged <see cref="PageResult.LowResolution"/> when
+/// <see cref="ProcessingOptions.UpscaleLowResolutionScans"/> is on.
+/// </summary>
+public interface IScanUpscaler
+{
+    /// <param name="image">The rendered page raster.</param>
+    /// <param name="factor">Linear scale factor; values ≤ 1 are a no-op.</param>
+    /// <returns>The upscaled page (or the original when no upscale is warranted).</returns>
+    PageImage Upscale(PageImage image, float factor);
+}
+
 /// <summary>The embedded text layer of one PDF page, mapped to raster coordinates.</summary>
 /// <param name="Lines">Text lines grouped from the embedded words, in raster coordinates.</param>
 /// <param name="WordCount">Raw word count before line grouping (drives the Auto fast-path decision).</param>
