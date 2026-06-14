@@ -8,8 +8,7 @@
   same `UndecodableCharFraction` signal that routes the page to OCR), it is no longer used as
   recall ground truth: `PageVerification.RecallPercent` is `null` (page flagged for review)
   rather than a misleading ~0% computed against the corruption itself. The dropped-char
-  (formmsd) class is unaffected — its word text is usually real. Makes corpus recall on
-  CID-optimized magazines honest (those pages are correctly OCR'd; verified by inspection).
+  (formmsd) class is unaffected — its word text is usually real.
 
 ### Added
 - **`OrientationDetector` + `ProcessingOptions.DetectOrientation`** (default on) — coarse
