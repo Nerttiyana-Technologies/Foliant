@@ -10,9 +10,18 @@
   records (Name, Value, Kind, Bounds, Confidence, Source). This increment ships the
   `AcroFormFieldExtractor`, which reads exact field names and values from a PDF's fillable
   AcroForm dictionary via PdfPig (text fields and checkboxes); it returns nothing on
-  flattened/scanned forms, which the forthcoming geometric label→value fallback will handle
-  behind the same seam. Wired into `FoliantProcessor.CreateDefault`; off by default until the
-  Gate 3 extraction scorecard proves it. Additive to `PageResult` (the field defaults to null).
+  flattened/scanned forms, which the geometric label→value fallback handles behind the same seam.
+  Wired into `FoliantProcessor.CreateDefault`; off by default until the Gate 3 extraction scorecard
+  proves it. Additive to `PageResult` (the field defaults to null).
+- **Label-anchored geometric extraction for flattened forms — `FormProfile` / `FormFieldSpec` /
+  `ValueAnchor`, `GeometricFormFieldExtractor`, `CompositeFormFieldExtractor`.** A deterministic
+  (no-model, no-license) path for forms with no usable AcroForm: given a profile of label→field
+  specs for a known form family (e.g. SF-33 / SIR solicitations), it locates each label on the
+  page's recognized text and reads the associated value — inline (after the label), to the right,
+  or below — and reads checkboxes by a mark glyph on the label's row. A min-label-match guard keeps
+  it off pages that aren't the profile's form. `CompositeFormFieldExtractor` tries AcroForm first,
+  then geometric, behind the `IFormFieldExtractor` seam. Profiles are caller-supplied domain
+  knowledge, so the geometric path is opt-in (the default pipeline wires AcroForm only).
 
 ## 0.5.0 — 2026-06-14 (low-DPI flag, reading-order & orientation refinement, API freeze)
 
