@@ -6,7 +6,7 @@
 
 namespace Foliant.Pipeline;
 
-public static class ExtractionVerifier
+internal static class ExtractionVerifier
 {
     /// <summary>Counts extracted lines that appear neither in the Markdown nor in the
     /// intentionally-kept-aside page furniture. Must be 0 (Gate 2).</summary>
