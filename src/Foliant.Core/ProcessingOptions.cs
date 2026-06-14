@@ -36,12 +36,13 @@ public sealed record ProcessingOptions
     public int MinScanDpi { get; init; } = 150;
 
     /// <summary>
-    /// Upscale pages flagged <see cref="PageResult.LowResolution"/> with the pipeline's classical
-    /// (bicubic) upscaler by <see cref="LowResolutionUpscaleFactor"/> before OCR. Off by default:
-    /// this is a measure-first feature whose default flips only once the Gate scorecard proves a
-    /// recall gain on the low-DPI corpora (the same proven-by-scorecard discipline the table and
-    /// reading-order backends follow). No effect on text-layer fast-path pages or pages not flagged
-    /// low-resolution, and no effect unless an <see cref="IScanUpscaler"/> is wired into the pipeline.
+    /// Upscale pages flagged <see cref="PageResult.LowResolution"/> with the pipeline's injected
+    /// <see cref="IScanUpscaler"/> by <see cref="LowResolutionUpscaleFactor"/> before OCR. Off by
+    /// default, and a no-op unless an upscaler is supplied: the default pipeline
+    /// (<see cref="FoliantProcessor.CreateDefault"/>) wires <b>none</b>, because the Gate 8 ledger
+    /// measured the classical upscaler as net-negative for OCR recall on low-DPI scans. The seam
+    /// remains so an ML super-resolution backend can be injected and re-measured. No effect on
+    /// text-layer fast-path pages or pages not flagged low-resolution.
     /// </summary>
     public bool UpscaleLowResolutionScans { get; init; } = false;
 
