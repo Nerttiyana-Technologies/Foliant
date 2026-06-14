@@ -2,6 +2,15 @@
 
 ## 0.5.0 — unreleased
 
+### Changed
+- **API stabilization review for 1.0 (see `API-STABILITY.md`).** Defines the public contract, the
+  extension points, and the semver policy 1.0 will commit to. As part of narrowing the surface,
+  four types that had leaked to `public` but are implementation details are now `internal`:
+  `MarkdownComposer`, `ComposedPage`, `LineGrouping`, `ExtractionVerifier`. Callers consume
+  `DocumentResult` / `PageResult` (and the self-verification results via `PageVerification`); none
+  of these four were part of the intended contract. `FoliantProcessor.CreateDefault` is documented
+  as the blessed entry point.
+
 ### Added
 - **Enumerator-aware reading order — `ProcessingOptions.EnumeratorReadingOrder` (default off).** A
   post-pass after geometric ordering that reorders regions carrying a clean leading-number run
