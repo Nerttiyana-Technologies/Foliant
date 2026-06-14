@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.5.0 — unreleased
+## 0.5.0 — 2026-06-14 (low-DPI flag, reading-order & orientation refinement, API freeze)
 
 ### Changed
 - **API stabilization review for 1.0 (see `API-STABILITY.md`).** Defines the public contract, the
