@@ -3,17 +3,22 @@
 ## 0.5.0 — unreleased
 
 ### Added
-- **Classical pre-OCR upscaling for low-resolution scans — `IScanUpscaler` +
-  `ClassicalScanUpscaler` + `ProcessingOptions.UpscaleLowResolutionScans` (default off) +
-  `LowResolutionUpscaleFactor` (default 2.0).** When enabled, pages flagged `LowResolution`
-  are enlarged by a Catmull-Rom cubic resampler before orientation, preprocessing and OCR.
-  This presents existing glyphs at a larger pixel scale; it does not invent detail absent from
-  the source (that requires an ML super-resolution model, which the `IScanUpscaler` seam lets a
-  backend supply later without pipeline changes). Default-off on purpose: the toggle flips only
-  once the Gate scorecard proves a recall gain on the low-DPI corpora — the same
-  proven-by-scorecard discipline as the table and reading-order backends. The advisory
+- **Pre-OCR super-resolution seam — `IScanUpscaler` + `ProcessingOptions.UpscaleLowResolutionScans`
+  (default off) + `LowResolutionUpscaleFactor`.** When an `IScanUpscaler` is injected and the option
+  is on, pages flagged `LowResolution` are upscaled before orientation, preprocessing and OCR. The
+  seam exists so an ML super-resolution backend can drop in without pipeline changes; the advisory
   `EffectiveDpi`/`LowResolution` fields continue to describe the original source scan, not the
-  upscaled raster. Wired into `FoliantProcessor.CreateDefault`; off in the bare constructor.
+  upscaled raster.
+  - **`ClassicalScanUpscaler` (Catmull-Rom cubic) is provided as the reference implementation but is
+    NOT wired into `FoliantProcessor.CreateDefault`.** The new Gate 8 ledger (born-digital corpus,
+    forced OCR) measured classical upscaling as net-negative for OCR recall at every simulated
+    low-DPI level — Δ −0.2 to −3.9 vs no upscale, worst at the lowest DPI, since interpolation
+    enlarges blur/artifacts it cannot add detail to. So the default pipeline ships no upscaler and
+    the option is a documented no-op until an ML backend proves a gain on Gate 8.
+- **Gate 8 (verification harness) — super-resolution benefit ledger.** `--gate8 <born-digital-dir>`
+  simulates low-DPI scans (`Downscale` 150/100/72) and A/Bs OCR recall with no upscale vs the
+  classical upscaler at 1.5×/2×, scored against the pristine text layer. Ledger-first; never fails
+  the build.
 - **Low-resolution scan warning — `IScanResolutionEstimator` + `ProcessingOptions.MinScanDpi`
   (default 150) + `PageResult.EffectiveDpi` / `PageResult.LowResolution`.** OCR-routed pages now
   report the estimated *effective* source resolution of their scan and are flagged when it falls
