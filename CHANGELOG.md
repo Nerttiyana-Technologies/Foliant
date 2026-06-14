@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.6.0 — unreleased
+## 0.6.0 — 2026-06-14 (form-field key-value extraction)
 
 ### Added
 - **Typed key-value form-field extraction (foundation) — `FormField` / `FieldKind` /
