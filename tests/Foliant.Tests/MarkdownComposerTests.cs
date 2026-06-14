@@ -90,6 +90,41 @@ public class MarkdownComposerTests
     }
 
     [Fact]
+    public void Compose_EnumeratorOrder_ReordersNumberedRegions_OnlyWhenEnabled()
+    {
+        // Three stacked regions whose printed numbers are out of geometric order: top-to-bottom
+        // they read 2,1,3. Geometry alone keeps 2,1,3; the enumerator pass must yield 1,2,3.
+        var regions = new[]
+        {
+            new LayoutRegion(RegionType.Text, "plain text", 0.9f, new BoundingBox(0, 0, 100, 20)),
+            new LayoutRegion(RegionType.Text, "plain text", 0.9f, new BoundingBox(0, 30, 100, 50)),
+            new LayoutRegion(RegionType.Text, "plain text", 0.9f, new BoundingBox(0, 60, 100, 80)),
+        };
+        var lines = new[]
+        {
+            L("2. two",   1,  5, 50, 15),
+            L("1. one",   1, 35, 50, 45),
+            L("3. three", 1, 65, 50, 75),
+        };
+
+        var off = NewComposer().Compose(Page, regions, lines, enumeratorReadingOrder: false);
+        var on  = NewComposer().Compose(Page, regions, lines, enumeratorReadingOrder: true);
+
+        // Off: geometry preserved → "2. two" precedes "1. one".
+        Assert.True(off.Markdown.IndexOf("2. two", StringComparison.Ordinal)
+                  < off.Markdown.IndexOf("1. one", StringComparison.Ordinal));
+
+        // On: numeric order → 1, 2, 3.
+        int i1 = on.Markdown.IndexOf("1. one", StringComparison.Ordinal);
+        int i2 = on.Markdown.IndexOf("2. two", StringComparison.Ordinal);
+        int i3 = on.Markdown.IndexOf("3. three", StringComparison.Ordinal);
+        Assert.True(i1 >= 0 && i1 < i2 && i2 < i3, $"expected 1<2<3, got {i1}/{i2}/{i3}");
+
+        // No text lost either way.
+        Assert.Equal(0, ExtractionVerifier.CountLostLines(on.Markdown, lines, on.PageFurniture));
+    }
+
+    [Fact]
     public void RenderTable_EscapesPipesAndEmitsHeaderSeparator()
     {
         var cells = new List<TableCell>

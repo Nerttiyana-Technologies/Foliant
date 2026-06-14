@@ -1,5 +1,68 @@
 # Changelog
 
+## 0.5.0 — 2026-06-14 (low-DPI flag, reading-order & orientation refinement, API freeze)
+
+### Changed
+- **API stabilization review for 1.0 (see `API-STABILITY.md`).** Defines the public contract, the
+  extension points, and the semver policy 1.0 will commit to. As part of narrowing the surface,
+  four types that had leaked to `public` but are implementation details are now `internal`:
+  `MarkdownComposer`, `ComposedPage`, `LineGrouping`, `ExtractionVerifier`. Callers consume
+  `DocumentResult` / `PageResult` (and the self-verification results via `PageVerification`); none
+  of these four were part of the intended contract. `FoliantProcessor.CreateDefault` is documented
+  as the blessed entry point.
+
+### Added
+- **Orientation-detection refinement — text-quality guards against decorative-page misfires.**
+  `OrientationDetector` now requires the winning rotation's recognized text to clear a **mean-confidence**
+  floor (`minMeanConfidence`, default 0.5) and a **lexical-diversity** floor (`minDistinctWordRatio`,
+  default 0.30) before a page is flipped, in addition to the existing upright-bias and min-character
+  guards. This closes the decorative-front-matter hole: covers, blank endpapers and library-seal pages
+  OCR into a page of repeating/low-confidence "text" from patterns — enough characters at enough
+  confidence to clear the old guards — and were occasionally rotated spuriously. Genuine rotated body
+  text (diverse, confident) clears the new floors comfortably, so real corrections are unaffected.
+- **Enumerator-aware reading order — `ProcessingOptions.EnumeratorReadingOrder` (default off).** A
+  post-pass after geometric ordering that reorders regions carrying a clean leading-number run
+  (1,2,3,…) into numeric order, fixing numbered mosaics (magazine quizzes, instructional step grids)
+  whose true order is the printed number — the documented Gate 6 τ≈0.733 boundary geometry can't see.
+  Strict guard: it acts only on a complete consecutive run starting at 1 (≥3 regions, no gaps or
+  duplicates) and otherwise leaves geometry completely untouched, so it cannot reorder a
+  normally-ordered page; non-numbered regions keep their geometric slots. The geometric backends
+  (`XyCut`, `XyCut++`) are unchanged. New verification flag `--enumerator-order` to A/B it on Gate 6.
+  - **Measured neutral on the current Gate 6 magazine corpus** (avg τ 0.944 identical with and
+    without the pass): the low-τ pages there are flowing multi-column *prose*, not numbered, while
+    the one genuinely numbered page already orders correctly by geometry — so the strict guard found
+    no qualifying page. It neither helped nor regressed. Kept as a default-off option for genuinely
+    mis-ordered numbered documents (recipes, exams, step lists) outside this corpus.
+- **Pre-OCR super-resolution seam — `IScanUpscaler` + `ProcessingOptions.UpscaleLowResolutionScans`
+  (default off) + `LowResolutionUpscaleFactor`.** When an `IScanUpscaler` is injected and the option
+  is on, pages flagged `LowResolution` are upscaled before orientation, preprocessing and OCR. The
+  seam exists so an ML super-resolution backend can drop in without pipeline changes; the advisory
+  `EffectiveDpi`/`LowResolution` fields continue to describe the original source scan, not the
+  upscaled raster.
+  - **`ClassicalScanUpscaler` (Catmull-Rom cubic) is provided as the reference implementation but is
+    NOT wired into `FoliantProcessor.CreateDefault`.** The new Gate 8 ledger (born-digital corpus,
+    forced OCR) measured classical upscaling as net-negative for OCR recall at every simulated
+    low-DPI level — Δ −0.2 to −3.9 vs no upscale, worst at the lowest DPI, since interpolation
+    enlarges blur/artifacts it cannot add detail to. So the default pipeline ships no upscaler and
+    the option is a documented no-op until an ML backend proves a gain on Gate 8.
+- **Gate 8 (verification harness) — super-resolution benefit ledger.** `--gate8 <born-digital-dir>`
+  simulates low-DPI scans (`Downscale` 150/100/72) and A/Bs OCR recall with no upscale vs the
+  classical upscaler at 1.5×/2×, scored against the pristine text layer. Ledger-first; never fails
+  the build.
+- **Low-resolution scan warning — `IScanResolutionEstimator` + `ProcessingOptions.MinScanDpi`
+  (default 150) + `PageResult.EffectiveDpi` / `PageResult.LowResolution`.** OCR-routed pages now
+  report the estimated *effective* source resolution of their scan and are flagged when it falls
+  below `MinScanDpi`. Effective DPI is the native pixel size of the page's dominant scan image
+  relative to its physical placement on the page (`samples / (points / 72)`), read via PdfPig —
+  distinct from the render `Dpi`, which is a fixed rasterization target and carries no information
+  about scan quality (a 120-DPI scan rendered at 300 DPI is upsampled mush). The estimator ignores
+  images covering less than half the page (logos, stamps) so a small graphic never trips a false
+  warning, and uses the limiting (smaller) of the horizontal/vertical DPI since the worse axis
+  governs legibility. The flag is advisory: it never changes routing or suppresses output; the
+  page's Markdown is still produced. The estimate runs only on OCR-routed pages — born-digital
+  fast-path pages are never touched. Wired into `FoliantProcessor.CreateDefault`; the bare
+  `DocumentProcessor` constructor leaves it off (null) by default.
+
 ## 0.4.0 — 2026-06-13 (scanned-document support)
 
 ### Changed

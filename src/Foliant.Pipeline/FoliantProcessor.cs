@@ -10,7 +10,7 @@ using Foliant.Tables.TableTransformer;
 namespace Foliant.Pipeline;
 
 /// <summary>
-/// Table-structure backend selection for <see cref="FoliantProcessor.CreateDefault(string, TableBackend)"/>.
+/// Table-structure backend selection for <see cref="FoliantProcessor.CreateDefault(string, TableBackend, ReadingOrderBackend)"/>.
 /// TableTransformer (+ ruling-line hybrid) is the current default; PaddleStructure (SLANet-plus)
 /// is the v0.2.0 raster-table candidate. The default switches only when the Gate 5 cell-accuracy
 /// scorecard proves it on the reference corpus (KICKOFF quality roadmap).
@@ -85,7 +85,12 @@ public static class FoliantProcessor
             new PdfPageRenderer(), layout, ocr, tables,
             assembler, new PdfTextLayerReader(),
             ownsComponents: true,
-            preprocessor: new DefaultPagePreprocessor());
+            preprocessor: new DefaultPagePreprocessor(),
+            scanResolution: new PdfImageScanResolutionEstimator());
+        // No IScanUpscaler is wired by default: the Gate 8 ledger measured classical (bicubic)
+        // upscaling as net-negative for OCR recall on low-DPI scans (it enlarges artifacts it
+        // cannot add detail to). The IScanUpscaler seam stays for a future ML super-resolution
+        // backend; inject one here once a Gate 8 run proves it gains recall.
     }
 
     /// <summary>
