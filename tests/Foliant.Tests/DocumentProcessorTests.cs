@@ -74,9 +74,25 @@ public class DocumentProcessorTests
         }
     }
 
+    private sealed class FakeScanResolution : IScanResolutionEstimator
+    {
+        public int? Dpi { get; init; }
+        public int Calls;
+        public int? EstimateEffectiveDpi(byte[] pdf, int pageNumber)
+        {
+            Calls++;
+            return Dpi;
+        }
+    }
+
     private static DocumentProcessor NewProcessor(FakeOcr ocr, ITextLayerReader textLayer) =>
         new(new FakeRenderer(), new FakeLayout(), ocr, new FakeTables(),
             new XyCutReadingOrder(), textLayer);
+
+    private static DocumentProcessor NewProcessor(
+        FakeOcr ocr, ITextLayerReader textLayer, IScanResolutionEstimator scanResolution) =>
+        new(new FakeRenderer(), new FakeLayout(), ocr, new FakeTables(),
+            new XyCutReadingOrder(), textLayer, scanResolution: scanResolution);
 
     private static readonly byte[] FakePdf = { 0x25, 0x50, 0x44, 0x46 };   // "%PDF" — fakes ignore it
 
@@ -230,6 +246,93 @@ public class DocumentProcessorTests
             Assert.Empty(p.Lines);
         });
         Assert.Equal(0, ocr.Calls);   // OCR can't help — don't waste it
+    }
+
+    [Fact]
+    public async Task ScannedPage_BelowMinScanDpi_IsFlaggedLowResolution()
+    {
+        // Sparse text layer → OCR route → estimator runs. 120 DPI < default MinScanDpi (150).
+        var ocr = new FakeOcr();
+        var estimator = new FakeScanResolution { Dpi = 120 };
+        using var processor = NewProcessor(ocr, new FakeTextLayer { WordCount = 0 }, estimator);
+
+        var result = await processor.ProcessAsync(
+            FakePdf, new ProcessingOptions { Verify = false, DetectOrientation = false });
+
+        Assert.All(result.Pages, p =>
+        {
+            Assert.Equal(TextSource.Ocr, p.Source);
+            Assert.Equal(120, p.EffectiveDpi);
+            Assert.True(p.LowResolution);
+        });
+    }
+
+    [Fact]
+    public async Task ScannedPage_AtOrAboveMinScanDpi_IsNotFlagged()
+    {
+        var ocr = new FakeOcr();
+        var estimator = new FakeScanResolution { Dpi = 150 };   // exactly the floor → not "below"
+        using var processor = NewProcessor(ocr, new FakeTextLayer { WordCount = 0 }, estimator);
+
+        var result = await processor.ProcessAsync(
+            FakePdf, new ProcessingOptions { Verify = false, DetectOrientation = false });
+
+        Assert.All(result.Pages, p =>
+        {
+            Assert.Equal(150, p.EffectiveDpi);
+            Assert.False(p.LowResolution);
+        });
+    }
+
+    [Fact]
+    public async Task ScannedPage_UnknownEffectiveDpi_IsNotFlagged()
+    {
+        // Estimator returns null (no page-covering image): no DPI, no warning.
+        var ocr = new FakeOcr();
+        var estimator = new FakeScanResolution { Dpi = null };
+        using var processor = NewProcessor(ocr, new FakeTextLayer { WordCount = 0 }, estimator);
+
+        var result = await processor.ProcessAsync(
+            FakePdf, new ProcessingOptions { Verify = false, DetectOrientation = false });
+
+        Assert.All(result.Pages, p =>
+        {
+            Assert.Null(p.EffectiveDpi);
+            Assert.False(p.LowResolution);
+        });
+    }
+
+    [Fact]
+    public async Task TextLayerPage_NeverEstimatesResolution()
+    {
+        // Born-digital fast path: the estimator must not run, and the page is never flagged.
+        var ocr = new FakeOcr();
+        var estimator = new FakeScanResolution { Dpi = 50 };   // would flag if it ran
+        using var processor = NewProcessor(ocr, new FakeTextLayer { WordCount = 50 }, estimator);
+
+        var result = await processor.ProcessAsync(FakePdf, new ProcessingOptions { Verify = false });
+
+        Assert.Equal(0, estimator.Calls);
+        Assert.All(result.Pages, p =>
+        {
+            Assert.Equal(TextSource.TextLayer, p.Source);
+            Assert.Null(p.EffectiveDpi);
+            Assert.False(p.LowResolution);
+        });
+    }
+
+    [Fact]
+    public async Task CustomMinScanDpi_IsHonored()
+    {
+        // 250 DPI scan flagged only because the caller raised the floor to 300.
+        var ocr = new FakeOcr();
+        var estimator = new FakeScanResolution { Dpi = 250 };
+        using var processor = NewProcessor(ocr, new FakeTextLayer { WordCount = 0 }, estimator);
+
+        var result = await processor.ProcessAsync(
+            FakePdf, new ProcessingOptions { Verify = false, DetectOrientation = false, MinScanDpi = 300 });
+
+        Assert.All(result.Pages, p => Assert.True(p.LowResolution));
     }
 
     [Fact]

@@ -239,6 +239,11 @@ scripts/    model download helper
 Scanned pages routed to OCR get deterministic preprocessing automatically: deskew (±8°),
 contrast normalization for faded scans, and despeckling (`ProcessingOptions.PreprocessScans`).
 
+Scanned pages also report their estimated *effective* resolution: `PageResult.EffectiveDpi` is
+the native pixel size of the page's scan image relative to its physical size (not the fixed render
+DPI), and `PageResult.LowResolution` flags pages below `ProcessingOptions.MinScanDpi` (default 150)
+so callers can surface low-confidence scans. Advisory only — the page's Markdown is still produced.
+
 ## Roadmap
 
 Shipped recently: watermark/stamp suppression, XY-Cut++ reading order, and text-layer trust
