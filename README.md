@@ -53,12 +53,12 @@ verifiability as a feature:
 
 - **Lossless by construction.** A per-page coverage invariant guarantees every extracted line
   provably lands in the output (or is intentional page furniture, reported as such). Across
-  **1,681 documents / 40,355 pages** of verification, text loss is **zero**.
+  **2,303 documents / 65,665 pages** of verification, text loss is **zero**.
 - **Self-scoring.** Pages with an embedded text layer are scored against it — the PDF itself
   is the answer key. On the 474-page federal-RFP reference corpus in forced-OCR mode (the
   stringent test, text layer disabled): **99.7% average word recall, 100% of pages ≥95%,
   zero text loss, zero fabricated form values.** See [Test coverage & evidence](#test-coverage--evidence)
-  for the full 14-corpus ledger and exactly how each number is computed.
+  for the full 18-corpus ledger and exactly how each number is computed.
 - **Honest about limits.** When the embedded text layer is untrustworthy (legacy
   non-embedded fonts, optimizer-stripped CID fonts) the page is routed to OCR; when content
   is unreachable (dynamic XFA forms whose data lives in an Adobe-only packet) the page is
@@ -123,21 +123,23 @@ dotnet run -c Release --project tests/Foliant.Verification -- <pdf-dir>
 
 ### What was tested
 
-**1,681 documents · 40,355 pages · 14 corpora**, spanning two governments, multiple
-agencies, and forty years of PDF-generation technology — chosen to be adversarial, not
-flattering.
+**2,303 documents · 65,665 pages · 18 corpora**, spanning multiple governments and
+development banks, many agencies, courts, and forty years of PDF-generation technology —
+chosen to be adversarial, not flattering.
 
 By document category:
 
 | Category | Documents | Pages |
 |---|--:|--:|
 | Government & tax forms (public blank forms) | 1,215 | 9,586 |
-| Federal RFP / solicitation packages | 112 | 1,425 |
+| RFP / solicitation & procurement packages (federal + intl. bank IFB/ICB) | 439 | 15,202 |
 | Complex fillable forms (FDA, insurance, dental — AcroForm/XFA) | 144 | 938 |
 | Academic ebooks (multi-column) | 101 | 23,971 |
 | Consumer magazines | 34 | 3,552 |
 | Newspapers (incl. multi-column Devanagari) | 75 | 883 |
-| **Total** | **1,681** | **40,355** |
+| Federal rulemaking dockets (regulations.gov) | 169 | 9,591 |
+| Court judgements & legal filings | 126 | 1,942 |
+| **Total** | **2,303** | **65,665** |
 
 By page layout (from layout-classified corpora): multi-column **~907**, single-column /
 simple **~220**, dense form/table grids **~110**, and image-only / scanned **~182** sampled
@@ -191,6 +193,10 @@ Per-corpus results (default mode unless noted; "loss" is the Gate 2 line-loss co
 | Consumer magazines (image-heavy) | 14 | 1,386 | 100.0% | 99.9% | 0 |
 | FDA / insurance / dental claim forms | 144 | 938 | 100.0% | 100% | 0 |
 | Newspapers (incl. Devanagari) | 75 | 883 | 99.9% | 99.7% | 0 |
+| RFP / procurement bid packages (IFB/ICB, set 16) | 71 | 6,167 | 100.0% | 100% | 0 |
+| Federal solicitations — SEWP RFP + amendments (set 17) | 256 | 7,610 | 100.0% | 100% | 0 |
+| Federal rulemaking dockets — regulations.gov (set 18) | 169 | 9,591 | 100.0% | 100% | 0 |
+| Supreme Court of India judgements (set 20) | 126 | 1,942 | 100.0% | 100% | 0 |
 
 Reading order (Gate 6, Kendall's τ on hand-verified pages): **academic ebooks 0.967**,
 **consumer magazines 0.962** — measured after adopting XY-Cut++, which corrected the
