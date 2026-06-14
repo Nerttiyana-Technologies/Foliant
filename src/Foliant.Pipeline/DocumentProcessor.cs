@@ -21,6 +21,7 @@ public sealed class DocumentProcessor : IDocumentProcessor, IDisposable
     private readonly IPagePreprocessor? _preprocessor;
     private readonly OrientationDetector _orientation;
     private readonly IScanResolutionEstimator? _scanResolution;
+    private readonly IScanUpscaler? _upscaler;
     private readonly MarkdownComposer _composer;
     private readonly bool _ownsComponents;
 
@@ -41,6 +42,10 @@ public sealed class DocumentProcessor : IDocumentProcessor, IDisposable
     /// flagged <see cref="PageResult.LowResolution"/> below <see cref="ProcessingOptions.MinScanDpi"/>.
     /// Null disables the estimate (default in the bare constructor; wired by
     /// <see cref="FoliantProcessor.CreateDefault"/>).</param>
+    /// <param name="scanUpscaler">Optional pre-OCR upscaler for pages flagged
+    /// <see cref="PageResult.LowResolution"/>, applied only when
+    /// <see cref="ProcessingOptions.UpscaleLowResolutionScans"/> is on. Null disables upscaling
+    /// (default in the bare constructor; wired by <see cref="FoliantProcessor.CreateDefault"/>).</param>
     public DocumentProcessor(
         IPageRenderer renderer,
         ILayoutDetector layout,
@@ -51,7 +56,8 @@ public sealed class DocumentProcessor : IDocumentProcessor, IDisposable
         bool ownsComponents = false,
         IPagePreprocessor? preprocessor = null,
         OrientationDetector? orientation = null,
-        IScanResolutionEstimator? scanResolution = null)
+        IScanResolutionEstimator? scanResolution = null,
+        IScanUpscaler? scanUpscaler = null)
     {
         _renderer = renderer;
         _layout = layout;
@@ -62,6 +68,7 @@ public sealed class DocumentProcessor : IDocumentProcessor, IDisposable
         _preprocessor = preprocessor;
         _orientation = orientation ?? new OrientationDetector();
         _scanResolution = scanResolution;
+        _upscaler = scanUpscaler;
         _composer = new MarkdownComposer(readingOrder, tables);
         _ownsComponents = ownsComponents;
     }
@@ -170,6 +177,15 @@ public sealed class DocumentProcessor : IDocumentProcessor, IDisposable
             {
                 effectiveDpi = _scanResolution.EstimateEffectiveDpi(pdf, pageNumber);
                 lowResolution = effectiveDpi is int dpi && dpi < options.MinScanDpi;
+            }
+
+            // Super-res seam: enlarge flagged low-resolution pages before orientation, preprocessing,
+            // layout and OCR all run, so every downstream stage sees the upscaled raster. Advisory
+            // EffectiveDpi/LowResolution still describe the original source scan, not the upscale.
+            if (lowResolution && options.UpscaleLowResolutionScans
+                && _upscaler is not null && options.LowResolutionUpscaleFactor > 1f)
+            {
+                image = _upscaler.Upscale(image, options.LowResolutionUpscaleFactor);
             }
 
             if (options.DetectOrientation)
