@@ -47,4 +47,6 @@ Model weights (~280 MB total) are not inside the packages; they download on firs
 checksum verification, or pre-fetch them yourself and point `FoliantProcessor.CreateDefault`
 at the directory.
 
-Apache 2.0. English-language documents; scanned-document preprocessing is on the roadmap.
+Apache 2.0. English-language documents. Scanned-document support ships today — deskew, denoise,
+contrast normalization, and coarse page-orientation correction (0/90/180/270°); page dewarp and
+low-DPI super-resolution are on the roadmap.
