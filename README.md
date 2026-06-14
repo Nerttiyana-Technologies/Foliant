@@ -250,14 +250,22 @@ super-resolution backend rather than enabled by default.
 
 ## Roadmap
 
-Shipped recently: watermark/stamp suppression, XY-Cut++ reading order, and text-layer trust
-guards (legacy non-embedded fonts, optimizer-corrupted CID fonts, dynamic-XFA detection).
+Shipped in 0.5.0: low-resolution scan warning (`PageResult.EffectiveDpi` / `LowResolution`),
+orientation-detection refinement (confidence + word-diversity guards that stop decorative-page
+misfires), enumerator-aware reading order for numbered mosaics (opt-in), and the 1.0 API
+stability review (see [`API-STABILITY.md`](API-STABILITY.md)). Earlier: scanned-document support
+with coarse-orientation correction (0.4.0), watermark/stamp suppression, XY-Cut++ reading order,
+and text-layer trust guards (legacy non-embedded fonts, optimizer-corrupted CID fonts, dynamic-XFA).
+
+Measured and parked: classical (bicubic) super-resolution was measured net-negative for OCR recall
+on low-DPI scans (Gate 8) and is off by default; ML super-resolution is unshippable on CPU
+(minutes/page) and is deferred to a GPU execution path. The `IScanUpscaler` seam is in place for it.
 
 Next:
 
-- Page-orientation and de-warp preprocessing (models already cataloged)
 - Form-field key-value extraction as typed output
 - Languages beyond English (PaddleOCR multilingual recognition models)
+- Page de-warp and GPU-path ML super-resolution
 - Additional backends (`Foliant.Ocr.Tesseract`; community backends welcome — the
   interfaces are the contract, no central gatekeeping)
 - Post-OCR language-model correction (local, optional)
