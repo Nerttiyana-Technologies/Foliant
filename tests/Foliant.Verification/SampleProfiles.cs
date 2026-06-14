@@ -33,7 +33,9 @@ internal static class SampleProfiles
         new FormFieldSpec("toc_H", "SPECIAL CONTRACT REQUIREMENTS",      FieldKind.Checkbox, ValueAnchor.Mark),
         new FormFieldSpec("toc_I", "CONTRACT CLAUSES",                   FieldKind.Checkbox, ValueAnchor.Mark),
         new FormFieldSpec("toc_J", "LIST OF ATTACHMENTS",               FieldKind.Checkbox, ValueAnchor.Mark),
-        new FormFieldSpec("toc_K", "OTHER STATEMENTS OF OFFERORS",       FieldKind.Checkbox, ValueAnchor.Mark),
+        // toc_K's entry wraps to two lines ("REPRESENTATIONS, CERTIFICATIONS AND / OTHER STATEMENTS
+        // OF OFFERORS") with the checkbox on the FIRST line — anchor there, not on the continuation.
+        new FormFieldSpec("toc_K", "REPRESENTATIONS, CERTIFICATIONS",    FieldKind.Checkbox, ValueAnchor.Mark),
         new FormFieldSpec("toc_L", "NOTICES TO OFFERORS",               FieldKind.Checkbox, ValueAnchor.Mark),
         new FormFieldSpec("toc_M", "EVALUATION FACTORS FOR AWARD",       FieldKind.Checkbox, ValueAnchor.Mark),
     });

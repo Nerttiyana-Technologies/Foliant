@@ -50,7 +50,7 @@ public sealed class GeometricFormFieldExtractor : IFormFieldExtractor
 
             if (spec.Kind == FieldKind.Checkbox || spec.Anchor == ValueAnchor.Mark)
             {
-                bool marked = HasMarkOnRow(label, lines);
+                bool marked = HasMarkInCheckboxColumn(label, lines);
                 result.Add(new FormField(spec.Name, marked ? "checked" : "unchecked",
                     FieldKind.Checkbox, label.Bounds, 0.8f, FormFieldSource.Geometry));
                 continue;
@@ -138,9 +138,20 @@ public sealed class GeometricFormFieldExtractor : IFormFieldExtractor
             .FirstOrDefault();
     }
 
-    private static bool HasMarkOnRow(TextLine label, IReadOnlyList<TextLine> lines)
+    /// <summary>
+    /// A checkbox mark in the label's OWN column: a mark glyph on the label's row whose right edge
+    /// is at or left of the label's left edge (its checkbox sits just before the description), and
+    /// reasonably close. Column-scoping is essential on two-column tables of contents — otherwise a
+    /// mark belonging to the OTHER column's item on the same visual row is misread as this one's.
+    /// </summary>
+    private static bool HasMarkInCheckboxColumn(TextLine label, IReadOnlyList<TextLine> lines)
     {
         float cy = label.Bounds.CenterY, h = Math.Max(1f, label.Bounds.Height);
-        return lines.Any(l => Math.Abs(l.Bounds.CenterY - cy) < 0.6f * h && Mark.IsMatch(l.Text));
+        float maxGap = 12f * h;   // spans the narrow section-letter column, not the page width
+        return lines.Any(l =>
+            Math.Abs(l.Bounds.CenterY - cy) < 0.6f * h                 // same row
+            && l.Bounds.X2 <= label.Bounds.X1 + 0.5f * h               // to the LEFT of the label
+            && label.Bounds.X1 - l.Bounds.X2 < maxGap                  // but in its own checkbox column
+            && Mark.IsMatch(l.Text));
     }
 }
