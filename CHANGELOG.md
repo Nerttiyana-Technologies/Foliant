@@ -1,5 +1,22 @@
 # Changelog
 
+## 0.5.0 — unreleased
+
+### Added
+- **Low-resolution scan warning — `IScanResolutionEstimator` + `ProcessingOptions.MinScanDpi`
+  (default 150) + `PageResult.EffectiveDpi` / `PageResult.LowResolution`.** OCR-routed pages now
+  report the estimated *effective* source resolution of their scan and are flagged when it falls
+  below `MinScanDpi`. Effective DPI is the native pixel size of the page's dominant scan image
+  relative to its physical placement on the page (`samples / (points / 72)`), read via PdfPig —
+  distinct from the render `Dpi`, which is a fixed rasterization target and carries no information
+  about scan quality (a 120-DPI scan rendered at 300 DPI is upsampled mush). The estimator ignores
+  images covering less than half the page (logos, stamps) so a small graphic never trips a false
+  warning, and uses the limiting (smaller) of the horizontal/vertical DPI since the worse axis
+  governs legibility. The flag is advisory: it never changes routing or suppresses output; the
+  page's Markdown is still produced. The estimate runs only on OCR-routed pages — born-digital
+  fast-path pages are never touched. Wired into `FoliantProcessor.CreateDefault`; the bare
+  `DocumentProcessor` constructor leaves it off (null) by default.
+
 ## 0.4.0 — 2026-06-13 (scanned-document support)
 
 ### Changed

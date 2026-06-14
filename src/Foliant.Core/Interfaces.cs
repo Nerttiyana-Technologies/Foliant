@@ -45,6 +45,23 @@ public interface IReadingOrderAssembler
     IReadOnlyList<LayoutRegion> Order(IReadOnlyList<LayoutRegion> regions);
 }
 
+/// <summary>
+/// Estimates the effective source resolution (DPI) of a scanned page from its embedded raster
+/// images. Distinct from the render DPI (<see cref="ProcessingOptions.Dpi"/>), a fixed
+/// rasterization target that carries no information about scan quality. Used to flag low-resolution
+/// scans (<see cref="PageResult.LowResolution"/>) whose OCR is lower-confidence.
+/// </summary>
+public interface IScanResolutionEstimator
+{
+    /// <param name="pdf">The PDF file contents.</param>
+    /// <param name="pageNumber">1-based page number.</param>
+    /// <returns>
+    /// Effective DPI of the dominant full-page scan image, or null when the page has no image
+    /// large enough to be a scan (born-digital pages, or pages with only small decorations).
+    /// </returns>
+    int? EstimateEffectiveDpi(byte[] pdf, int pageNumber);
+}
+
 /// <summary>The embedded text layer of one PDF page, mapped to raster coordinates.</summary>
 /// <param name="Lines">Text lines grouped from the embedded words, in raster coordinates.</param>
 /// <param name="WordCount">Raw word count before line grouping (drives the Auto fast-path decision).</param>
