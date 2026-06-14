@@ -76,6 +76,21 @@ public interface IScanUpscaler
     PageImage Upscale(PageImage image, float factor);
 }
 
+/// <summary>
+/// Extracts typed key-value form fields from one PDF page — from the fillable AcroForm dictionary
+/// when present, otherwise by geometric label→value association over the page's recognized text.
+/// </summary>
+public interface IFormFieldExtractor
+{
+    /// <param name="pdf">The PDF file contents.</param>
+    /// <param name="pageNumber">1-based page number.</param>
+    /// <param name="image">The rendered page (carries DPI and size for coordinate mapping).</param>
+    /// <param name="lines">The page's recognized text lines (OCR or text-layer), for geometric fallback.</param>
+    /// <returns>The extracted fields; empty when none are found.</returns>
+    IReadOnlyList<FormField> Extract(
+        byte[] pdf, int pageNumber, PageImage image, IReadOnlyList<TextLine> lines);
+}
+
 /// <summary>The embedded text layer of one PDF page, mapped to raster coordinates.</summary>
 /// <param name="Lines">Text lines grouped from the embedded words, in raster coordinates.</param>
 /// <param name="WordCount">Raw word count before line grouping (drives the Auto fast-path decision).</param>

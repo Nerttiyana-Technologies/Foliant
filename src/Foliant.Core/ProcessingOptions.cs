@@ -100,6 +100,15 @@ public sealed record ProcessingOptions
     /// </summary>
     public bool EnumeratorReadingOrder { get; init; } = false;
 
+    /// <summary>
+    /// Extract typed key-value form fields (<see cref="PageResult.FormFields"/>) — from the PDF's
+    /// fillable AcroForm dictionary when present, otherwise (a later release) by geometric
+    /// label→value association on flattened/scanned forms. Off by default and a no-op unless an
+    /// <see cref="IFormFieldExtractor"/> is wired into the pipeline. The default flips on once the
+    /// Gate 3 extraction scorecard proves it.
+    /// </summary>
+    public bool ExtractFormFields { get; init; } = false;
+
     /// <summary>1-based page numbers to process; null processes all pages.</summary>
     public IReadOnlyCollection<int>? Pages { get; init; }
 
