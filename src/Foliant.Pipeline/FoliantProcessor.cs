@@ -85,7 +85,8 @@ public static class FoliantProcessor
             new PdfPageRenderer(), layout, ocr, tables,
             assembler, new PdfTextLayerReader(),
             ownsComponents: true,
-            preprocessor: new DefaultPagePreprocessor());
+            preprocessor: new DefaultPagePreprocessor(),
+            scanResolution: new PdfImageScanResolutionEstimator());
     }
 
     /// <summary>

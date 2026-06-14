@@ -20,6 +20,7 @@ public sealed class DocumentProcessor : IDocumentProcessor, IDisposable
     private readonly ITableExtractor _tables;
     private readonly IPagePreprocessor? _preprocessor;
     private readonly OrientationDetector _orientation;
+    private readonly IScanResolutionEstimator? _scanResolution;
     private readonly MarkdownComposer _composer;
     private readonly bool _ownsComponents;
 
@@ -35,6 +36,11 @@ public sealed class DocumentProcessor : IDocumentProcessor, IDisposable
     /// <param name="orientation">Coarse page-orientation detector (0/90/180/270°), applied to pages
     /// routed to OCR when <see cref="ProcessingOptions.DetectOrientation"/> is on. Defaults to a new
     /// <see cref="OrientationDetector"/> with standard settings.</param>
+    /// <param name="scanResolution">Optional effective-scan-resolution estimator. When supplied, pages
+    /// routed to OCR report their estimated source DPI (<see cref="PageResult.EffectiveDpi"/>) and are
+    /// flagged <see cref="PageResult.LowResolution"/> below <see cref="ProcessingOptions.MinScanDpi"/>.
+    /// Null disables the estimate (default in the bare constructor; wired by
+    /// <see cref="FoliantProcessor.CreateDefault"/>).</param>
     public DocumentProcessor(
         IPageRenderer renderer,
         ILayoutDetector layout,
@@ -44,7 +50,8 @@ public sealed class DocumentProcessor : IDocumentProcessor, IDisposable
         ITextLayerReader textLayer,
         bool ownsComponents = false,
         IPagePreprocessor? preprocessor = null,
-        OrientationDetector? orientation = null)
+        OrientationDetector? orientation = null,
+        IScanResolutionEstimator? scanResolution = null)
     {
         _renderer = renderer;
         _layout = layout;
@@ -54,6 +61,7 @@ public sealed class DocumentProcessor : IDocumentProcessor, IDisposable
         _textLayer = textLayer;
         _preprocessor = preprocessor;
         _orientation = orientation ?? new OrientationDetector();
+        _scanResolution = scanResolution;
         _composer = new MarkdownComposer(readingOrder, tables);
         _ownsComponents = ownsComponents;
     }
@@ -152,8 +160,18 @@ public sealed class DocumentProcessor : IDocumentProcessor, IDisposable
         // ── Scanned pages: correct coarse orientation, then fine cleanup, before OCR ─
         //    Both run only when characters must come from pixels (the OCR path).
         int orientationApplied = 0;
+        int? effectiveDpi = null;
+        bool lowResolution = false;
         if (!useLayer)
         {
+            // Effective source DPI from the embedded scan image (not the fixed render DPI).
+            // Computed from the original PDF bytes, independent of the in-memory raster transforms.
+            if (_scanResolution is not null)
+            {
+                effectiveDpi = _scanResolution.EstimateEffectiveDpi(pdf, pageNumber);
+                lowResolution = effectiveDpi is int dpi && dpi < options.MinScanDpi;
+            }
+
             if (options.DetectOrientation)
                 (image, orientationApplied) = _orientation.Correct(image, _ocr);
             if (options.PreprocessScans && _preprocessor != null)
@@ -195,7 +213,9 @@ public sealed class DocumentProcessor : IDocumentProcessor, IDisposable
             useLayer ? TextSource.TextLayer : TextSource.Ocr,
             composed.Markdown,
             new PageVerification(lost, truthWords, truthFound, sw.Elapsed.TotalSeconds),
-            OrientationApplied: orientationApplied);
+            OrientationApplied: orientationApplied,
+            EffectiveDpi: effectiveDpi,
+            LowResolution: lowResolution);
     }
 
     public void Dispose()

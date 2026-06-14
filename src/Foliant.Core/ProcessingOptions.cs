@@ -24,6 +24,17 @@ public sealed record ProcessingOptions
     /// <summary>Render resolution. 300 DPI is the quality/speed sweet spot from the Phase 0 spike.</summary>
     public int Dpi { get; init; } = 300;
 
+    /// <summary>
+    /// Effective source resolution (DPI) below which an OCR-routed (scanned) page is flagged
+    /// <see cref="PageResult.LowResolution"/>. The effective DPI is the native pixel size of the
+    /// page's dominant scan image relative to its physical size on the page — not the render
+    /// <see cref="Dpi"/>, which is a fixed rasterization target and carries no information about
+    /// scan quality (a 120-DPI scan rendered at 300 DPI is upsampled mush). 150 DPI is the common
+    /// OCR-quality floor; below it recognition accuracy degrades noticeably. The flag is advisory:
+    /// it never changes routing or output, only surfaces low-confidence scans for caller review.
+    /// </summary>
+    public int MinScanDpi { get; init; } = 150;
+
     public TextLayerMode TextLayer { get; init; } = TextLayerMode.Auto;
 
     /// <summary>
