@@ -20,6 +20,7 @@ string outDir = "verification-out";
 string modelsDir = "models";
 bool ocrOnly = false;
 string? gate3Csv = null;
+string? gate3ExtractCsv = null;
 string? gate5Dir = null;
 string? gate6Dir = null;
 string? gate7Dir = null;
@@ -39,6 +40,7 @@ for (int i = 0; i < args.Length; i++)
     if (args[i] == "--models" && i + 1 < args.Length) { modelsDir = args[++i]; continue; }
     if (args[i] == "--ocr-only") { ocrOnly = true; continue; }
     if (args[i] == "--gate3" && i + 1 < args.Length) { gate3Csv = args[++i]; continue; }
+    if (args[i] == "--gate3-extract" && i + 1 < args.Length) { gate3ExtractCsv = args[++i]; continue; }
     if (args[i] == "--gate5" && i + 1 < args.Length) { gate5Dir = args[++i]; continue; }
     if (args[i] == "--gate6" && i + 1 < args.Length) { gate6Dir = args[++i]; continue; }
     if (args[i] == "--gate7" && i + 1 < args.Length) { gate7Dir = args[++i]; continue; }
@@ -78,7 +80,7 @@ if (pdfDir == null || !Directory.Exists(pdfDir))
 {
     Console.Error.WriteLine(
         "Usage: Foliant.Verification <pdf-dir> [out-dir] [--models <dir>] [--ocr-only] " +
-        "[--gate3 <truth.csv>] [--gate5 <truth-dir>] [--gate6 <truth-dir>] " +
+        "[--gate3 <truth.csv>] [--gate3-extract <truth.csv>] [--gate5 <truth-dir>] [--gate6 <truth-dir>] " +
         "[--gate7 <born-digital-dir> [--gate7-pages N]] " +
         "[--gate8 <born-digital-dir> [--gate8-pages N]] " +
         "[--orient-check [--orient-pages N]] [--no-orientation] [--enumerator-order] " +
@@ -90,7 +92,14 @@ var pdfs = Directory.GetFiles(pdfDir, "*.pdf").OrderBy(p => p).ToList();
 if (pdfs.Count == 0) { Console.Error.WriteLine($"No PDFs in {pdfDir}."); return 2; }
 
 Directory.CreateDirectory(outDir);
-using var processor = FoliantProcessor.CreateDefault(modelsDir, tableBackend, readingOrder);
+// Gate 3 extraction mode wires the composite form-field extractor (AcroForm + the SF-33 geometric
+// profile); every other mode uses the default (AcroForm only).
+IFormFieldExtractor? formExtractor = gate3ExtractCsv != null
+    ? new CompositeFormFieldExtractor(
+        new AcroFormFieldExtractor(),
+        new GeometricFormFieldExtractor(new[] { SampleProfiles.Sf33Solicitation }))
+    : null;
+using var processor = FoliantProcessor.CreateDefault(modelsDir, tableBackend, readingOrder, formExtractor);
 if (tableBackend != TableBackend.TableTransformer)
     Console.WriteLine($"Table backend: {tableBackend}");
 if (readingOrder != ReadingOrderBackend.XyCutPlusPlus)
@@ -104,6 +113,7 @@ var options = new ProcessingOptions
     TextLayer = ocrOnly ? TextLayerMode.Never : TextLayerMode.Auto,
     DetectOrientation = !noOrientation,
     EnumeratorReadingOrder = enumeratorOrder,
+    ExtractFormFields = gate3ExtractCsv != null,
 };
 if (enumeratorOrder) Console.WriteLine("Mode: --enumerator-order (numbered-mosaic reading-order post-pass on)");
 if (ocrOnly) Console.WriteLine("Mode: --ocr-only (text layer disabled for extraction; still used as recall truth)");
@@ -126,10 +136,11 @@ if (orientCheck)
     return await OrientCheckRunner.RunAsync(processor, pdfDir, orientPages) ? 0 : 1;
 
 // Gate modes process only the truth-referenced pages, no corpus sweep.
-if (gate3Csv != null || gate5Dir != null || gate6Dir != null || gate7Dir != null || gate8Dir != null)
+if (gate3Csv != null || gate3ExtractCsv != null || gate5Dir != null || gate6Dir != null || gate7Dir != null || gate8Dir != null)
 {
     bool gatesOk = true;
     if (gate3Csv != null) gatesOk &= await Gate3Runner.RunAsync(processor, pdfDir, gate3Csv, options);
+    if (gate3ExtractCsv != null) gatesOk &= await Gate3ExtractRunner.RunAsync(processor, pdfDir, gate3ExtractCsv, options);
     if (gate5Dir != null) gatesOk &= await Gate5Runner.RunAsync(processor, pdfDir, gate5Dir, options);
     if (gate6Dir != null) gatesOk &= await Gate6Runner.RunAsync(processor, pdfDir, gate6Dir, options);
     // Gates 7 and 8 manage their own per-page options (forced OCR + degradation transforms), so
