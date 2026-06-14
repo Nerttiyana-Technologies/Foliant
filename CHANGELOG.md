@@ -1,6 +1,15 @@
 # Changelog
 
-## Unreleased (0.4.0 — scanned-document support)
+## 0.4.0 — 2026-06-13 (scanned-document support)
+
+### Changed
+- **Self-verification no longer scores recall against an undecodable text layer.** When a page's
+  text layer is rejected as undecodable garbage (subset CID fonts with no ToUnicode map — the
+  same `UndecodableCharFraction` signal that routes the page to OCR), it is no longer used as
+  recall ground truth: `PageVerification.RecallPercent` is `null` (page flagged for review)
+  rather than a misleading ~0% computed against the corruption itself. The dropped-char
+  (formmsd) class is unaffected — its word text is usually real. Makes corpus recall on
+  CID-optimized magazines honest (those pages are correctly OCR'd; verified by inspection).
 
 ### Added
 - **`OrientationDetector` + `ProcessingOptions.DetectOrientation`** (default on) — coarse
