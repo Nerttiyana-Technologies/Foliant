@@ -109,4 +109,61 @@ public class OrientationDetectorTests
         var (_, applied) = new OrientationDetector().Correct(page, new TopHeavyOcr(chars: 20)); // < default floor 100
         Assert.Equal(0, applied);
     }
+
+    // Fake OCR returning a fixed TEXT at every orientation, with confidence = (scale × top-ink
+    // fraction). The constant text lets us control diversity/confidence while the ink position
+    // still decides which orientation wins the vote (upright moves ink to the top).
+    private sealed class TextOcr(string text, float confScale = 1f) : IOcrEngine
+    {
+        public IReadOnlyList<TextLine> Recognize(PageImage page)
+        {
+            int w = page.Width, h = page.Height, half = h / 2;
+            var px = page.PixelsBgra8888;
+            long darkTop = 0, darkAll = 0;
+            for (int y = 0; y < h; y++)
+                for (int x = 0; x < w; x++)
+                {
+                    int p = (y * w + x) * 4;
+                    int luma = (px[p] * 114 + px[p + 1] * 587 + px[p + 2] * 299) / 1000;
+                    if (luma < 128) { darkAll++; if (y < half) darkTop++; }
+                }
+            float frac = darkAll == 0 ? 0f : (float)darkTop / darkAll;
+            return new[] { new TextLine(new BoundingBox(0, 0, 10, 10), text, frac * confScale, TextSource.Ocr) };
+        }
+        public void Dispose() { }
+    }
+
+    private static readonly string RepeatToken = string.Join(" ", Enumerable.Repeat("seal", 40));        // 40 words, 1 distinct
+    private static readonly string DiverseText = string.Join(" ", Enumerable.Range(0, 30).Select(i => $"word{i:00}")); // 30 distinct
+
+    [Fact]
+    public void DecorativeSealPage_StaysUpright_LowWordDiversity()
+    {
+        // A library-seal / patterned border OCRs as one token repeated: high char count, high
+        // confidence, but near-zero diversity. The vote would flip it 180°; the diversity guard
+        // must keep it upright.
+        var page = Banded(top: false, bottom: true);              // would otherwise flip 180°
+        var (_, applied) = new OrientationDetector().Correct(page, new TextOcr(RepeatToken));
+        Assert.Equal(0, applied);
+    }
+
+    [Fact]
+    public void LowConfidenceTexturePage_StaysUpright()
+    {
+        // Diverse but low-confidence "text" (texture/pattern hallucination). The mean-confidence
+        // guard must keep it upright even though the vote favors a rotation.
+        var page = Banded(top: false, bottom: true);
+        var (_, applied) = new OrientationDetector().Correct(page, new TextOcr(DiverseText, confScale: 0.35f));
+        Assert.Equal(0, applied);
+    }
+
+    [Fact]
+    public void GenuineDiverseText_StillFlips()
+    {
+        // Positive control: real, diverse, confident text on an upside-down page must still flip,
+        // proving the new guards don't over-suppress genuine rotations.
+        var page = Banded(top: false, bottom: true);
+        var (_, applied) = new OrientationDetector().Correct(page, new TextOcr(DiverseText));
+        Assert.Equal(180, applied);
+    }
 }

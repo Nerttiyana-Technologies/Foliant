@@ -42,6 +42,17 @@ public sealed record PageVerification(
 /// Coarse rotation (degrees clockwise: 0/90/180/270) the orientation detector applied to bring
 /// this page upright before OCR. 0 when the page was already upright or detection was disabled.
 /// </param>
+/// <param name="EffectiveDpi">
+/// Estimated native resolution of this page's dominant scan image (its pixel size relative to its
+/// physical size on the page), or null when the page is not a scan or has no image large enough to
+/// estimate from (born-digital fast-path pages, or pages with only small decorations). Distinct
+/// from <paramref name="Dpi"/>, which is the fixed render target. Only computed on OCR-routed pages.
+/// </param>
+/// <param name="LowResolution">
+/// True when <paramref name="EffectiveDpi"/> is below <see cref="ProcessingOptions.MinScanDpi"/> —
+/// an advisory signal that this scan is low-resolution and its OCR is lower-confidence. The page's
+/// <paramref name="Markdown"/> is still produced and usable; this never suppresses output.
+/// </param>
 public sealed record PageResult(
     int PageNumber,
     int WidthPx,
@@ -54,4 +65,6 @@ public sealed record PageResult(
     string Markdown,
     PageVerification Verification,
     string? Notice = null,
-    int OrientationApplied = 0);
+    int OrientationApplied = 0,
+    int? EffectiveDpi = null,
+    bool LowResolution = false);

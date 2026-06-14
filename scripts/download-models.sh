@@ -47,4 +47,14 @@ hf_get "Xenova/table-transformer-structure-recognition-v1.1-all" \
 hf_get "PaddlePaddle/SLANet_plus_onnx" "inference.onnx"          "table_slanet_plus.onnx"
 hf_get "PaddlePaddle/SLANet_plus_onnx" "inference.yml"           "table_slanet_plus.config.yml"
 
+# [5] Super-resolution — OPT-IN EVALUATION MODEL (run with FOLIANT_WITH_SR=1 to fetch).
+#     Real-ESRGAN x2 ONNX (~64 MB). License: BSD-3-Clause (commercial-friendly — passes the gate).
+#     NOT wired into FoliantProcessor.CreateDefault; it drives the IScanUpscaler seam only for the
+#     Gate 8 A/B that decides whether ML super-resolution beats no-upscale on low-DPI scans.
+#     Path from the model card (huggingface.co/tidus2102/Real-ESRGAN), checked 2026-06-14 —
+#     CONFIRM the license tag on the card before adopting, and pin a sha256 after first download.
+if [[ "${FOLIANT_WITH_SR:-0}" == "1" ]]; then
+  hf_get "tidus2102/Real-ESRGAN" "Real-ESRGAN_x2plus.onnx"       "sr_real_esrgan_x2.onnx"
+fi
+
 echo "Done. Models in $MODELS_DIR"

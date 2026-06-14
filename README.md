@@ -239,6 +239,15 @@ scripts/    model download helper
 Scanned pages routed to OCR get deterministic preprocessing automatically: deskew (±8°),
 contrast normalization for faded scans, and despeckling (`ProcessingOptions.PreprocessScans`).
 
+Scanned pages also report their estimated *effective* resolution: `PageResult.EffectiveDpi` is
+the native pixel size of the page's scan image relative to its physical size (not the fixed render
+DPI), and `PageResult.LowResolution` flags pages below `ProcessingOptions.MinScanDpi` (default 150)
+so callers can surface low-confidence scans. Advisory only — the page's Markdown is still produced.
+An `IScanUpscaler` seam (`ProcessingOptions.UpscaleLowResolutionScans`) can upscale flagged pages
+before OCR, but the default pipeline wires no upscaler: the Gate 8 ledger measured classical
+(bicubic) upscaling as net-negative for recall, so the seam is reserved for a future ML
+super-resolution backend rather than enabled by default.
+
 ## Roadmap
 
 Shipped recently: watermark/stamp suppression, XY-Cut++ reading order, and text-layer trust
@@ -254,7 +263,8 @@ Next:
 - Post-OCR language-model correction (local, optional)
 
 `IDocumentProcessor` and the `Foliant.Core` contracts are treated as stable from 1.0;
-backends iterate freely.
+backends iterate freely. The full public contract, extension points, and semver policy are
+documented in [`API-STABILITY.md`](API-STABILITY.md).
 
 ## Built on
 

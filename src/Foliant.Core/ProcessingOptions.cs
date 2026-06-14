@@ -24,6 +24,34 @@ public sealed record ProcessingOptions
     /// <summary>Render resolution. 300 DPI is the quality/speed sweet spot from the Phase 0 spike.</summary>
     public int Dpi { get; init; } = 300;
 
+    /// <summary>
+    /// Effective source resolution (DPI) below which an OCR-routed (scanned) page is flagged
+    /// <see cref="PageResult.LowResolution"/>. The effective DPI is the native pixel size of the
+    /// page's dominant scan image relative to its physical size on the page — not the render
+    /// <see cref="Dpi"/>, which is a fixed rasterization target and carries no information about
+    /// scan quality (a 120-DPI scan rendered at 300 DPI is upsampled mush). 150 DPI is the common
+    /// OCR-quality floor; below it recognition accuracy degrades noticeably. The flag is advisory:
+    /// it never changes routing or output, only surfaces low-confidence scans for caller review.
+    /// </summary>
+    public int MinScanDpi { get; init; } = 150;
+
+    /// <summary>
+    /// Upscale pages flagged <see cref="PageResult.LowResolution"/> with the pipeline's injected
+    /// <see cref="IScanUpscaler"/> by <see cref="LowResolutionUpscaleFactor"/> before OCR. Off by
+    /// default, and a no-op unless an upscaler is supplied: the default pipeline
+    /// (<c>FoliantProcessor.CreateDefault</c>) wires <b>none</b>, because the Gate 8 ledger
+    /// measured the classical upscaler as net-negative for OCR recall on low-DPI scans. The seam
+    /// remains so an ML super-resolution backend can be injected and re-measured. No effect on
+    /// text-layer fast-path pages or pages not flagged low-resolution.
+    /// </summary>
+    public bool UpscaleLowResolutionScans { get; init; } = false;
+
+    /// <summary>
+    /// Linear scale factor applied when <see cref="UpscaleLowResolutionScans"/> upscales a
+    /// low-resolution page. 2.0 doubles each dimension. Values ≤ 1 disable the upscale.
+    /// </summary>
+    public float LowResolutionUpscaleFactor { get; init; } = 2.0f;
+
     public TextLayerMode TextLayer { get; init; } = TextLayerMode.Auto;
 
     /// <summary>
@@ -61,6 +89,16 @@ public sealed record ProcessingOptions
     /// Cheap; leave on except in throughput-critical scenarios.
     /// </summary>
     public bool Verify { get; init; } = true;
+
+    /// <summary>
+    /// After geometric reading order, reorder regions that carry a clean leading-number sequence
+    /// (1,2,3,…) into numeric order — fixes numbered mosaics (magazine quizzes, step grids) whose
+    /// true order is the printed number, which geometry alone cannot see. Strict by design: it acts
+    /// only on a complete consecutive run starting at 1 and otherwise leaves geometry untouched, so
+    /// it cannot reorder a normally-ordered page. Off by default until the Gate 6 ledger proves the
+    /// τ gain with no reference-corpus regression (proven-by-scorecard, like the reading-order backend).
+    /// </summary>
+    public bool EnumeratorReadingOrder { get; init; } = false;
 
     /// <summary>1-based page numbers to process; null processes all pages.</summary>
     public IReadOnlyCollection<int>? Pages { get; init; }
