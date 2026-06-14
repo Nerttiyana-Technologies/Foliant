@@ -47,7 +47,8 @@ public static class FoliantProcessor
     public static DocumentProcessor CreateDefault(
         string modelsDirectory,
         TableBackend tableBackend = TableBackend.TableTransformer,
-        ReadingOrderBackend readingOrder = ReadingOrderBackend.XyCutPlusPlus)
+        ReadingOrderBackend readingOrder = ReadingOrderBackend.XyCutPlusPlus,
+        IFormFieldExtractor? formFields = null)
     {
         string Require(string fileName)
         {
@@ -87,7 +88,7 @@ public static class FoliantProcessor
             ownsComponents: true,
             preprocessor: new DefaultPagePreprocessor(),
             scanResolution: new PdfImageScanResolutionEstimator(),
-            formFields: new AcroFormFieldExtractor());
+            formFields: formFields ?? new AcroFormFieldExtractor());
         // No IScanUpscaler is wired by default: the Gate 8 ledger measured classical (bicubic)
         // upscaling as net-negative for OCR recall on low-DPI scans (it enlarges artifacts it
         // cannot add detail to). The IScanUpscaler seam stays for a future ML super-resolution
