@@ -1,5 +1,66 @@
 # Changelog
 
+## 1.0.2 — 2026-06-15 (box-grid form scramble: ejection class fixed)
+
+Patch release. Fixes the reading-order scramble flagged as a known issue in 1.0.1, for the case where
+a box-grid form block is mis-detected as a table. No public API change (PATCH under
+`API-STABILITY.md`); affects `Foliant.Pipeline` only. Validated on the forms corpus (474 pages):
+reference recall held at 99.3% (no real tables reclassified), and the order-aware gate added in 1.0.1
+confirms the previously-scrambled instruction rows now read in sequence.
+
+### Fixed
+- **Running text no longer scrambled when a form block is mis-gridded as a table (ejection class).**
+  When the table-structure model imposes a grid on a box-grid form block, sentences spanning the
+  cell borders were ejected outside the grid and re-appended out of order. `MarkdownComposer` now
+  applies a **grid-fit guard**: if a table-detected region has a single column, or more than 25% of
+  its text falls outside the predicted grid, the block is rendered as flowing reading-order prose
+  instead of a scrambled table. Real data tables (which capture nearly all their text in cells) are
+  unaffected; only mis-gridded prose blocks fall back. Covered by new regression tests.
+
+### Known issue (still open, fix in progress)
+- **Captured-but-reordered scramble on dense forms.** A distinct, harder case where the predicted
+  grid *fits* (little text ejected, so the guard above does not fire) but the cells are still
+  reordered because running sentences span multiple grid columns and are chopped and re-joined out
+  of reading order — seen on some solicitation cover pages and CDRL forms. Tracked for a follow-up
+  patch; it needs a column-spanning signal validated against table-heavy corpora to avoid
+  reclassifying genuine wide tables. For forms with a `Foliant.Forms.*` profile, the cover-page
+  key-values still extract correctly via the deterministic field path regardless of this issue.
+
+## 1.0.1 — 2026-06-15 (form-extraction fixes; reading-order verification)
+
+Patch release. Two defects surfaced on a standard **SF-30 (Amendment of Solicitation)** cover page in
+production, plus the verification gap that let them ship. No public API change (PATCH under
+`API-STABILITY.md`); affects `Foliant.Pipeline` and the `Foliant.Forms.UsFederal` pack only.
+
+### Fixed
+- **Label/value concatenation on box-grid form cells.** On dense federal forms a cell that carries
+  both its printed label and the typed value in one box (e.g. SF-30 box 16A) was emitted as a single
+  run-on string — the label text followed immediately by the filled-in value, with no separator
+  between them. The `Foliant.Forms.UsFederal` **SF-30 profile now anchors the 15A/16A signer and
+  contracting-officer name boxes** (and the "is required to sign" checkbox), so those values extract
+  as clean typed fields instead of smushing into the label.
+
+### Known issue (detected, fix in progress)
+- **Running text scrambled on dense box-grid forms.** Whole instruction blocks on tightly gridded
+  forms are classified as tables; the table-structure model then imposes a cell grid that does not
+  match the form's logical reading flow, so a sentence spanning several cells is split across cells
+  and rows and linearizes out of order. Every word is present (word-recall stays ~100%), but the
+  sequence is wrong, which can invert meaning on instruction rows. This release **adds detection**
+  for the failure (below); the fix — form-aware handling so spanning text is not carved into table
+  cells — follows in a subsequent patch once validated against the reference corpus, to avoid
+  regressing the 99.7% recall guarantee. For forms with a `Foliant.Forms.*` profile, the cover-page
+  key-values still extract correctly via the deterministic field path regardless of this issue.
+
+### Added
+- **Order-aware verification gate (test harness).** Recall measured *set membership* — every word
+  present scored 100%, so a permuted line was invisible to it. The scorecard now also reports a
+  **reading-order fidelity** score per page: using the PDF text layer's natural word order as truth,
+  it measures the longest run of output words kept in order (longest-increasing-subsequence over
+  unique anchor words, O(n log n)). Pages with high recall but low order are now **flagged for
+  review** — the exact signature of the box-grid scramble. This closes the measurement gap that let
+  the defect through: "all the words are present" can no longer be mistaken for "the page reads
+  correctly."
+
 ## 1.0.0 — 2026-06-15 (stable API)
 
 The public API is now **frozen under Semantic Versioning** (see `API-STABILITY.md`). 1.0 is a

@@ -40,7 +40,11 @@ public static class FederalForms
 
     /// <summary>
     /// SF-30 — "Amendment of Solicitation / Modification of Contract": amendment number, effective
-    /// date, issuing-office code, the amended solicitation number, and the "offers extended" box.
+    /// date, issuing-office code, the amended solicitation number, the "offers extended" box, and the
+    /// signer / contracting-officer name blocks (15A/16A). The 15A/16A anchors matter: those boxes
+    /// carry the printed label *and* the typed value in one cell, so without an explicit label anchor
+    /// the value smushes onto the label in the prose output (the "NAME AND TITLE OF CONTRACTING
+    /// OFFICER" label immediately followed by the typed name). Anchoring Below splits it out cleanly.
     /// </summary>
     public static FormProfile Sf30 { get; } = new("SF-30 amendment", new[]
     {
@@ -49,6 +53,9 @@ public static class FederalForms
         new FormFieldSpec("issued_by_code",        "ISSUED BY",                   FieldKind.Text, ValueAnchor.Right),
         new FormFieldSpec("amended_solicitation",  "AMENDMENT OF SOLICITATION NO", FieldKind.Text, ValueAnchor.Below),
         new FormFieldSpec("offers_extended",       "IS EXTENDED",                 FieldKind.Checkbox, ValueAnchor.Mark),
+        new FormFieldSpec("contractor_must_sign",  "IS REQUIRED TO SIGN",         FieldKind.Checkbox, ValueAnchor.Mark),
+        new FormFieldSpec("signer_name",           "NAME AND TITLE OF SIGNER",    FieldKind.Text, ValueAnchor.Below),
+        new FormFieldSpec("contracting_officer",   "NAME AND TITLE OF CONTRACTING OFFICER", FieldKind.Text, ValueAnchor.Below),
     });
 
     /// <summary>
