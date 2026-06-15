@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Description>Ready-made Foliant FormProfiles for Commonwealth of Virginia (eVA) state solicitations — deterministic, label-anchored key-value extraction for Virginia RFP/IFB cover pages. Opt-in companion to Foliant.Core; the core stays jurisdiction-agnostic.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Foliant.Core\Foliant.Core.csproj" />
+  </ItemGroup>
+
+</Project>
