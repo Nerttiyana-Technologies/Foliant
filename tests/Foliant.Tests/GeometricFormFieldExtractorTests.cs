@@ -33,11 +33,11 @@ public class GeometricFormFieldExtractorTests
     {
         var lines = new[]
         {
-            L("SOLICITATION NO. 697DCK-25-R-00302", 10, 10, 300, 20),   // inline value
+            L("SOLICITATION NO. ABC123-25-R-00001", 10, 10, 300, 20),   // inline value
             L("DATE ISSUED", 10, 30, 90, 40),
             L("08/07/2025",  120, 30, 200, 40),                          // value to the right
             L("CONTRACTING OFFICER", 10, 50, 120, 60),
-            L("Karina A. Espinosa", 10, 65, 150, 75),                    // value below
+            L("Jane A. Doe", 10, 65, 150, 75),                    // value below
             L("X", 10, 85, 20, 95),                                      // checkbox mark
             L("SET ASIDE", 30, 85, 90, 95),
         };
@@ -45,9 +45,9 @@ public class GeometricFormFieldExtractorTests
 
         var fields = extractor.Extract(Pdf, 1, Img, lines);
 
-        Assert.Equal("697DCK-25-R-00302", Field(fields, "solicitation_number").Value);
+        Assert.Equal("ABC123-25-R-00001", Field(fields, "solicitation_number").Value);
         Assert.Equal("08/07/2025", Field(fields, "date_issued").Value);
-        Assert.Equal("Karina A. Espinosa", Field(fields, "contracting_officer").Value);
+        Assert.Equal("Jane A. Doe", Field(fields, "contracting_officer").Value);
         var box = Field(fields, "set_aside");
         Assert.Equal(FieldKind.Checkbox, box.Kind);
         Assert.Equal("checked", box.Value);
@@ -59,7 +59,7 @@ public class GeometricFormFieldExtractorTests
     {
         var lines = new[]
         {
-            L("SOLICITATION NO. 697DCK-25-R-00302", 10, 10, 300, 20),
+            L("SOLICITATION NO. ABC123-25-R-00001", 10, 10, 300, 20),
             L("DATE ISSUED", 10, 30, 90, 40),
             L("08/07/2025", 120, 30, 200, 40),
             L("SET ASIDE", 30, 85, 90, 95),                              // no mark glyph on this row
@@ -94,7 +94,7 @@ public class GeometricFormFieldExtractorTests
         // that produced the lone Gate 3 fabrication (toc_A read "checked" from column I's mark).
         var lines = new[]
         {
-            L("SOLICITATION NO. 697DCK-25-R-00302", 10, 10, 300, 20),
+            L("SOLICITATION NO. ABC123-25-R-00001", 10, 10, 300, 20),
             L("DATE ISSUED", 10, 30, 90, 40),
             L("08/07/2025", 120, 30, 200, 40),
             L("SOLICITATION/CONTRACT FORM", 30, 85, 200, 95),   // left-column item, no mark to its left
@@ -120,7 +120,7 @@ public class GeometricFormFieldExtractorTests
         // A geometric-only composite: empty extractor first, geometric second → geometric wins.
         var lines = new[]
         {
-            L("SOLICITATION NO. 697DCK-25-R-00302", 10, 10, 300, 20),
+            L("SOLICITATION NO. ABC123-25-R-00001", 10, 10, 300, 20),
             L("DATE ISSUED", 10, 30, 90, 40),
             L("08/07/2025", 120, 30, 200, 40),
         };
@@ -130,6 +130,6 @@ public class GeometricFormFieldExtractorTests
 
         var fields = composite.Extract(Pdf, 1, Img, lines);
 
-        Assert.Contains(fields, f => f.Name == "solicitation_number" && f.Value == "697DCK-25-R-00302");
+        Assert.Contains(fields, f => f.Name == "solicitation_number" && f.Value == "ABC123-25-R-00001");
     }
 }

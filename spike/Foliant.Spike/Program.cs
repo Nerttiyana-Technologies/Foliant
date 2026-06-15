@@ -85,11 +85,13 @@ int RunBatch(string pdfDir, string outputDir)
     var csvPath = Path.Combine(outputDir, "scorecard.csv");
     using (var csv = new StreamWriter(csvPath))
     {
-        csv.WriteLine("pdf,page,lines,regions,seconds,coverage_missing,truth_words,truth_found,recall_pct,flagged,reason");
+        csv.WriteLine("pdf,page,lines,regions,seconds,coverage_missing,truth_words,truth_found,recall_pct,order_anchors,order_pct,flagged,reason");
         foreach (var s in scores)
             csv.WriteLine($"\"{s.Pdf}\",{s.Page},{s.Lines},{s.Regions},{s.Seconds:0.0}," +
                           $"{s.CoverageMissing},{s.TruthWords},{s.TruthFound}," +
                           $"{(s.RecallPct.HasValue ? s.RecallPct.Value.ToString("0.0") : "")}," +
+                          $"{s.OrderAnchors}," +
+                          $"{(s.OrderPct.HasValue ? s.OrderPct.Value.ToString("0.0") : "")}," +
                           $"{s.Flagged},\"{s.FlagReason}\"");
     }
 
@@ -103,6 +105,12 @@ int RunBatch(string pdfDir, string outputDir)
         Console.WriteLine($"recall: avg {scored.Average(s => s.RecallPct!.Value):0.0}%   " +
                           $"min {scored.Min(s => s.RecallPct!.Value):0.0}%   " +
                           $"pages ≥95%: {scored.Count(s => s.RecallPct >= 95)}/{scored.Count}");
+    var ordered = scores.Where(s => s.OrderPct.HasValue).ToList();
+    if (ordered.Count > 0)
+        Console.WriteLine($"order:  avg {ordered.Average(s => s.OrderPct!.Value):0.0}%   " +
+                          $"min {ordered.Min(s => s.OrderPct!.Value):0.0}%   " +
+                          $"pages ≥{PageScore.OrderFlagThreshold:0}%: " +
+                          $"{ordered.Count(s => s.OrderPct >= PageScore.OrderFlagThreshold)}/{ordered.Count}");
     Console.WriteLine($"flagged for review: {flagged.Count}/{scores.Count}");
     foreach (var f in flagged.Take(30))
         Console.WriteLine($"  {f.Pdf} p{f.Page}: {f.FlagReason}");
@@ -118,9 +126,10 @@ void PrintScore(PageScore s, bool compact = false)
         return;
     }
     var recall = s.RecallPct.HasValue ? $"{s.RecallPct:0.0}%" : "n/a (no text layer)";
+    var order = s.OrderPct.HasValue ? $"{s.OrderPct:0.0}%" : "n/a";
     var cov = s.CoverageMissing == 0 ? "OK" : $"LOST {s.CoverageMissing}";
     var flag = s.Flagged ? "  ⚑" : "";
     Console.WriteLine(compact
-        ? $"  p{s.Page:D3}  {s.Lines,4} lines  {s.Seconds,5:0.0}s  cov:{cov}  recall:{recall}{flag}"
-        : $"{s.Pdf} p{s.Page}: {s.Lines} lines, {s.Regions} regions, {s.Seconds:0.0}s, coverage {cov}, recall {recall}{flag}");
+        ? $"  p{s.Page:D3}  {s.Lines,4} lines  {s.Seconds,5:0.0}s  cov:{cov}  recall:{recall}  order:{order}{flag}"
+        : $"{s.Pdf} p{s.Page}: {s.Lines} lines, {s.Regions} regions, {s.Seconds:0.0}s, coverage {cov}, recall {recall}, order {order}{flag}");
 }

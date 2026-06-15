@@ -121,7 +121,7 @@ public class DocumentProcessorTests
             byte[] pdf, int pageNumber, PageImage image, IReadOnlyList<TextLine> lines)
         {
             Calls++;
-            return new[] { new FormField("solicitation_number", "697DCK-25-R-00302", FieldKind.Text) };
+            return new[] { new FormField("solicitation_number", "ABC123-25-R-00001", FieldKind.Text) };
         }
     }
 
@@ -447,7 +447,7 @@ public class DocumentProcessorTests
             Assert.NotNull(p.FormFields);
             var f = Assert.Single(p.FormFields!);
             Assert.Equal("solicitation_number", f.Name);
-            Assert.Equal("697DCK-25-R-00302", f.Value);
+            Assert.Equal("ABC123-25-R-00001", f.Value);
             Assert.Equal(FieldKind.Text, f.Kind);
         });
     }
