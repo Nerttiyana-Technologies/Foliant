@@ -1,12 +1,13 @@
 # Foliant API Stability
 
-_Status: 0.5.0 review, the bridge to a 1.0 stability commitment._
+_Status: **1.0 — stable. This contract is now binding.**_
 
 This document defines Foliant's **public API contract**: what callers may depend on, what is an
-internal implementation detail, and what guarantees 1.0 will make. It is the output of the 0.5.0
-API stabilization review (workstream E of the 0.5.0 plan).
+internal implementation detail, and the guarantees made from 1.0 onward. As of **1.0.0** the public
+surface below is frozen under Semantic Versioning — the API has been proven across the 0.2–0.7
+releases (Gates 1–8, 99.7% reference-corpus recall, 65k pages) and in production via FLUX.
 
-## Versioning policy (effective at 1.0)
+## Versioning policy (in effect as of 1.0)
 
 Foliant will follow [Semantic Versioning](https://semver.org):
 
@@ -18,11 +19,13 @@ Foliant will follow [Semantic Versioning](https://semver.org):
   (only after its quality gate proves it).
 - **PATCH** — bug fixes and internal changes with no public-surface effect.
 
-Until 1.0, minor versions (0.x) may make breaking changes; this review is the last planned
-surface-narrowing before the contract is frozen.
+From 1.0.0 the contract below is frozen: breaking it requires a MAJOR (2.0) release. (Pre-1.0, the
+0.x line made breaking changes freely; that period is over.)
 
 The **model files** Foliant downloads are versioned separately (see `ModelCatalog`); swapping a
-model's weights is a MINOR change to the library, since the public types do not change.
+model's weights is a MINOR change to the library, since the public types do not change. Likewise,
+the **form-profile companion packages** (`Foliant.Forms.*`) may add or refine `FormProfile`s as a
+MINOR change — the profile *data* evolves; the profile *types* in core are frozen.
 
 ## Stable public contract
 
@@ -43,7 +46,8 @@ Inputs/outputs and options — the heart of the contract:
 - `TableStructure`, `TableCell`, `TableExtraction`
 - `TextLayerPage`, `PreprocessedPage`, `PageImage`
 - `BoundingBox` (readonly record struct) — the geometry primitive used across the data types
-- Enums: `RegionType`, `TextSource`, `TextLayerMode`
+- Form fields (0.6/0.7): `FormField`, `FormProfile`, `FormFieldSpec`, plus `PageResult.FormFields`
+- Enums: `RegionType`, `TextSource`, `TextLayerMode`, `FieldKind`, `FormFieldSource`, `ValueAnchor`
 
 ### Extension points (interfaces)
 
@@ -54,7 +58,8 @@ Implement these to swap a pipeline stage; Foliant commits to keeping them stable
   `IReadingOrderAssembler`, `ITextLayerReader`, `IPagePreprocessor`
 - `IPageImageTransform` — caller-supplied pre-processing / synthetic degradation
 - `IScanResolutionEstimator` — effective-DPI estimate driving `PageResult.LowResolution`
-- `IScanUpscaler` — pre-OCR upscaling seam (the ML super-resolution drop-in point)
+- `IScanUpscaler` — pre-OCR upscaling seam (the GPU/ML super-resolution drop-in point)
+- `IFormFieldExtractor` — typed key-value form-field extraction seam
 
 ### Default implementations (`Foliant.Pipeline`)
 
@@ -65,13 +70,18 @@ Implement these to swap a pipeline stage; Foliant commits to keeping them stable
 - `ClassicalScanUpscaler` — reference `IScanUpscaler` (Gate 8: net-negative, **not** wired by
   default; retained as the seam's reference impl)
 - `ScanDegrader` — deterministic scan-degradation transforms for robustness measurement
+- `AcroFormFieldExtractor`, `GeometricFormFieldExtractor`, `CompositeFormFieldExtractor`
 - Enums: `TableBackend`, `ReadingOrderBackend`
 
-### Backends (separate packages) and model management
+### Backends and companion packages
 
-- `DocLayoutNetDetector`, `PaddleOcrEngine`, `TextlineOrientationClassifier`,
+- Backends: `DocLayoutNetDetector`, `PaddleOcrEngine`, `TextlineOrientationClassifier`,
   `TableTransformerExtractor`, `SlanetPlusExtractor`
-- `ModelCache`, `ModelAsset`, `ModelCatalog`
+- Model management: `ModelCache`, `ModelAsset`, `ModelCatalog`
+- Form-profile packs (opt-in): `Foliant.Forms.UsFederal` (`FederalForms`),
+  `Foliant.Forms.UsVirginia` (`VirginiaForms`) — the profile *types* are core-frozen; the profile
+  *data* in these packs may grow as a MINOR change. New jurisdictions ship as new `Foliant.Forms.*`
+  packages.
 
 ## Construction
 
@@ -106,9 +116,15 @@ These had leaked to `public` but are implementation details, not contract. They 
 - `ExtractionVerifier` — internal self-verification; its results are surfaced via the public
   `PageVerification` on each `PageResult`.
 
-## Not yet frozen / open for 1.0
+## Post-1.0 roadmap (all additive — MINOR, won't break the contract)
 
-- The `IScanUpscaler` contract may gain a richer shape if the ML super-resolution backend needs it
-  (e.g. target-DPI hints); changes will be additive where possible.
-- Form-field key-value extraction (planned for 1.0) will extend `Region` (e.g. an added form-field
-  property or a companion type). It is not yet present; adding it will be an additive MINOR change.
+The frozen contract is designed to absorb the parked work without a MAJOR bump:
+
+- **GPU super-resolution** — a GPU-backed `IScanUpscaler` injected via the existing seam;
+  `ProcessingOptions.UpscaleLowResolutionScans` (the flag) and `PageResult.LowResolution` (the
+  signal) already exist. Any new hints (e.g. target DPI) arrive as additive options.
+- **ML form understanding** — a learned `IFormFieldExtractor` (LayoutLMv3/XFUND) for arbitrary
+  forms beyond the deterministic profiles; same seam, no contract change.
+- **Post-OCR language-model correction** and **multilingual OCR** — additive options/backends.
+- **More form-profile packs** — new `Foliant.Forms.<jurisdiction>` packages; the core types stay
+  frozen.

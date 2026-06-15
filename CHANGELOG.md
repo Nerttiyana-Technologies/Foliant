@@ -1,5 +1,21 @@
 # Changelog
 
+## 1.0.0 — 2026-06-15 (stable API)
+
+The public API is now **frozen under Semantic Versioning** (see `API-STABILITY.md`). 1.0 is a
+**stability commitment**, not a new feature: the layout-aware extraction pipeline — text-layer fast
+path, scanned-document support (coarse-orientation correction + refinement, deskew, denoise,
+contrast), XY-Cut++ reading order (+ opt-in enumerator ordering), table-structure extraction, the
+low-DPI warning, watermark / CID / dynamic-XFA trust guards, coverage-invariant self-verification,
+and typed form-field extraction with the `Foliant.Forms.UsFederal` / `Foliant.Forms.UsVirginia`
+profile packs — has been **measured** (Gates 1–8: 99.7% reference-corpus recall across ~65k pages,
+18 corpora) and is **proven in production** via FLUX.
+
+From 1.0 onward, breaking the contract requires a MAJOR (2.0) release. The parked roadmap — GPU/ML
+super-resolution, ML form understanding (LayoutLMv3/XFUND), post-OCR LM correction, multilingual
+OCR, and additional `Foliant.Forms.*` jurisdiction packs — all lands **additively** (MINOR) on top
+of the frozen 1.0 contract.
+
 ## 0.7.0 — 2026-06-15 (form-profile packs: US federal + Virginia)
 
 ### Added
