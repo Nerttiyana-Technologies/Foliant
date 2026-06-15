@@ -1,6 +1,6 @@
-// VLM baseline — replicates FLUX's OllamaVlmOcrService call byte-for-byte
+// VLM baseline — replicates the host application's OllamaVlmOcrService call byte-for-byte
 // (same prompt, temperature 0, num_ctx 8192, same image normalization) without
-// depending on FLUX code. Output scored with the same text-layer recall metric
+// depending on that application's code. Output scored with the same text-layer recall metric
 // as the Foliant pipeline, so the comparison is apples to apples.
 
 using System.Diagnostics;
@@ -13,7 +13,7 @@ namespace Foliant.Spike;
 
 public static class VlmBaseline
 {
-    // Verbatim from FLUX OllamaVlmOcrService.ExtractionPrompt
+    // Verbatim from the host application's OllamaVlmOcrService.ExtractionPrompt
     private const string ExtractionPrompt = """
         You are a document OCR system extracting content from a page image.
 
@@ -40,7 +40,7 @@ public static class VlmBaseline
         using var bitmap = Conversion.ToImage(
             stream, page: (Index)(pageNumber - 1), options: new RenderOptions(Dpi: 300));
 
-        var png = NormalizeLikeFlux(bitmap);
+        var png = NormalizeLikeVlm(bitmap);
         Console.WriteLine($"[vlm] {model} @ {endpoint} — page {pageNumber}, image {png.Length / 1024}KB");
 
         using var http = new HttpClient { Timeout = TimeSpan.FromMinutes(5) };
@@ -73,9 +73,9 @@ public static class VlmBaseline
         return 0;
     }
 
-    /// <summary>FLUX ImageNormalization: cap longest side at 1568, round both sides
+    /// <summary>VLM ImageNormalization: cap longest side at 1568, round both sides
     /// down to a multiple of 28 (Qwen2.5-VL patch grid), re-encode PNG.</summary>
-    private static byte[] NormalizeLikeFlux(SKBitmap bitmap, int maxDimension = 1568)
+    private static byte[] NormalizeLikeVlm(SKBitmap bitmap, int maxDimension = 1568)
     {
         const int PatchMultiple = 28;
         int w = bitmap.Width, h = bitmap.Height;
