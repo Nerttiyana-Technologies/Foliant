@@ -250,6 +250,12 @@ super-resolution backend rather than enabled by default.
 
 ## Roadmap
 
+**1.0.0 — stable.** The public API is frozen under Semantic Versioning ([`API-STABILITY.md`](API-STABILITY.md)):
+breaking it now requires a 2.0. 1.0 is a stability commitment over the proven, measured pipeline
+(Gates 1–8, 99.7% reference recall, in production via FLUX) — not a new feature. The parked roadmap
+below (GPU/ML super-res, ML form understanding, post-OCR LM correction, multilingual OCR, more
+`Foliant.Forms.*` packs) all lands additively on top of the frozen contract.
+
 Shipped in 0.7.0: opt-in **form-profile packs** — `Foliant.Forms.UsFederal` (FAR Standard Forms:
 SF-33/SF-30/SF-1449 validated, plus SF-18/SF-1442/SF-26/OF-347/DD-1155 drafts) and
 `Foliant.Forms.UsVirginia` (Commonwealth of Virginia eVA RFP, validated on two agencies) — so
