@@ -102,11 +102,14 @@ public static class FoliantProcessor
     public static async Task<DocumentProcessor> CreateDefaultAsync(
         ModelCache? cache = null,
         IProgress<(string Id, double Fraction)>? downloadProgress = null,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default,
+        TableBackend tableBackend = TableBackend.TableTransformer,
+        ReadingOrderBackend readingOrder = ReadingOrderBackend.XyCutPlusPlus,
+        IFormFieldExtractor? formFields = null)
     {
         cache ??= new ModelCache();
         await cache.GetPathsAsync(ModelCatalog.DefaultPipeline, downloadProgress, cancellationToken)
             .ConfigureAwait(false);
-        return CreateDefault(cache.CacheDirectory);
+        return CreateDefault(cache.CacheDirectory, tableBackend, readingOrder, formFields);
     }
 }
