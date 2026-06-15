@@ -1,5 +1,22 @@
 # Changelog
 
+## 0.7.0 — 2026-06-15 (form-profile packs: US federal + Virginia)
+
+### Added
+- **`CreateDefaultAsync(formFields:)` overload** — the async auto-download factory now forwards a
+  form-field extractor (plus `tableBackend` / `readingOrder`) to `CreateDefault`, so consumers can
+  wire form-field extraction through the convenience path without dropping to `ModelCache` +
+  `CreateDefault` themselves.
+- **`Foliant.Forms.UsFederal` package** — ready-made `FormProfile`s for U.S. federal Standard Forms
+  (FAR Part 53): **SF-33, SF-30, SF-1449** (validated against real instances) plus **SF-18, SF-1442,
+  SF-26, OF-347, DD-1155** (layout drafts, pending first-instance validation). `FederalForms.All`
+  hands the whole set to the extractor, which auto-selects the best-matching profile per page.
+- **`Foliant.Forms.UsVirginia` package** — `VirginiaForms.CommonwealthRfp`, the Commonwealth of
+  Virginia (eVA) RFP cover-page profile, validated against two agencies' real solicitations
+  (VDACS, DSS).
+- Both packs are **opt-in companions**; Foliant core stays jurisdiction-agnostic, so forms from any
+  other state or country are profiled the same way (`Foliant.Forms.<jurisdiction>`).
+
 ## 0.6.0 — 2026-06-14 (form-field key-value extraction)
 
 ### Added
