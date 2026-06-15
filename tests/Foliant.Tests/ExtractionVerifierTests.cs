@@ -11,8 +11,8 @@ public class ExtractionVerifierTests
     [Fact]
     public void Normalize_KeepsOnlyAlphanumericsUppercased()
     {
-        Assert.Equal("DAWNABLOOME", ExtractionVerifier.Normalize("Dawn.A-Bloome!"));
-        Assert.Equal("697DCK25R00302", ExtractionVerifier.Normalize("697DCK-25-R-00302"));
+        Assert.Equal("JANEADOE", ExtractionVerifier.Normalize("Jane.A-Doe!"));
+        Assert.Equal("ABC12325R00001", ExtractionVerifier.Normalize("ABC123-25-R-00001"));
         Assert.Equal("", ExtractionVerifier.Normalize("—–•"));
     }
 

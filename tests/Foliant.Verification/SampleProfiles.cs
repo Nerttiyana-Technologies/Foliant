@@ -1,6 +1,6 @@
 // Form profiles for the verification corpus. A profile is domain knowledge — the label text and
 // value geometry of a known form family — so it lives with the harness, not the library. This one
-// describes the SF-33 "SOLICITATION, OFFER AND AWARD" cover page (the SIR 697DCK solicitations the
+// describes the SF-33 "SOLICITATION, OFFER AND AWARD" cover page (the federal SIR solicitations the
 // Gate 3 truth set labels). Field names match the truth so Gate 3 can score by name.
 
 using Foliant;

@@ -47,16 +47,16 @@ public class MarkdownComposerTests
         };
         var lines = new[]
         {
-            L("RFP-697DCK-25-R-00302", 1, 1, 60, 9),     // header
+            L("RFP-ABC123-25-R-00001", 1, 1, 60, 9),     // header
             L("Body paragraph", 1, 30, 60, 40),
         };
 
         var composed = NewComposer().Compose(Page, regions, lines);
 
-        Assert.DoesNotContain("RFP-697DCK", composed.Markdown);
+        Assert.DoesNotContain("RFP-ABC123", composed.Markdown);
         Assert.Contains("Body paragraph", composed.Markdown);
         Assert.Single(composed.PageFurniture);
-        Assert.Equal("RFP-697DCK-25-R-00302", composed.PageFurniture[0].Text);
+        Assert.Equal("RFP-ABC123-25-R-00001", composed.PageFurniture[0].Text);
 
         // Coverage invariant: furniture is intentional, body is in markdown → nothing lost.
         Assert.Equal(0, ExtractionVerifier.CountLostLines(composed.Markdown, lines, composed.PageFurniture));
