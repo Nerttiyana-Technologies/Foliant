@@ -444,7 +444,7 @@ out-*/
 .idea/
 # Corpus-derived analysis: quotes RFP content (names/emails) — local only
 spike/RESULTS.md
-# Local NuGet pack output (FLUX consumes via local folder feed)
+# Local NuGet pack output (consumed via local folder feed)
 nupkgs/
 # Internal release collateral — decks, release emails (local only, not published)
 docs/

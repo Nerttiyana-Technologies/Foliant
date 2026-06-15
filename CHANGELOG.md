@@ -9,7 +9,7 @@ contrast), XY-Cut++ reading order (+ opt-in enumerator ordering), table-structur
 low-DPI warning, watermark / CID / dynamic-XFA trust guards, coverage-invariant self-verification,
 and typed form-field extraction with the `Foliant.Forms.UsFederal` / `Foliant.Forms.UsVirginia`
 profile packs — has been **measured** (Gates 1–8: 99.7% reference-corpus recall across ~65k pages,
-18 corpora) and is **proven in production** via FLUX.
+18 corpora) and is **proven in production** on real federal-RFP workloads.
 
 From 1.0 onward, breaking the contract requires a MAJOR (2.0) release. The parked roadmap — GPU/ML
 super-resolution, ML form understanding (LayoutLMv3/XFUND), post-OCR LM correction, multilingual
