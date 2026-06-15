@@ -5,7 +5,7 @@ _Status: **1.0 — stable. This contract is now binding.**_
 This document defines Foliant's **public API contract**: what callers may depend on, what is an
 internal implementation detail, and the guarantees made from 1.0 onward. As of **1.0.0** the public
 surface below is frozen under Semantic Versioning — the API has been proven across the 0.2–0.7
-releases (Gates 1–8, 99.7% reference-corpus recall, 65k pages) and in production via FLUX.
+releases (Gates 1–8, 99.7% reference-corpus recall, 65k pages) and in production use.
 
 ## Versioning policy (in effect as of 1.0)
 
