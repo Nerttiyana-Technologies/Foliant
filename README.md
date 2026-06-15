@@ -217,6 +217,12 @@ Rigor means publishing where the method stops working:
   with the "Please wait" placeholder.
 - **Semantic reading order.** Numbered step-grids and tip mosaics read in *number* order, a
   cue no geometric method can see; kept as documented boundary cases outside the τ average.
+- **Dense box-grid forms (captured-but-reordered).** On some tightly gridded forms the table
+  detector produces a grid that *fits* (little text ejected, so the 1.0.2 grid-fit guard does not
+  fire) yet still reorders cells whose running sentences span multiple columns. The order-aware
+  gate flags these for review; a column-spanning fix is tracked. For forms with a `Foliant.Forms.*`
+  profile the cover-page key-values still extract correctly via the deterministic field path
+  regardless.
 - **Newspapers as a reading-order benchmark.** Multi-article pages have no single linear
   order, so they are scored for extraction fidelity (99.9%) but not for a global reading-order
   τ.
@@ -255,6 +261,20 @@ breaking it now requires a 2.0. 1.0 is a stability commitment over the proven, m
 (Gates 1–8, 99.7% reference recall, in production use) — not a new feature. The parked roadmap
 below (GPU/ML super-res, ML form understanding, post-OCR LM correction, multilingual OCR, more
 `Foliant.Forms.*` packs) all lands additively on top of the frozen contract.
+
+Shipped in 1.0.2: a **grid-fit guard** for box-grid forms. When the layout model mislabels a dense
+form block as a table, the table-structure model can impose a grid whose cell borders cut across a
+running sentence — ejecting the spanning text outside the grid so it linearizes out of order. Such a
+block now renders as flowing reading-order prose instead; real data tables (which keep nearly all
+their text inside cells) are untouched, with reference recall held on the corpus. The remaining
+*captured-but-reordered* case (the grid fits but cells span columns) is reported as a known boundary
+below and tracked for a follow-up patch.
+
+Shipped in 1.0.1: an **order-aware verification gate** — reading-order fidelity scored against the
+PDF's own text-layer word order, complementing the existing word-recall coverage check, so a page
+that keeps every word but permutes it is now caught (word recall alone is order-blind). Plus SF-30
+signer / contracting-officer (15A/16A) profile fields in `Foliant.Forms.UsFederal`. Both are additive
+patches under the frozen 1.0 contract.
 
 Shipped in 0.7.0: opt-in **form-profile packs** — `Foliant.Forms.UsFederal` (FAR Standard Forms:
 SF-33/SF-30/SF-1449 validated, plus SF-18/SF-1442/SF-26/OF-347/DD-1155 drafts) and

@@ -24,11 +24,15 @@ string json = result.ToJson(indented: true); // structured regions, tables, boun
   (layout still analyzed from pixels); OCR runs only where needed. ~0.4 s/page at 300 DPI.
 - **Forms done right** — recursive ruling-line decomposition keeps checkbox marks, field
   labels, and values associated on government-style forms; table grids come from a hybrid of
-  Microsoft TableTransformer and rule-based ruling analysis.
+  Microsoft TableTransformer and rule-based ruling analysis, with a grid-fit guard that renders a
+  mis-detected form block as ordered prose instead of a scrambled table. Opt-in `Foliant.Forms.*`
+  profile packs add typed key-value extraction for known form families.
 - **Self-verifying** — every page enforces a coverage invariant (every extracted line provably
-  lands in the output or is intentional page furniture) and reports word recall against the
-  PDF's own text layer. On a 474-page federal-RFP reference corpus: 99.7% average word recall,
-  100% of pages ≥95%, zero text loss, zero fabricated form values.
+  lands in the output or is intentional page furniture), reports word recall against the PDF's own
+  text layer, and scores reading-order fidelity against that text layer's order — so a page that
+  keeps every word but permutes it is caught (word recall alone is order-blind). On a 474-page
+  federal-RFP reference corpus: 99.7% average word recall, 100% of pages ≥95%, zero text loss,
+  zero fabricated form values.
 - **Pluggable** — every stage (layout, OCR, tables, reading order) is an interface in
   `Foliant.Core`; swap any backend without forking.
 

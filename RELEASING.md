@@ -42,6 +42,31 @@ If a tag was already pushed from a branch (the mistake), recover by merging that
 so `main` catches up; the published package is unaffected, but `main` must end up containing the
 tagged source.
 
+## Recovering a tag that points at the wrong commit
+
+Symptom: `git tag vX.Y.Z` fails with "tag already exists", or the published package never appears
+because the tag points at an old commit (so the workflow packed the previous version and
+`--skip-duplicate` made it a no-op). Verify, then move the tag:
+
+```
+# what commit / version is the tag actually on?
+git log --oneline -1 vX.Y.Z
+git show vX.Y.Z:Directory.Build.props | grep FoliantVersion
+
+# move it onto the correct commit on main:
+git checkout main && git pull
+git tag -d vX.Y.Z                       # delete the wrong LOCAL tag
+git push origin :refs/tags/vX.Y.Z       # delete it on origin (harmless error if absent)
+git tag vX.Y.Z                          # re-create at main HEAD (the merged commit with the bump)
+git push origin vX.Y.Z
+```
+
+A **moved tag does not always re-trigger Actions**. If no release run starts after the re-push, run
+the release workflow manually: GitHub → Actions → the release workflow → **Run workflow** on `main`
+(`workflow_dispatch`). After it completes, confirm the package is live on NuGet — and note NuGet
+shows a brief **"Validating"** state after upload before the version is listed; that is normal, not a
+failure.
+
 ## Notes
 
 - `Directory.Build.props` `<FoliantVersion>` is the one place the version lives; `src/` projects and
