@@ -1,5 +1,31 @@
 # Changelog
 
+## 1.0.2 — 2026-06-15 (box-grid form scramble: ejection class fixed)
+
+Patch release. Fixes the reading-order scramble flagged as a known issue in 1.0.1, for the case where
+a box-grid form block is mis-detected as a table. No public API change (PATCH under
+`API-STABILITY.md`); affects `Foliant.Pipeline` only. Validated on the forms corpus (474 pages):
+reference recall held at 99.3% (no real tables reclassified), and the order-aware gate added in 1.0.1
+confirms the previously-scrambled instruction rows now read in sequence.
+
+### Fixed
+- **Running text no longer scrambled when a form block is mis-gridded as a table (ejection class).**
+  When the table-structure model imposes a grid on a box-grid form block, sentences spanning the
+  cell borders were ejected outside the grid and re-appended out of order. `MarkdownComposer` now
+  applies a **grid-fit guard**: if a table-detected region has a single column, or more than 25% of
+  its text falls outside the predicted grid, the block is rendered as flowing reading-order prose
+  instead of a scrambled table. Real data tables (which capture nearly all their text in cells) are
+  unaffected; only mis-gridded prose blocks fall back. Covered by new regression tests.
+
+### Known issue (still open, fix in progress)
+- **Captured-but-reordered scramble on dense forms.** A distinct, harder case where the predicted
+  grid *fits* (little text ejected, so the guard above does not fire) but the cells are still
+  reordered because running sentences span multiple grid columns and are chopped and re-joined out
+  of reading order — seen on some solicitation cover pages and CDRL forms. Tracked for a follow-up
+  patch; it needs a column-spanning signal validated against table-heavy corpora to avoid
+  reclassifying genuine wide tables. For forms with a `Foliant.Forms.*` profile, the cover-page
+  key-values still extract correctly via the deterministic field path regardless of this issue.
+
 ## 1.0.1 — 2026-06-15 (form-extraction fixes; reading-order verification)
 
 Patch release. Two defects surfaced on a standard **SF-30 (Amendment of Solicitation)** cover page in

@@ -12,6 +12,9 @@ public sealed class TableStructureExtractor : IDisposable
 {
     private const int MaxEdge = 800;
     private const float ScoreThreshold = 0.5f;
+    // Share of a region's text allowed OUTSIDE the predicted grid before we treat the block as
+    // prose-in-a-box rather than a real table (mirrors MarkdownComposer in the shipping library).
+    private const double MaxUnassignedTextFraction = 0.25;
 
     private static readonly float[] Mean = { 0.485f, 0.456f, 0.406f };
     private static readonly float[] Std = { 0.229f, 0.224f, 0.225f };
@@ -119,6 +122,16 @@ public sealed class TableStructureExtractor : IDisposable
             foreach (var l in cellLines) consumed.Add(l);
             grid[r, c] = string.Join(" ", cellLines.Select(l => l.Text)).Replace("|", "\\|");
         }
+
+        // Grid-fit guard: a box-grid FORM block mis-detected as a table ejects sentences that span
+        // its fake cell borders outside the grid, scrambling them on linearization. If the grid
+        // captures too little of the region's text (or is a single column), render the block as
+        // flowing reading-order prose so spanning sentences stay intact and in order.
+        var leftoverForFit = regionLines.Where(l => !consumed.Contains(l)).ToList();
+        double totalLen = regionLines.Sum(l => (double)l.Text.Length);
+        double leftoverLen = leftoverForFit.Sum(l => (double)l.Text.Length);
+        if (cols.Count <= 1 || (totalLen > 0 && leftoverLen / totalLen > MaxUnassignedTextFraction))
+            return string.Join("\n", ReadingOrder.GroupIntoVisualLines(regionLines).Select(g => g.Text));
 
         var sb = new System.Text.StringBuilder();
         for (int r = 0; r < rows.Count; r++)

@@ -82,8 +82,20 @@ internal sealed class MarkdownComposer
                     // Pass only the lines this table OWNS — lines claimed by other regions
                     // must not be re-emitted inside the grid.
                     var extraction = _tables.Extract(page, region, regionLines);
-                    table = extraction.Structure;
-                    md = RenderTable(extraction);
+                    if (TableGridFits(extraction, regionLines))
+                    {
+                        table = extraction.Structure;
+                        md = RenderTable(extraction);
+                    }
+                    else
+                    {
+                        // Box-grid FORM block mis-detected as a table: the predicted grid ejects
+                        // sentences that span its fake cell borders, which scrambles their order on
+                        // linearization. When the grid fails to capture the region's text, fall back
+                        // to flowing reading-order prose so spanning sentences stay intact and in order.
+                        md = string.Join("\n",
+                            LineGrouping.GroupIntoVisualLines(regionLines).Select(g => g.Text));
+                    }
                     break;
 
                 case RegionType.Caption:
@@ -123,6 +135,32 @@ internal sealed class MarkdownComposer
             md2.ToString(),
             blocks.Select(b => b.Region).ToList(),
             furniture);
+    }
+
+    /// <summary>
+    /// A real data table captures (almost) all of its region's text inside the predicted grid.
+    /// A box-grid FORM block that the layout model mislabels as a table does not: TableTransformer
+    /// imposes a grid whose fake cell borders cut across running sentences, ejecting the spanning
+    /// text outside every cell. We treat the share of region text left OUTSIDE the grid as the
+    /// fit signal — above the threshold, the "table" is really prose in a box, and gridding it
+    /// scrambles meaning, so the caller renders it as flowing reading-order text instead.
+    /// Conservative by design: real tables eject almost nothing and are never reclassified.
+    /// </summary>
+    internal const double MaxUnassignedTextFractionForTable = 0.25;
+
+    internal static bool TableGridFits(TableExtraction extraction, IReadOnlyList<TextLine> regionLines)
+    {
+        // No grid at all → RenderTable already degrades to a paragraph; let it.
+        if (extraction.Structure is not { } t || t.Cells.Count == 0) return true;
+
+        // A 1-column "grid" carries no tabular information a paragraph wouldn't — and can't
+        // hold tabular order — so prefer prose for it.
+        if (t.ColumnCount <= 1) return false;
+
+        double total = regionLines.Sum(l => (double)l.Text.Length);
+        if (total <= 0) return true;
+        double unassigned = extraction.UnassignedLines.Sum(l => (double)l.Text.Length);
+        return unassigned / total <= MaxUnassignedTextFractionForTable;
     }
 
     /// <summary>Renders a table extraction as a Markdown table (or a paragraph fallback when
