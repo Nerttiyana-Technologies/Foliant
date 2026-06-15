@@ -168,4 +168,74 @@ public class MarkdownComposerTests
         Assert.Contains("only cell", md);
         Assert.Contains("stray note", md);
     }
+
+    [Fact]
+    public void Compose_MisGriddedFormBlock_FallsBackToProse_NotScrambledTable()
+    {
+        // A box-grid FORM block the layout model mislabels as a table. The predicted grid captures
+        // the short boxed labels but ejects the sentence that spans its fake cell borders. Forcing a
+        // table would scramble that sentence (the SF-30 "E. IMPORTANT" defect); the grid-fit guard
+        // must render flowing reading-order prose instead, keeping the sentence intact and in order.
+        const string spanning =
+            "this instruction sentence spans the full width of the block and must stay in order";
+        var lines = new[]
+        {
+            L("Field A", 0, 0, 20, 10),
+            L("Field B", 60, 0, 80, 10),
+            L(spanning, 0, 20, 100, 30),     // spans the fake cell borders → ejected by the grid
+        };
+        var stub = new StubTables
+        {
+            Result = new TableExtraction(
+                new TableStructure(1, 2, new List<TableCell>
+                {
+                    new(0, 0, "Field A", new BoundingBox(0, 0, 20, 10)),
+                    new(0, 1, "Field B", new BoundingBox(60, 0, 80, 10)),
+                }),
+                new[] { L(spanning, 0, 20, 100, 30) }),   // the spanning sentence, outside the grid
+        };
+        var regions = new[]
+        {
+            new LayoutRegion(RegionType.Table, "table", 0.9f, new BoundingBox(0, 0, 100, 40)),
+        };
+
+        var composed = NewComposer(stub).Compose(Page, regions, lines);
+
+        Assert.Contains(spanning, composed.Markdown);          // intact, in order
+        Assert.DoesNotContain("|---", composed.Markdown);      // NOT linearized as a table
+        Assert.Equal(0, ExtractionVerifier.CountLostLines(composed.Markdown, lines, composed.PageFurniture));
+    }
+
+    [Fact]
+    public void Compose_RealTable_StillRendersGrid()
+    {
+        // A genuine data table: the grid captures all of the region's text (nothing ejected), so the
+        // fit guard must leave it as a table — the fallback only fires on mis-gridded prose blocks.
+        var lines = new[]
+        {
+            L("CLIN", 0, 0, 10, 10),  L("Price", 50, 0, 60, 10),
+            L("0001", 0, 10, 10, 20), L("$100", 50, 10, 60, 20),
+        };
+        var stub = new StubTables
+        {
+            Result = new TableExtraction(
+                new TableStructure(2, 2, new List<TableCell>
+                {
+                    new(0, 0, "CLIN", new BoundingBox(0, 0, 10, 10)),
+                    new(0, 1, "Price", new BoundingBox(50, 0, 60, 10)),
+                    new(1, 0, "0001", new BoundingBox(0, 10, 10, 20)),
+                    new(1, 1, "$100", new BoundingBox(50, 10, 60, 20)),
+                }),
+                Array.Empty<TextLine>()),
+        };
+        var regions = new[]
+        {
+            new LayoutRegion(RegionType.Table, "table", 0.9f, new BoundingBox(0, 0, 100, 30)),
+        };
+
+        var composed = NewComposer(stub).Compose(Page, regions, lines);
+
+        Assert.Contains("|---|---|", composed.Markdown);   // still a table
+        Assert.Contains("| CLIN | Price |", composed.Markdown);
+    }
 }

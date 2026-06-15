@@ -54,7 +54,11 @@ int RunBatch(string pdfDir, string outputDir)
 {
     if (!Directory.Exists(pdfDir)) { Console.Error.WriteLine($"Directory not found: {pdfDir}"); return 2; }
 
-    var pdfs = Directory.GetFiles(pdfDir, "*.pdf").OrderBy(p => p).ToList();
+    // Recurse so a single root (e.g. the repo dir holding every Test-Data* corpus) runs the whole
+    // gate in one pass with one aggregate summary; case-insensitive so ".PDF" files are included too.
+    var pdfs = Directory.EnumerateFiles(pdfDir, "*", SearchOption.AllDirectories)
+        .Where(p => p.EndsWith(".pdf", StringComparison.OrdinalIgnoreCase))
+        .OrderBy(p => p).ToList();
     if (pdfs.Count == 0) { Console.Error.WriteLine("No PDFs found."); return 2; }
 
     Directory.CreateDirectory(outputDir);
