@@ -250,6 +250,14 @@ super-resolution backend rather than enabled by default.
 
 ## Roadmap
 
+Shipped in 0.7.0: opt-in **form-profile packs** — `Foliant.Forms.UsFederal` (FAR Standard Forms:
+SF-33/SF-30/SF-1449 validated, plus SF-18/SF-1442/SF-26/OF-347/DD-1155 drafts) and
+`Foliant.Forms.UsVirginia` (Commonwealth of Virginia eVA RFP, validated on two agencies) — so
+consumers get ready-made profiles instead of writing their own. The extractor auto-selects the
+best-matching profile per page. A `CreateDefaultAsync(formFields:)` overload wires it through the
+convenience factory. Core stays jurisdiction-agnostic, so any other state or country is a
+`Foliant.Forms.<jurisdiction>` pack with the same shape.
+
 Shipped in 0.6.0: typed key-value **form-field extraction** (`PageResult.FormFields`) — exact
 values from fillable AcroForm PDFs, plus a deterministic, label-anchored *geometric* path for
 flattened forms via caller-supplied `FormProfile`s, behind the `IFormFieldExtractor` seam. Opt-in
