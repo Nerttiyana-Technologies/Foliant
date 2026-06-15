@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Description>Ready-made Foliant FormProfiles for U.S. federal Standard Forms (SF-33, SF-1449, SF-30, …) — deterministic, label-anchored key-value extraction for federal solicitations and contracts. Opt-in companion to Foliant.Core; the core stays form-agnostic so non-US forms are profiled the same way.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Foliant.Core\Foliant.Core.csproj" />
+  </ItemGroup>
+
+</Project>
