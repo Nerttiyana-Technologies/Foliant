@@ -79,7 +79,7 @@ public sealed class GeometricFormFieldExtractor : IFormFieldExtractor
     private static (string? Value, BoundingBox? Bounds) FindValue(
         TextLine label, string labelText, IReadOnlyList<TextLine> lines, ValueAnchor anchor)
     {
-        // 1. Inline: value sits after the label on the same line ("SOLICITATION NO.  697DCK-…").
+        // 1. Inline: value sits after the label on the same line ("SOLICITATION NO.  ABC123-…").
         string? inline = InlineValue(label.Text, labelText);
         if (inline is not null) return (inline, label.Bounds);
 
