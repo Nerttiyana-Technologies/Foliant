@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <IsTestProject>true</IsTestProject>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Foliant.Core\Foliant.Core.csproj" />
+    <ProjectReference Include="..\..\src\Foliant.Pipeline\Foliant.Pipeline.csproj" />
+    <ProjectReference Include="..\..\src\Foliant.Models\Foliant.Models.csproj" />
+    <ProjectReference Include="..\..\src\Foliant.Ocr.PaddleOcr\Foliant.Ocr.PaddleOcr.csproj" />
+    <ProjectReference Include="..\..\src\Foliant.Tables.TableTransformer\Foliant.Tables.TableTransformer.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
+    <PackageReference Include="xunit" Version="2.9.2" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2" />
+  </ItemGroup>
+
+</Project>

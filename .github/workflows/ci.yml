@@ -1,0 +1,62 @@
+# Foliant CI — build + unit tests on every push/PR.
+#
+# NOTE: the quality-gate scorecard (Gates 1 & 2 from spike/RESULTS.md) does NOT run here.
+# The reference corpus consists of PDFs that are never committed to this repository
+# (project rule: no PDF documents or extraction-derived .md files in git). Run it locally
+# before every release:
+#
+#   ./scripts/download-models.sh
+#   dotnet run -c Release --project tests/Foliant.Verification -- Test-Data verification-out
+#
+# It exits non-zero when a gate fails. A future option is a self-hosted/private runner
+# with corpus access; until then the gate is a release-checklist item, not a CI job.
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  build-test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET (pinned by global.json)
+        uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - name: Restore
+        run: dotnet restore Foliant.sln
+
+      - name: Build
+        run: dotnet build Foliant.sln -c Release --no-restore
+
+      - name: Test
+        run: dotnet test Foliant.sln -c Release --no-build --verbosity normal
+
+  pack:
+    runs-on: ubuntu-latest
+    needs: build-test
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET (pinned by global.json)
+        uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - name: Pack (validates NuGet metadata; publish is manual until 0.1.0-preview)
+        run: dotnet pack Foliant.sln -c Release -o ./nupkgs
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: nupkgs
+          path: ./nupkgs/*.nupkg
