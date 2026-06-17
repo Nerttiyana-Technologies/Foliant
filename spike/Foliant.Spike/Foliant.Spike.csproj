@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <!-- Spike is throwaway tooling; net10.0 only. Production packages multi-target net8.0;net9.0;net10.0. -->
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- PDF rasterization via bundled pdfium (PdfPig cannot rasterize — see spike/NOTES.md) -->
+    <PackageReference Include="PDFtoImage" Version="5.2.1" />
+    <!-- ONNX model hosting -->
+    <PackageReference Include="Microsoft.ML.OnnxRuntime" Version="1.26.0" />
+    <!-- Image pre/post-processing; already transitive via PDFtoImage, pinned explicitly -->
+    <PackageReference Include="SkiaSharp" Version="3.119.4" />
+    <PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="3.119.4" />
+    <!-- Embedded text layer extraction — ground truth for automated verification -->
+    <PackageReference Include="PdfPig" Version="0.1.14" />
+  </ItemGroup>
+
+</Project>

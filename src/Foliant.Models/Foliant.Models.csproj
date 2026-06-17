@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Description>Model asset catalog and local cache for Foliant: lazily downloads ONNX model weights from Hugging Face on first use, with SHA-256 verification. No model weights ship inside NuGet packages.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Foliant.Core\Foliant.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Foliant.Tests" />
+  </ItemGroup>
+
+</Project>

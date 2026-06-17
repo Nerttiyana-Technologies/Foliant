@@ -1,0 +1,56 @@
+# Publishes Foliant packages to nuget.org via Trusted Publishing (OIDC — no stored API keys).
+#
+# One-time setup:
+#  1. nuget.org → <username> → Trusted Publishing → add policy:
+#       Repository Owner: <github owner>   Repository: <repo>   Workflow File: release.yml
+#     (Private repos: the policy is "temporarily active" for 7 days until the first
+#      successful publish locks it to the repository ID.)
+#  2. GitHub repo → Settings → Secrets and variables → Actions → new secret:
+#       NUGET_USER = your nuget.org profile name (NOT your email)
+#
+# Release flow: tag and push — the workflow builds, tests, packs, and publishes.
+#   git tag v0.1.0 && git push origin v0.1.0
+
+name: Release to nuget.org
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write   # GitHub OIDC token for NuGet Trusted Publishing
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET (pinned by global.json)
+        uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - name: Build
+        run: dotnet build Foliant.sln -c Release
+
+      - name: Test
+        run: dotnet test Foliant.sln -c Release --no-build
+
+      - name: Pack
+        run: dotnet pack Foliant.sln -c Release -o ./nupkgs
+
+      - name: NuGet login (OIDC → temp API key)
+        uses: NuGet/login@v1
+        id: login
+        with:
+          user: ${{ secrets.NUGET_USER }}
+
+      - name: Push packages
+        run: >
+          dotnet nuget push "nupkgs/*.nupkg"
+          --api-key ${{ steps.login.outputs.NUGET_API_KEY }}
+          --source https://api.nuget.org/v3/index.json
+          --skip-duplicate
