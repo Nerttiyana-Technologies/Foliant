@@ -1,5 +1,27 @@
 # Changelog
 
+## 1.1.1 — 2026-06-17 (fix: dropped AcroForm/XFA field values)
+
+Patch release. Fixes a correctness bug where **filled form-field values were silently dropped** on the
+born-digital fast path — and the measurement blind spot that let it pass as 100% recall.
+
+### Fixed
+- **AcroForm/XFA filled field values are no longer lost.** On the text-layer fast path a fillable
+  form's content stream carries only the printed labels; the typed-in values live in the field
+  *widgets*, which the text layer (`GetWords()`) does not return — so the values were dropped from the
+  output. The processor now recovers each visible widget's value (`/V`, with `/Parent` fallback), maps
+  the widget rect into raster coordinates, and injects it as a positioned text line that flows into
+  reading order and the output. (The OCR path already captured rendered values.)
+- **Recall is now value-aware on forms.** `TextLayerRecall` compared output only against the PDF text
+  layer — which *also* lacked the field values, so a value-less extraction still scored 100% (the
+  metric was blind in the same way as the bug). The recall truth now includes form-field widget
+  values, so Gate 1 detects and flags value loss instead of reporting a false 100%.
+
+### Changed (build/release)
+- **Package version is now derived from the git tag via MinVer**, replacing the hand-maintained
+  `Directory.Build.props` version. Releasing is `./scripts/release.sh X.Y.Z` (see RELEASING.md) — this
+  removes the version-file/tag mismatch that caused repeated release friction.
+
 ## 1.1.0 — 2026-06-17 (per-page progress reporting)
 
 Minor release. Adds **opt-in per-page progress reporting** so consumers (e.g. a UI) can show real
