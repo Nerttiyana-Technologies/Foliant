@@ -96,15 +96,19 @@ public sealed class DocumentProcessor : IDocumentProcessor, IDisposable
     private DocumentResult Process(byte[] pdf, ProcessingOptions options, CancellationToken ct)
     {
         int pageCount = _renderer.GetPageCount(pdf);
-        IEnumerable<int> pageNumbers = options.Pages is { Count: > 0 }
+        var pageNumbers = (options.Pages is { Count: > 0 }
             ? options.Pages.Where(p => p >= 1 && p <= pageCount).Distinct().OrderBy(p => p)
-            : Enumerable.Range(1, pageCount);
+            : Enumerable.Range(1, pageCount)).ToList();
 
         var pages = new List<PageResult>();
+        int total = pageNumbers.Count, completed = 0;
         foreach (int pageNumber in pageNumbers)
         {
             ct.ThrowIfCancellationRequested();
             pages.Add(ProcessPage(pdf, pageNumber, options));
+            // Per-page progress (1.1.0): reports CompletedPages/TotalPages after each page so callers
+            // (e.g. a UI) show real progress that reaches 100% as the last page finishes.
+            options.Progress?.Report(new ProcessingProgress(total, ++completed, pageNumber));
         }
 
         var md = new System.Text.StringBuilder();
