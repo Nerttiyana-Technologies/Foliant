@@ -12,9 +12,7 @@
     <NoWarn>$(NoWarn);CS1591</NoWarn>
   </PropertyGroup>
 
-  <PropertyGroup>
-    <!-- Single source of truth for the package version -->
-    <FoliantVersion>1.1.0</FoliantVersion>
-  </PropertyGroup>
+  <!-- Package version is derived from the git tag by MinVer (configured in src/Directory.Build.props);
+       there is no hand-maintained version property. To release: tag vX.Y.Z (see RELEASING.md). -->
 
 </Project>

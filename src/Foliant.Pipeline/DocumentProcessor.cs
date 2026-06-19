@@ -7,6 +7,8 @@
 // characters come from wherever they're most trustworthy.
 
 using System.Diagnostics;
+using UglyToad.PdfPig.Annotations;
+using UglyToad.PdfPig.Tokens;
 
 namespace Foliant.Pipeline;
 
@@ -122,6 +124,43 @@ public sealed class DocumentProcessor : IDocumentProcessor, IDisposable
         return new DocumentResult(pages, md.ToString());
     }
 
+    // Recovers AcroForm/XFA filled field VALUES as positioned text lines (the values render in the
+    // fillable boxes but are absent from the content-stream text layer). Reads /V off each visible
+    // widget (then its /Parent), maps the widget rect into raster pixels with the same transform the
+    // text-layer reader uses, and emits a TextLine. Best-effort; never throws.
+    private static List<TextLine> AcroFormValueLines(byte[] pdf, int pageNumber, int dpi)
+    {
+        var result = new List<TextLine>();
+        try
+        {
+            using var doc = UglyToad.PdfPig.PdfDocument.Open(pdf);
+            var page = doc.GetPage(pageNumber);
+            float scale = dpi / 72f, pageH = (float)page.Height;
+            foreach (var ann in page.GetAnnotations())
+            {
+                if (ann.Type != AnnotationType.Widget) continue;
+                if (ann.Flags.HasFlag(AnnotationFlags.Hidden) || ann.Flags.HasFlag(AnnotationFlags.NoView)) continue;
+                var d = ann.AnnotationDictionary;
+                string? value = null;
+                if (d.TryGet(NameToken.Create("V"), out StringToken v) && !string.IsNullOrWhiteSpace(v.Data))
+                    value = v.Data;
+                else if (d.TryGet(NameToken.Create("Parent"), out DictionaryToken p)
+                         && p.TryGet(NameToken.Create("V"), out StringToken pv) && !string.IsNullOrWhiteSpace(pv.Data))
+                    value = pv.Data;
+                if (value is null) continue;
+
+                var r = ann.Rectangle;   // PDF points, bottom-left origin → raster pixels, top-left
+                float xA = (float)r.Left * scale, xB = (float)r.Right * scale;
+                float yA = (pageH - (float)r.Top) * scale, yB = (pageH - (float)r.Bottom) * scale;
+                var box = new BoundingBox(Math.Min(xA, xB), Math.Min(yA, yB), Math.Max(xA, xB), Math.Max(yA, yB));
+                if (box.Width <= 0 || box.Height <= 0) continue;
+                result.Add(new TextLine(box, value.Trim(), 1f, TextSource.TextLayer));
+            }
+        }
+        catch { /* best-effort: never block extraction on form-value recovery */ }
+        return result;
+    }
+
     private PageResult ProcessPage(byte[] pdf, int pageNumber, ProcessingOptions options)
     {
         var sw = Stopwatch.StartNew();
@@ -202,6 +241,17 @@ public sealed class DocumentProcessor : IDocumentProcessor, IDisposable
         }
 
         var lines = useLayer ? layer!.Lines : _ocr.Recognize(image);
+
+        // ── AcroForm/XFA field VALUES live in the field widgets, not the content-stream text the
+        //    fast path reads — so on the text-layer path they were silently dropped (and recall,
+        //    measured against the same value-less text layer, still scored 100%). Inject the filled
+        //    values as positioned text lines so they flow into layout/reading-order/composition and
+        //    the output. The OCR path already captures them from the rendered widgets. ────────────
+        if (useLayer)
+        {
+            var fieldLines = AcroFormValueLines(pdf, pageNumber, options.Dpi);
+            if (fieldLines.Count > 0) lines = lines.Concat(fieldLines).ToList();
+        }
 
         // ── Structure: always from pixels ────────────────────────────────────
         var regions = _layout.Detect(image);

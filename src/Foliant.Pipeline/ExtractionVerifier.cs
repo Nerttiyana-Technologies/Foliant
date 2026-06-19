@@ -4,6 +4,9 @@
 //  - word recall vs the PDF's embedded text layer, the corpus-wide quality metric
 //    (98.3% average across 474 pages in Phase 0).
 
+using UglyToad.PdfPig.Annotations;
+using UglyToad.PdfPig.Tokens;
+
 namespace Foliant.Pipeline;
 
 internal static class ExtractionVerifier
@@ -31,8 +34,24 @@ internal static class ExtractionVerifier
         try
         {
             using var doc = UglyToad.PdfPig.PdfDocument.Open(pdf);
-            var truth = doc.GetPage(pageNumber).GetWords()
+            var page = doc.GetPage(pageNumber);
+            var truth = page.GetWords()
                 .Select(w => Normalize(w.Text)).Where(t => t.Length >= 3).ToList();
+
+            // AcroForm/XFA FILLED VALUES live in the field widgets, NOT the content-stream text that
+            // GetWords() returns — so without this, recall is measured against a value-less text layer
+            // and a form whose values were dropped still scores 100%. Add the widget /V (text) values
+            // to the truth so the metric (and Gate 1) can SEE value loss. Reads /V off the widget, then
+            // its /Parent (covers both merged and separated field/widget structures; works on static
+            // XFA where GetFieldsForPage returns nothing). Checkbox /V is a NameToken, not a string, so
+            // TryGet<StringToken> naturally skips it.
+            foreach (var value in FormFieldTextValues(page))
+                foreach (var w in value.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries))
+                {
+                    var n = Normalize(w);
+                    if (n.Length >= 3) truth.Add(n);
+                }
+
             if (truth.Count == 0) return (0, 0);
 
             var extractedWords = new HashSet<string>(
@@ -47,4 +66,24 @@ internal static class ExtractionVerifier
 
     public static string Normalize(string s) =>
         new string(s.Where(char.IsLetterOrDigit).ToArray()).ToUpperInvariant();
+
+    /// <summary>Filled text values of the page's form-field widgets (the values that render in the
+    /// fillable boxes but are absent from the content-stream text layer). Best-effort; never throws.</summary>
+    internal static IEnumerable<string> FormFieldTextValues(UglyToad.PdfPig.Content.Page page)
+    {
+        IEnumerable<Annotation> annots;
+        try { annots = page.GetAnnotations().ToList(); }
+        catch { yield break; }
+
+        foreach (var ann in annots)
+        {
+            if (ann.Type != AnnotationType.Widget) continue;
+            var d = ann.AnnotationDictionary;
+            if (d.TryGet(NameToken.Create("V"), out StringToken v) && !string.IsNullOrWhiteSpace(v.Data))
+                yield return v.Data;
+            else if (d.TryGet(NameToken.Create("Parent"), out DictionaryToken p)
+                     && p.TryGet(NameToken.Create("V"), out StringToken pv) && !string.IsNullOrWhiteSpace(pv.Data))
+                yield return pv.Data;
+        }
+    }
 }

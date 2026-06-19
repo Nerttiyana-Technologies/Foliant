@@ -27,6 +27,8 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # MinVer reads tags/history to derive the version
 
       - name: Setup .NET (pinned by global.json)
         uses: actions/setup-dotnet@v4
@@ -47,6 +49,8 @@ jobs:
     needs: build-test
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # MinVer reads tags/history to derive the version
 
       - name: Setup .NET (pinned by global.json)
         uses: actions/setup-dotnet@v4

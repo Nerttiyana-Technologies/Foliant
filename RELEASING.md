@@ -1,75 +1,45 @@
 # Releasing
 
-## The golden rule
+The package version is **derived from the git tag by [MinVer]** — there is **no version file to bump**
+and **no merge-before-tag dance**. The tag *is* the version, so the whole class of "main says 1.0.2 but
+I tagged 1.1.0" mistakes is gone. `main` allows direct pushes (force-push and branch deletion stay
+blocked), so a solo release needs no PR.
 
-**Never tag a release from a feature branch. Merge to `main` first, then tag from `main`, and tag last.**
+## Release in one command
 
-Tagging triggers the publish workflow, so a tag pushed from an unmerged branch ships the package
-while `main` still points at the old source. We have hit this repeatedly (1.0.0, 1.0.1): the NuGet
-package was live, but `main`'s `Directory.Build.props` still read the previous version and the fix
-was missing from `main`. The release is not "done" until `main` contains it.
+```bash
+# 1. commit your changes to main and push  (direct push is allowed)
+git add -p && git commit -m "…" && git push
 
-## Correct sequence (every release, no exceptions)
+# 2. add a CHANGELOG.md entry for the new version
 
-1. **Branch** off an up-to-date `main`: `git checkout main && git pull && git checkout -b release/x.y.z`
-2. **Implement + bump** the version in `Directory.Build.props` (single source of truth) and add the
-   `CHANGELOG.md` entry. Commit the version bump *before* tagging — never after.
-3. **Prove it green**: `dotnet build Foliant.sln && dotnet test`.
-4. **PR → merge to `main`.** `main` is branch-protected; the PR is the only way in.
-5. **Switch to main and verify it actually has the change** (see checklist below).
-6. **Tag from `main`, last of all**: `git tag vX.Y.Z && git push origin vX.Y.Z`. The release workflow
-   packs `Foliant.sln` and pushes to NuGet on the tag.
-
-## Pre-tag verification checklist (run on `main` after the merge)
-
-```
-git checkout main && git pull
-# version on main matches what you're about to tag:
-git show HEAD:Directory.Build.props | grep FoliantVersion
-# the specific fix is present on main (example):
-git grep -c "TableGridFits" -- src/Foliant.Pipeline/MarkdownComposer.cs
+# 3. cut the release
+./scripts/release.sh 1.2.0
 ```
 
-## Post-tag verification (confirm the tag came from main, not a branch)
+`release.sh` tags `v1.2.0` on `main` HEAD and pushes it. The tag triggers `release.yml`, which builds
+the version straight from the tag (MinVer → 1.2.0), tests, packs, and publishes to nuget.org via OIDC
+Trusted Publishing. Then watch **Actions → "Release to nuget.org"** and **nuget.org** (a brief
+"Validating" before the version lists).
 
-```
-git fetch origin
-# the tagged commit must be an ancestor of origin/main → "on main", else the release is detached:
-git merge-base --is-ancestor "$(git rev-list -n1 vX.Y.Z)" origin/main && echo "on main" || echo "DETACHED — fix before relying on it"
-```
+## What the script guards against
+- Not on `main`, or local `main` out of sync with `origin/main` (so the tag lands on the published HEAD).
+- A tag that already exists (NuGet versions are immutable — bump to the next patch instead).
+- Missing CHANGELOG entry (warning).
 
-If a tag was already pushed from a branch (the mistake), recover by merging that branch into `main`
-so `main` catches up; the published package is unaffected, but `main` must end up containing the
-tagged source.
+## Mechanics & recovery
+- **Version source:** the nearest `vX.Y.Z` tag (prefix `v`, set via `MinVerTagPrefix` in
+  `src/Directory.Build.props`). Untagged builds get a pre-release version; only tags publish.
+- **CI needs full history:** both workflows check out with `fetch-depth: 0` so MinVer can see tags.
+- **Wrong tag?** Delete and re-tag the right commit, then push:
+  ```bash
+  git tag -d vX.Y.Z && git push origin :refs/tags/vX.Y.Z
+  git tag vX.Y.Z <commit> && git push origin vX.Y.Z
+  ```
+  The workflow re-runs on the new tag push. (If it doesn't, Actions → release workflow → Run workflow.)
 
-## Recovering a tag that points at the wrong commit
+## One-time GitHub setting
+Settings → Rules → the `main` ruleset: keep **Block force pushes** and **Restrict deletions** on, but
+turn **off** "Require a pull request before merging" so the maintainer can push to `main` directly.
 
-Symptom: `git tag vX.Y.Z` fails with "tag already exists", or the published package never appears
-because the tag points at an old commit (so the workflow packed the previous version and
-`--skip-duplicate` made it a no-op). Verify, then move the tag:
-
-```
-# what commit / version is the tag actually on?
-git log --oneline -1 vX.Y.Z
-git show vX.Y.Z:Directory.Build.props | grep FoliantVersion
-
-# move it onto the correct commit on main:
-git checkout main && git pull
-git tag -d vX.Y.Z                       # delete the wrong LOCAL tag
-git push origin :refs/tags/vX.Y.Z       # delete it on origin (harmless error if absent)
-git tag vX.Y.Z                          # re-create at main HEAD (the merged commit with the bump)
-git push origin vX.Y.Z
-```
-
-A **moved tag does not always re-trigger Actions**. If no release run starts after the re-push, run
-the release workflow manually: GitHub → Actions → the release workflow → **Run workflow** on `main`
-(`workflow_dispatch`). After it completes, confirm the package is live on NuGet — and note NuGet
-shows a brief **"Validating"** state after upload before the version is listed; that is normal, not a
-failure.
-
-## Notes
-
-- `Directory.Build.props` `<FoliantVersion>` is the one place the version lives; `src/` projects and
-  the `Foliant.Forms.*` packs all inherit it.
-- The branch name is cosmetic; the shipped version is whatever `Directory.Build.props` says on the
-  tagged commit. Don't trust the branch name — verify the file.
+[MinVer]: https://github.com/adamralph/minver

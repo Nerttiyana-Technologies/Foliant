@@ -5,7 +5,8 @@
 
   <!-- NuGet package metadata shared by all shipping packages -->
   <PropertyGroup>
-    <Version>$(FoliantVersion)</Version>
+    <!-- Version is derived from the git tag by MinVer (tag prefix "v"); no hand-maintained version. -->
+    <MinVerTagPrefix>v</MinVerTagPrefix>
     <Authors>Suresh Subramanian</Authors>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <PackageTags>pdf;document-ai;layout-detection;ocr;table-extraction;onnx;document-understanding</PackageTags>
@@ -22,6 +23,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <!-- Build-time only: derives <Version> from the git tag. Not a runtime/package dependency. -->
+    <PackageReference Include="MinVer" Version="6.0.0" PrivateAssets="all" />
     <None Include="$(MSBuildThisFileDirectory)..\PACKAGE_README.md" Pack="true" PackagePath="README.md" Visible="false" />
   </ItemGroup>
 
