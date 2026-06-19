@@ -1,5 +1,21 @@
 # Changelog
 
+## 1.1.0 — 2026-06-17 (per-page progress reporting)
+
+Minor release. Adds **opt-in per-page progress reporting** so consumers (e.g. a UI) can show real
+progress instead of a page-count time estimate. **Additive and non-breaking** under
+`API-STABILITY.md` — MINOR on the frozen 1.0 contract; existing callers are unaffected.
+
+### Added
+- **Per-page progress — `ProcessingProgress` + `ProcessingOptions.Progress`
+  (`IProgress<ProcessingProgress>`, default `null`).** When set, the processor reports a
+  `ProcessingProgress(TotalPages, CompletedPages, CurrentPage)` (with a `Fraction` helper) after each
+  page completes, in page order. Progress reaches exactly 100% as the last page finishes — replacing
+  the consumer workaround of a page-count-based time estimate capped below 100% until the result
+  returned. `TotalPages` respects `ProcessingOptions.Pages` (the filtered set). Use
+  `new Progress<ProcessingProgress>(...)` to auto-marshal callbacks to the UI thread. Additive to
+  `ProcessingOptions` (the property defaults to `null`, so nothing is reported unless a sink is wired).
+
 ## 1.0.2 — 2026-06-15 (box-grid form scramble: ejection class fixed)
 
 Patch release. Fixes the reading-order scramble flagged as a known issue in 1.0.1, for the case where
