@@ -135,4 +135,23 @@ public sealed record ProcessingOptions
     /// is combined with <see cref="TextLayerMode.Never"/>.
     /// </summary>
     public IPageImageTransform? ImageTransform { get; init; }
+
+    /// <summary>
+    /// Optional per-page progress sink. When set, the processor reports a <see cref="ProcessingProgress"/>
+    /// after each page completes (in page order), so callers — e.g. a UI progress bar — can show real
+    /// progress that reaches 100% as the last page finishes, instead of a time/page-count estimate.
+    /// Default <c>null</c> (no reporting). Use <c>new Progress&lt;ProcessingProgress&gt;(...)</c> to
+    /// auto-marshal callbacks to the UI thread. Added in 1.1.0; additive and non-breaking.
+    /// </summary>
+    public IProgress<ProcessingProgress>? Progress { get; init; }
+}
+
+/// <summary>Per-page progress, reported after each page completes (see <see cref="ProcessingOptions.Progress"/>).</summary>
+/// <param name="TotalPages">Total pages being processed (respects <see cref="ProcessingOptions.Pages"/>).</param>
+/// <param name="CompletedPages">Pages completed so far (1..TotalPages).</param>
+/// <param name="CurrentPage">The 1-based page number that just completed.</param>
+public sealed record ProcessingProgress(int TotalPages, int CompletedPages, int CurrentPage)
+{
+    /// <summary>Completion fraction in [0,1] (CompletedPages / TotalPages); 0 when TotalPages is 0.</summary>
+    public double Fraction => TotalPages > 0 ? (double)CompletedPages / TotalPages : 0d;
 }
