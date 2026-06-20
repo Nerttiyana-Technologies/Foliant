@@ -477,6 +477,69 @@ public class DocumentProcessorTests
         Assert.All(result.Pages, p => Assert.Null(p.FormFields));   // option on, but no extractor → no-op
     }
 
+    // ── AcroForm/XFA filled-value recovery (regression guard for the 1.1.1 bug, #12) ──────────
+    //    The bug: on the born-digital fast path, filled field VALUES live in the widget /V, not in
+    //    the content-stream text layer, so they were silently dropped from the output (and recall,
+    //    measured against the same value-less layer, still scored 100%). These two tests pin the
+    //    fix: AcroFormValueLines must recover /V, and the fast path must carry it into the output.
+
+    [Fact]
+    public void AcroFormValueLines_RecoversFilledWidgetValue_AsPositionedLine()
+    {
+        // 100x100 pt page; one /Tx widget filled with /V, rect [10 70 90 90] (PDF points).
+        byte[] pdf = FilledFormPdf.Build();
+
+        var lines = DocumentProcessor.AcroFormValueLines(pdf, pageNumber: 1, dpi: 72);
+
+        var line = Assert.Single(lines);
+        Assert.Equal(FilledFormPdf.DefaultValue, line.Text);
+        Assert.Equal(TextSource.TextLayer, line.Source);   // recovered as fast-path text, not OCR
+        Assert.True(line.Bounds.Width > 0 && line.Bounds.Height > 0, "value line must have a positive-area box");
+        // dpi 72 → scale 1; rect maps to a top-left box (10,10)-(90,30) on the 100-tall page.
+        Assert.True(Math.Abs(line.Bounds.X1 - 10f) < 0.5f, $"X1 was {line.Bounds.X1}");
+        Assert.True(Math.Abs(line.Bounds.Y1 - 10f) < 0.5f, $"Y1 was {line.Bounds.Y1}");
+        Assert.True(Math.Abs(line.Bounds.X2 - 90f) < 0.5f, $"X2 was {line.Bounds.X2}");
+        Assert.True(Math.Abs(line.Bounds.Y2 - 30f) < 0.5f, $"Y2 was {line.Bounds.Y2}");
+    }
+
+    [Fact]
+    public void AcroFormValueLines_IgnoresHiddenWidget()
+    {
+        // /F 2 = Hidden → the value never renders, so it must not be injected either.
+        // The replace is length-preserving, so the cross-reference offsets stay valid.
+        byte[] pdf = FilledFormPdf.Build();
+        byte[] hidden = System.Text.Encoding.Latin1.GetBytes(
+            System.Text.Encoding.Latin1.GetString(pdf).Replace("/F 4 >>", "/F 2 >>"));
+
+        var lines = DocumentProcessor.AcroFormValueLines(hidden, pageNumber: 1, dpi: 72);
+
+        Assert.Empty(lines);
+    }
+
+    [Fact]
+    public async Task FastPath_RecoversAcroFormFieldValues_IntoOutput()
+    {
+        var ocr = new FakeOcr();
+        using var processor = NewProcessor(ocr, new FakeTextLayer { WordCount = 50 });
+        byte[] pdf = FilledFormPdf.Build();   // value box lands in the 100x100 raster at 72 dpi
+
+        var result = await processor.ProcessAsync(pdf, new ProcessingOptions
+        {
+            Verify = false,
+            Dpi = 72,                     // scale = dpi/72 = 1 → widget rect maps into FakeRenderer's 100x100
+            Pages = new[] { 1 },          // FakeRenderer reports 2 pages; the real PDF has 1
+            DetectOrientation = false,
+        });
+
+        Assert.Equal(0, ocr.Calls);       // stayed on the born-digital fast path
+        var page = Assert.Single(result.Pages);
+        Assert.Equal(TextSource.TextLayer, page.Source);
+        // The recovered value is present as a fast-path line AND survives composition into the output.
+        Assert.Contains(page.Lines, l => l.Text == FilledFormPdf.DefaultValue && l.Source == TextSource.TextLayer);
+        Assert.Contains(FilledFormPdf.DefaultValue, page.Markdown);
+        Assert.Contains(FilledFormPdf.DefaultValue, result.Markdown);
+    }
+
     [Fact]
     public async Task Never_AlwaysOcrs()
     {
