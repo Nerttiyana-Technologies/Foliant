@@ -128,7 +128,7 @@ public sealed class DocumentProcessor : IDocumentProcessor, IDisposable
     // fillable boxes but are absent from the content-stream text layer). Reads /V off each visible
     // widget (then its /Parent), maps the widget rect into raster pixels with the same transform the
     // text-layer reader uses, and emits a TextLine. Best-effort; never throws.
-    private static List<TextLine> AcroFormValueLines(byte[] pdf, int pageNumber, int dpi)
+    internal static List<TextLine> AcroFormValueLines(byte[] pdf, int pageNumber, int dpi)
     {
         var result = new List<TextLine>();
         try
