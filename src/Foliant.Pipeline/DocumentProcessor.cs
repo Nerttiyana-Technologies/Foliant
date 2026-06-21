@@ -279,29 +279,7 @@ public sealed class DocumentProcessor : IDocumentProcessor, IDisposable
         // Federal Standard Forms get schedule-aware table rendering (form-scoped; identified from the
         // page's printed "STANDARD FORM N" designation). Non-forms compose exactly as before.
         bool federalForm = FormIdentifier.IsFederalForm(lines);
-
-        // Decide template routing BEFORE composition: a matched page renders its form region as clean
-        // reading-order text (plainFormBody) — the structured values come from the appended Form-fields
-        // section below — instead of a scrambled markdown grid. No-op unless a router is wired.
-        var templated = (options.UseTemplateRouting && _templateRouter is not null)
-            ? _templateRouter.TryRoute(pdf, pageNumber)
-            : null;
-
-        // By-identity fallback: a federal form with no usable widget signature (flattened or scanned) gets
-        // matched by its printed "STANDARD FORM N" designation and bound to the known template geometry
-        // (checkbox state from pixels, values from OCR within each field rect). Federal-scoped; only fires
-        // when the widget route missed AND the page is a recognized Standard Form.
-        if (templated is null && options.UseTemplateRouting && federalForm
-            && _templateRouter is IScannedFormRouter scanned
-            && FormIdentifier.Identify(lines) is { } designation)
-        {
-            string? revisionYear = FormIdentifier.IdentifyRevisionYear(lines);
-            templated = scanned.TryRouteByDesignation(designation, revisionYear, image, lines, pageNumber);
-        }
-
-        var composed = _composer.Compose(
-            image, regions, lines, options.EnumeratorReadingOrder, federalForm,
-            plainFormBody: templated is not null);
+        var composed = _composer.Compose(image, regions, lines, options.EnumeratorReadingOrder, federalForm);
 
         // ── Self-verification ────────────────────────────────────────────────
         int lost = ExtractionVerifier.CountLostLines(composed.Markdown, lines, composed.PageFurniture);
@@ -331,15 +309,16 @@ public sealed class DocumentProcessor : IDocumentProcessor, IDisposable
         if (options.ExtractFormFields && _formFields is not null)
             formFields = _formFields.Extract(pdf, pageNumber, image, lines);
 
-        // ── Template routing output ──────────────────────────────────────────
-        // A matched page gets deterministic, label-bound fields plus an APPENDED template-field section.
-        // The base Markdown already rendered the form region as clean prose (plainFormBody above); appending
-        // is additive, so no text is lost and unmatched pages are unaffected.
+        // ── Template routing ─────────────────────────────────────────────────
+        // A page recognized as a known form template gets deterministic, label-bound fields and an APPENDED
+        // template-field section. Additive: the base Markdown, regions, and reading order are untouched, so
+        // recall and ordering cannot regress; unmatched pages are unaffected. No-op unless a router is wired.
         string markdown = composed.Markdown;
-        if (templated is { } t)
+        if (options.UseTemplateRouting && _templateRouter is not null
+            && _templateRouter.TryRoute(pdf, pageNumber) is { } templated)
         {
-            formFields = t.Fields;   // deterministic; supersedes geometric extraction for this page
-            markdown += "\n" + TemplateFieldSection.Render(t);
+            formFields = templated.Fields;   // deterministic; supersedes geometric extraction for this page
+            markdown += "\n" + TemplateFieldSection.Render(templated);
         }
 
         sw.Stop();

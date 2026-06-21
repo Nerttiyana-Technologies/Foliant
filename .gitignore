@@ -456,9 +456,3 @@ spike/RESULTS.md
 nupkgs/
 # Internal release collateral — decks, release emails (local only, not published)
 docs/
-
-# Gate 8 (low-DPI super-res) dump + baseline dirs — local measurement artifacts
-g8-*/
-verification-baseline/
-# FUSE temp files left when a mounted file is deleted while open
-*.fuse_hidden*
