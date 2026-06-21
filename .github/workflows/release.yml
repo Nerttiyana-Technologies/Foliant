@@ -1,34 +1,66 @@
 # Publishes Foliant packages to nuget.org via Trusted Publishing (OIDC — no stored API keys).
 #
-# One-time setup:
-#  1. nuget.org → <username> → Trusted Publishing → add policy:
-#       Repository Owner: <github owner>   Repository: <repo>   Workflow File: release.yml
-#     (Private repos: the policy is "temporarily active" for 7 days until the first
-#      successful publish locks it to the repository ID.)
-#  2. GitHub repo → Settings → Secrets and variables → Actions → new secret:
-#       NUGET_USER = your nuget.org profile name (NOT your email)
+# ── ONE-BUTTON RELEASE — you never tag by hand ──────────────────────────────────────────────
+#  1. Land the release on `main` via PR: a `## X.Y.Z — …` entry at the TOP of CHANGELOG.md, plus the code.
+#  2. GitHub → Actions → "Release to nuget.org" → Run workflow → Branch: main, Version: X.Y.Z.
 #
-# Release flow: tag and push — the workflow builds, tests, packs, and publishes.
-#   git tag v0.1.0 && git push origin v0.1.0
+# The workflow VERIFIES the typed version equals the top CHANGELOG entry, builds, tests, and only then
+# creates tag vX.Y.Z on main's HEAD itself (MinVer derives the package version from that tag) and publishes.
+# A version that doesn't match the CHANGELOG, or a tag that already exists, FAILS before anything ships —
+# exactly the "tagged the wrong commit / shipped old code" class of bug, now impossible.
+# Pushing a tag by hand no longer publishes anything; releasing is only ever this button.
+#
+# One-time setup (unchanged):
+#  - nuget.org → Trusted Publishing policy: this repo + workflow file `release.yml`.
+#  - repo secret NUGET_USER = your nuget.org profile name (NOT your email).
 
 name: Release to nuget.org
 
 on:
-  push:
-    tags: ['v*']
   workflow_dispatch:
+    inputs:
+      version:
+        description: "Version to publish, e.g. 1.4.0 — must equal the top CHANGELOG.md entry on main"
+        required: true
+        type: string
+      dry_run:
+        description: "Build, test and pack only — do NOT tag or publish (safe rehearsal)"
+        required: false
+        type: boolean
+        default: false
 
 jobs:
   publish:
     runs-on: ubuntu-latest
     permissions:
       id-token: write   # GitHub OIDC token for NuGet Trusted Publishing
-      contents: read
+      contents: write   # push the release tag + create the GitHub Release
 
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0   # MinVer needs full history + tags to derive the version from the tag
+
+      - name: Guard — must run from main
+        run: |
+          test "${GITHUB_REF}" = "refs/heads/main" \
+            || { echo "::error::Run this workflow with Branch = main (got ${GITHUB_REF})."; exit 1; }
+
+      - name: Guard — version is X.Y.Z and matches the TOP CHANGELOG entry
+        run: |
+          VER="${{ inputs.version }}"
+          echo "$VER" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$' \
+            || { echo "::error::version '$VER' must be X.Y.Z"; exit 1; }
+          TOP=$(grep -m1 -E '^## [0-9]+\.[0-9]+\.[0-9]+' CHANGELOG.md \
+                | sed -E 's/^## ([0-9]+\.[0-9]+\.[0-9]+).*/\1/')
+          echo "Top CHANGELOG entry = '$TOP'   requested = '$VER'"
+          test "$TOP" = "$VER" \
+            || { echo "::error::Top CHANGELOG entry is '$TOP', not '$VER'. Land the '## $VER' entry on main first."; exit 1; }
+
+      - name: Guard — tag must not already exist (NuGet versions are immutable)
+        run: |
+          if git rev-parse "v${{ inputs.version }}" >/dev/null 2>&1; then
+            echo "::error::tag v${{ inputs.version }} already exists — bump to the next version."; exit 1; fi
 
       - name: Setup .NET (pinned by global.json)
         uses: actions/setup-dotnet@v4
@@ -41,18 +73,38 @@ jobs:
       - name: Test
         run: dotnet test Foliant.sln -c Release --no-build
 
-      - name: Pack
+      # Tag only AFTER build + test pass, so a failing test never leaves a dangling tag.
+      - name: Tag this commit (MinVer reads the tag → package version)
+        if: ${{ !inputs.dry_run }}
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git tag -a "v${{ inputs.version }}" -m "Release ${{ inputs.version }}"
+          git push origin "v${{ inputs.version }}"
+
+      - name: Pack   # rebuilds with the tag's version stamped in
         run: dotnet pack Foliant.sln -c Release -o ./nupkgs
 
       - name: NuGet login (OIDC → temp API key)
+        if: ${{ !inputs.dry_run }}
         uses: NuGet/login@v1
         id: login
         with:
           user: ${{ secrets.NUGET_USER }}
 
       - name: Push packages
+        if: ${{ !inputs.dry_run }}
         run: >
           dotnet nuget push "nupkgs/*.nupkg"
           --api-key ${{ steps.login.outputs.NUGET_API_KEY }}
           --source https://api.nuget.org/v3/index.json
           --skip-duplicate
+
+      - name: Create GitHub Release
+        if: ${{ !inputs.dry_run }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "v${{ inputs.version }}" \
+            --title "Foliant ${{ inputs.version }}" \
+            --notes "See the ${{ inputs.version }} entry in CHANGELOG.md."
