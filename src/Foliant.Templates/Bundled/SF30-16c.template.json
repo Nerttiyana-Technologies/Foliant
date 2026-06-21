@@ -27,7 +27,7 @@
         "CenterX": 0.42451066,
         "CenterY": 0.09256567
       },
-      "Label": "CODE",
+      "Label": "6. CODE",
       "Group": null
     },
     {
@@ -97,7 +97,7 @@
         "CenterX": 0.5361781,
         "CenterY": 0.63628155
       },
-      "Label": "D. OTHER (Specify type of modification and authority)",
+      "Label": "13D. OTHER. Specify type of modification and authority",
       "Group": null
     },
     {
@@ -167,7 +167,7 @@
         "CenterX": 0.8992598,
         "CenterY": 0.09256567
       },
-      "Label": "CODE",
+      "Label": "7. CODE",
       "Group": null
     },
     {
@@ -223,7 +223,7 @@
         "CenterX": 0.736433,
         "CenterY": 0.045920476
       },
-      "Label": "AMENDMENT OF SOLICITATION/MODIFICATION OF CONTRACT",
+      "Label": "1. CONTRACT ID CODE",
       "Group": null
     },
     {
@@ -349,11 +349,11 @@
         "CenterX": 0.7414551,
         "CenterY": 0.31785983
       },
-      "Label": "FACILITY CODE",
+      "Label": "10B. DATED. SEE ITEM 13",
       "Group": null
     },
     {
-      "Kind": "Checkbox",
+      "Kind": "Text",
       "Page": 1,
       "Rect": {
         "X1": 0.63876307,
@@ -367,7 +367,7 @@
       "Group": null
     },
     {
-      "Kind": "Checkbox",
+      "Kind": "Text",
       "Page": 1,
       "Rect": {
         "X1": 0.63876307,
@@ -381,7 +381,7 @@
       "Group": null
     },
     {
-      "Kind": "Checkbox",
+      "Kind": "Text",
       "Page": 1,
       "Rect": {
         "X1": 0.0378366,
@@ -517,7 +517,7 @@
         "CenterX": 0.43012092,
         "CenterY": 0.91039777
       },
-      "Label": "(Signature of person authorized to sign)",
+      "Label": "15C. DATE SIGNED",
       "Group": null
     },
     {
@@ -531,7 +531,7 @@
         "CenterX": 0.90070915,
         "CenterY": 0.91039777
       },
-      "Label": "(Signature of Contracting Officer)",
+      "Label": "16C. DATE SIGNED",
       "Group": null
     },
     {

@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.3.2 — 2026-06-21 (ships the by-identity feature that 1.3.0/1.3.1 packages omitted)
+
+Corrective release. The 1.3.0 and 1.3.1 **packages did not actually contain the by-identity routing** —
+a release-branch merge dropped the wiring source (`IScannedFormRouter`, `TemplateRouter.TryRouteByDesignation`,
+the `DocumentProcessor` fallback, `FormIdentifier.IdentifyRevisionYear`, the revision gate, and the SF-1449/
+SF-30 `/TU` gold labels), so the published assemblies shipped only the orphaned extraction classes. 1.3.2
+restores the complete, tested feature described in the 1.3.1 notes below. **1.3.0 and 1.3.1 are unlisted.**
+No API changes beyond what 1.3.1 documented — `IScannedFormRouter` and `FormIdentifier.IdentifyRevisionYear`
+now genuinely ship. Build + tests green.
+
 ## 1.3.1 — 2026-06-21 (scanned & flattened federal forms — extraction by printed identity)
 
 Minor release. Extends template-aware extraction to **scanned and flattened federal forms that carry no
