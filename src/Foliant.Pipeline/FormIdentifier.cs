@@ -35,4 +35,22 @@ public static class FormIdentifier
 
     /// <summary>True when the page is a recognized federal Standard/Optional Form.</summary>
     public static bool IsFederalForm(IReadOnlyList<TextLine> lines) => Identify(lines) is not null;
+
+    // The printed revision, e.g. "STANDARD FORM 1449 (REV. 11/2021)" → "2021". Same form + same revision =
+    // same GSA printed layout (agencies vary only the fillable-widget placement). Used to gate by-identity
+    // extraction: a template's geometry is trusted only on a page of the matching revision.
+    private static readonly Regex RevisionRx = new(
+        @"REV\.?\s*\d{1,2}\s*/\s*(\d{4})", RegexOptions.IgnoreCase | RegexOptions.Compiled, TimeSpan.FromSeconds(2));
+
+    /// <summary>The 4-digit revision year (e.g. "2021"), or null when none is printed/legible.</summary>
+    public static string? IdentifyRevisionYear(IReadOnlyList<TextLine> lines)
+    {
+        if (lines is null) return null;
+        foreach (var line in lines)
+        {
+            var m = RevisionRx.Match(line.Text ?? string.Empty);
+            if (m.Success) return m.Groups[1].Value;
+        }
+        return null;
+    }
 }

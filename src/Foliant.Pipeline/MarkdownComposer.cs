@@ -26,7 +26,7 @@ internal sealed class MarkdownComposer
 
     public ComposedPage Compose(
         PageImage page, IReadOnlyList<LayoutRegion> rawRegions, IReadOnlyList<TextLine> lines,
-        bool enumeratorReadingOrder = false, bool federalFormTables = false)
+        bool enumeratorReadingOrder = false, bool federalFormTables = false, bool plainFormBody = false)
     {
         var ordered = _readingOrder.Order(XyCutReadingOrder.SuppressDuplicates(rawRegions));
         var furniture = new List<TextLine>();
@@ -81,8 +81,11 @@ internal sealed class MarkdownComposer
                 case RegionType.Table:
                     // Pass only the lines this table OWNS — lines claimed by other regions
                     // must not be re-emitted inside the grid.
-                    var extraction = _tables.Extract(page, region, regionLines);
-                    if (TableGridFits(extraction, regionLines))
+                    // On a MATCHED template page (plainFormBody) the structured values come from the
+                    // appended template Form-fields section, so render the form region as flowing
+                    // reading-order text — clean and recall-safe — instead of a scrambled markdown grid.
+                    var extraction = plainFormBody ? null : _tables.Extract(page, region, regionLines);
+                    if (extraction is not null && TableGridFits(extraction, regionLines))
                     {
                         table = extraction.Structure;
                         // Federal forms get the schedule-aware renderer (splits collapsed multi-row
@@ -93,10 +96,10 @@ internal sealed class MarkdownComposer
                     }
                     else
                     {
-                        // Box-grid FORM block mis-detected as a table: the predicted grid ejects
-                        // sentences that span its fake cell borders, which scrambles their order on
-                        // linearization. When the grid fails to capture the region's text, fall back
-                        // to flowing reading-order prose so spanning sentences stay intact and in order.
+                        // Matched template OR a box-grid FORM block mis-detected as a table (the grid
+                        // ejects sentences that span its fake cell borders, scrambling order on
+                        // linearization). Fall back to flowing reading-order prose so spanning sentences
+                        // stay intact and in order — and no text is lost.
                         md = string.Join("\n",
                             LineGrouping.GroupIntoVisualLines(regionLines).Select(g => g.Text));
                     }
