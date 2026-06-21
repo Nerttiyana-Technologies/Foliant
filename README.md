@@ -79,6 +79,7 @@ verifiability as a feature:
 | [`Foliant.Tables.TableTransformer`](https://www.nuget.org/packages/Foliant.Tables.TableTransformer) | TableTransformer + ruling-grid table-structure backend (default) |
 | [`Foliant.Tables.PaddleStructure`](https://www.nuget.org/packages/Foliant.Tables.PaddleStructure) | SLANet-plus table backend for raster/screenshot tables (opt-in) |
 | [`Foliant.Models`](https://www.nuget.org/packages/Foliant.Models) | Model catalog + SHA-256-verified local cache |
+| [`Foliant.Templates`](https://www.nuget.org/packages/Foliant.Templates) | Template-aware extraction + bring-your-own-template library: register a blank form, route matching uploads to deterministic field/checkbox binding (else the default pipeline). 12 U.S. federal Standard Forms bundled |
 
 Model weights (~280 MB) are not inside the packages. They download on first use into the
 local cache (`~/.local/share/Foliant/models` on macOS/Linux, `%LocalAppData%\Foliant\models`
@@ -323,6 +324,15 @@ documented in [`API-STABILITY.md`](API-STABILITY.md).
 [TableTransformer](https://github.com/microsoft/table-transformer) (MIT) ·
 [PDFtoImage](https://github.com/sungaila/PDFtoImage) / PDFium ·
 [PdfPig](https://github.com/UglyToad/PdfPig)
+
+## Data responsibility
+
+Foliant is a processing tool. **You are responsible for the licensing of the documents you process,
+and for any dataset or model you derive from them.** Foliant's Apache-2.0 license covers the software
+only — it grants no rights over your input documents or third-party datasets. If you use Foliant
+(including its optional local harvesters) to build training data, ensure your sources permit your
+intended use, and keep their provenance and licenses on record. The harvesters are local-only and
+tag each record with a provenance label to help you do this; the decision remains yours.
 
 ## License
 

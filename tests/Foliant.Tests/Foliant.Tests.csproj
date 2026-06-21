@@ -10,12 +10,17 @@
     <ProjectReference Include="..\..\src\Foliant.Models\Foliant.Models.csproj" />
     <ProjectReference Include="..\..\src\Foliant.Ocr.PaddleOcr\Foliant.Ocr.PaddleOcr.csproj" />
     <ProjectReference Include="..\..\src\Foliant.Tables.TableTransformer\Foliant.Tables.TableTransformer.csproj" />
+    <ProjectReference Include="..\..\src\Foliant.Forms.Lilt\Foliant.Forms.Lilt.csproj" />
+    <ProjectReference Include="..\..\src\Foliant.Templates\Foliant.Templates.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
-    <PackageReference Include="xunit" Version="2.9.2" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.6.0" />
+    <PackageReference Include="xunit" Version="2.9.3" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.1.5">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
   </ItemGroup>
 
 </Project>

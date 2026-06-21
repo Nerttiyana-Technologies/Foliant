@@ -1,5 +1,80 @@
 # Changelog
 
+## 1.2.0 — 2026-06-21 (template-aware forms + bring-your-own-template library)
+
+Minor release. Adds a **template-aware extraction** layer that binds fixed-layout forms to their *known*
+geometry instead of guessing at runtime, plus a new **`Foliant.Templates`** package that lets consumers
+register their **own** blank templates. **Additive and non-breaking** under `API-STABILITY.md` — the
+default pipeline is unchanged unless a template router is wired in.
+
+### Added
+- **`Foliant.Templates` — new package (bring-your-own-template library).** Register a blank form once;
+  Foliant learns its widget geometry, stores it (SQLite), and routes matching uploads to deterministic,
+  label-bound extraction — falling back to the default pipeline for anything unrecognized.
+  - **`FormLayout`** (in `Foliant.Core`): a form's fields/checkboxes at normalized (DPI-independent)
+    positions, each with a semantic label, plus a layout fingerprint.
+  - **`FormLayoutGenerator`** turns a blank PDF into a draft `FormLayout` (widget geometry + auto-paired
+    labels, table column-label inheritance, overlapping-widget dedup).
+  - **`FormMatcher`** fingerprints each page against the registered templates (conservative, biased to
+    fallback — high precision, no false matches); **`TemplateExtractor`** reads each filled widget at its
+    known position (`/V` text, `/AS` checkbox state) and emits the template's *known-correct* label.
+  - **`TemplateRegistry`** merges bundled templates with a customer SQLite store (customer wins on id);
+    **`TemplateRouter`** routes per page; **`TemplateLibrary`** is the productized façade
+    (`Register` / `Update` / `Unregister` / `Router`) with a draft → review → commit label workflow.
+- **12 bundled U.S. federal Standard Form templates** (SF-1449, SF-33, SF-1442, SF-30, SF-26, SF-18,
+  SF-25/25A/25B, SF-1409/1410, SF-1413) ship as embedded resources — accurate out of the box, no setup.
+- **Per-page template routing in the pipeline.** `DocumentProcessor` takes an optional
+  `IPageTemplateRouter`; a recognized page gets deterministic `PageResult.FormFields` **and** an appended,
+  label-bound Markdown section (e.g. `27b ADDENDA — ARE NOT ATTACHED`). Append-only — recall, reading
+  order, and the base Markdown are untouched. Opt-in via `ProcessingOptions.UseTemplateRouting` (a no-op
+  unless a router is wired; `FoliantProcessor.CreateDefault` wires none).
+- **Checkbox state in the output.** Checked AcroForm/XFA boxes (state in the widget `/AS`, not the content
+  stream) now emit `[X]`, so form selections survive into the Markdown instead of silently disappearing.
+- **Federal-form schedule tables** render row-by-row (`FederalFormTableRenderer`), form-scoped behind
+  printed-designation detection (`FormIdentifier`) — fixes multi-row line-item schedules collapsing into
+  one row, with **zero blast radius** on the shared table path.
+
+### Security
+- **Pinned `SQLitePCLRaw.lib.e_sqlite3` to 3.50.3** (SQLite ≥ 3.50.2) to resolve **CVE-2025-6965**
+  (high severity) pulled transitively by `Microsoft.Data.Sqlite`. Native-binary-only override; the managed
+  layer is unchanged.
+
+### Validation
+- New `Foliant.Templates` test suite (generator, matcher, extractor, registry, router, library) all green;
+  matcher precision validated on real forms (8/8 self-match, out-of-set form falls back on every page) and
+  on a mixed multi-form package (each page → its own template or default).
+- **Gate 1 recall 100% / Gate 2 zero text loss** with routing on; **Gate 6 reading-order avg τ 0.944 —
+  unchanged from baseline** (the additive routing cannot reach the shared table/reading-order path).
+
+### Engineering notes — the SF1449 journey
+
+This release was driven by one form. A customer comparing a filled **SF-1449** PDF against Foliant's
+Markdown (and feeding that Markdown to a Q&A tool) surfaced a chain of problems, each of which shaped a fix:
+
+- **"Missing text" that wasn't missing.** Recall measured 100% — the values were present, but the whole
+  form had collapsed into a single giant table region with scrambled reading order, so they *looked* lost.
+  Upgrading recovered the literal field values; the deeper answer was to stop guessing form structure at
+  runtime (below).
+- **Checkbox selections silently disappeared.** A checked box stores its state in the widget `/AS`, not in
+  the content-stream text — so the text layer carried the label but never the selection. Now emitted as
+  `[X]`.
+- **The line-item schedule collapsed 3 rows into 1.** With no visible row rules the table model predicted a
+  single data row and piled every value into it. Fixed with form-scoped per-row column rendering — and
+  gated so the shared table path is untouched.
+- **The decisive one: 27a/27b mis-bound.** The dense `ADDENDA ARE / ARE NOT ATTACHED` clause checkboxes
+  were paired to labels by runtime geometry, which scrambled them — and a mis-bound `[X]` is a *confidently
+  wrong* Q&A answer, worse than a visible gap. This is what motivated the template approach: bind each
+  widget to a *reviewed, known* position instead of guessing.
+- **Building the template surfaced its own problems, each fixed at the source:** whole header rows merging
+  into one "blob" label (fixed by splitting a row into separate labels on large X-gaps); lower schedule
+  rows coming out `(unlabeled)` because only the top row sits under a printed header (fixed by inheriting
+  the column header down the column); and the same value emitted twice when one filled widget overlapped
+  two adjacent template rows at sub-row spacing (fixed by a 1:1 nearest-and-consume widget→element binding).
+
+The result: SF-1449's set-aside block, 27a/27b clause selections, and line-item schedule now extract
+deterministically with known-correct labels — the same machinery that powers the bundled federal templates
+and customer-registered ones.
+
 ## 1.1.1 — 2026-06-17 (fix: dropped AcroForm/XFA field values)
 
 Patch release. Fixes a correctness bug where **filled form-field values were silently dropped** on the

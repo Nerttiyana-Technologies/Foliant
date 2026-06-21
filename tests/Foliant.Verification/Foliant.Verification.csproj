@@ -14,6 +14,15 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Foliant.Pipeline\Foliant.Pipeline.csproj" />
+    <!-- LiLT form-K-V model for the form-kv-eval Gate-3 scorer (local-only eval). -->
+    <ProjectReference Include="..\..\src\Foliant.Forms.Lilt\Foliant.Forms.Lilt.csproj" />
+    <!-- Template ingestion: the emit-form-template mode generates a FormLayout draft from a blank form. -->
+    <ProjectReference Include="..\..\src\Foliant.Templates\Foliant.Templates.csproj" />
+    <!-- PdfPig: reads the page text-layer word order (order-aware gate) and the AcroForm field
+         map + widget rects for the form-K-V harvester. -->
+    <PackageReference Include="PdfPig" Version="0.1.14" />
+    <!-- SkiaSharp: encode the page PNG for the form-K-V records (matches the pipeline's version) -->
+    <PackageReference Include="SkiaSharp" Version="3.119.4" />
   </ItemGroup>
 
 </Project>

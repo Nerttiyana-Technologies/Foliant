@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Description>Form-template store + matcher for Foliant. Register a blank form template, store its geometric layout (FormLayout) in SQLite, and route matching uploads to template-aware extraction (else the default document pipeline). Embedded, portable, no server.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Foliant.Core\Foliant.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Bundled federal Standard Form templates: accurate out of the box, no customer setup. -->
+    <EmbeddedResource Include="Bundled\*.template.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Embedded SQLite store for registered templates. If this exact version doesn't resolve, pin the
+         latest matching your SDK with: dotnet add src/Foliant.Templates package Microsoft.Data.Sqlite -->
+    <PackageReference Include="Microsoft.Data.Sqlite" Version="10.0.9" />
+    <!-- Security: Microsoft.Data.Sqlite 10.0.9 pulls SQLitePCLRaw.lib.e_sqlite3 2.1.11 transitively, whose
+         bundled SQLite predates 3.50.2 (CVE-2025-6965, high severity, GHSA-2m69-gcr7-jv3q). Pin the native
+         binary to 3.50.3 (SQLite >= 3.50.2 — patched). The CVE is wholly in the native engine; the managed
+         SQLitePCLRaw layer stays at 2.1.11 and P/Invokes the same stable e_sqlite3 C ABI. -->
+    <PackageReference Include="SQLitePCLRaw.lib.e_sqlite3" Version="3.50.3" />
+    <!-- Reads widget geometry + text from a blank template PDF during ingestion. -->
+    <PackageReference Include="PdfPig" Version="0.1.14" />
+    <PackageReference Update="MinVer" Version="7.0.0" />
+  </ItemGroup>
+
+</Project>

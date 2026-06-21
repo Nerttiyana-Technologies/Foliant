@@ -1,0 +1,231 @@
+{
+  "TemplateId": "1413",
+  "Name": "1413",
+  "Elements": [
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.07643345,
+        "Y1": 0.37458935,
+        "X2": 0.47388774,
+        "Y2": 0.46572712,
+        "CenterX": 0.2751606,
+        "CenterY": 0.42015824
+      },
+      "Label": "1",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.076688126,
+        "Y1": 0.5025692,
+        "X2": 0.4741431,
+        "Y2": 0.5376973,
+        "CenterX": 0.2754156,
+        "CenterY": 0.52013326
+      },
+      "Label": "Name of the fund manager",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.07668964,
+        "Y1": 0.5644253,
+        "X2": 0.4741448,
+        "Y2": 0.5995534,
+        "CenterX": 0.2754172,
+        "CenterY": 0.58198935
+      },
+      "Label": "Position in the organisation",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.65347,
+        "Y1": 0.3217392,
+        "X2": 0.7966406,
+        "Y2": 0.33861196,
+        "CenterX": 0.7250553,
+        "CenterY": 0.33017558
+      },
+      "Label": "Date",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.63998544,
+        "Y1": 0.56422573,
+        "X2": 0.9521533,
+        "Y2": 0.5806317,
+        "CenterX": 0.7960694,
+        "CenterY": 0.5724287
+      },
+      "Label": "Family name",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.63998544,
+        "Y1": 0.58740336,
+        "X2": 0.9521533,
+        "Y2": 0.6234971,
+        "CenterX": 0.7960694,
+        "CenterY": 0.6054503
+      },
+      "Label": "Given names",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.63998544,
+        "Y1": 0.63997906,
+        "X2": 0.78291583,
+        "Y2": 0.656385,
+        "CenterX": 0.71145064,
+        "CenterY": 0.64818203
+      },
+      "Label": "Date of birth",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.55271006,
+        "Y1": 0.68219125,
+        "X2": 0.95025504,
+        "Y2": 0.6983608,
+        "CenterX": 0.75148255,
+        "CenterY": 0.690276
+      },
+      "Label": "Migration Regulations 1994.",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.55271006,
+        "Y1": 0.7007329,
+        "X2": 0.95025504,
+        "Y2": 0.71722674,
+        "CenterX": 0.75148255,
+        "CenterY": 0.70897985
+      },
+      "Label": "The managed fund will be limited to investing a subclass 188",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.5527772,
+        "Y1": 0.7197318,
+        "X2": 0.7942585,
+        "Y2": 0.7359287,
+        "CenterX": 0.6735178,
+        "CenterY": 0.7278303
+      },
+      "Label": "Significant Investor stream visa applicant\u2019s funds in:",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.8431501,
+        "Y1": 0.7197662,
+        "X2": 0.9513318,
+        "Y2": 0.73596317,
+        "CenterX": 0.89724094,
+        "CenterY": 0.7278647
+      },
+      "Label": "POSTCODE",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.6494836,
+        "Y1": 0.7721484,
+        "X2": 0.7059162,
+        "Y2": 0.7878725,
+        "CenterX": 0.6776999,
+        "CenterY": 0.78001046
+      },
+      "Label": "(",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.7237449,
+        "Y1": 0.7721484,
+        "X2": 0.7804262,
+        "Y2": 0.7878725,
+        "CenterX": 0.75208557,
+        "CenterY": 0.78001046
+      },
+      "Label": ") (",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.7898118,
+        "Y1": 0.7721484,
+        "X2": 0.9500736,
+        "Y2": 0.7878725,
+        "CenterX": 0.86994267,
+        "CenterY": 0.78001046
+      },
+      "Label": ")",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.6413647,
+        "Y1": 0.7959484,
+        "X2": 0.9515368,
+        "Y2": 0.8116725,
+        "CenterX": 0.79645073,
+        "CenterY": 0.8038105
+      },
+      "Label": "Mobile/cell",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.7483117,
+        "Y1": 0.8246909,
+        "X2": 0.95194834,
+        "Y2": 0.840415,
+        "CenterX": 0.85013,
+        "CenterY": 0.8325529
+      },
+      "Label": "DIBP Client ID number (if known)",
+      "Group": null
+    }
+  ],
+  "Fingerprint": "418cbc4295b1548550e369c4fd15f73a8fcb69e6363015c2511c9159c2e197e9"
+}

@@ -440,6 +440,14 @@ verification-out*/
 sample-out/
 # Harness output dirs (gate ledgers, orient-check, inspect renders) — all local artifacts
 out-*/
+# ADR-0001 harvested training data (reading-order / form-K-V) — private, never published
+datasets/
+# Local working corpus: blank/filled form PDFs + generated draft templates + SQLite stores.
+# The CANONICAL bundled templates live under src/Foliant.Templates/Bundled/ and ARE tracked.
+data/
+*.db
+# Harness run outputs (routes, scratch)
+runs/
 .DS_Store
 .idea/
 # Corpus-derived analysis: quotes RFP content (names/emails) — local only

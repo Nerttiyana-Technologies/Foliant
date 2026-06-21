@@ -130,6 +130,26 @@ public class DocumentProcessorTests
         new(new FakeRenderer(), new FakeLayout(), ocr, new FakeTables(),
             new XyCutReadingOrder(), textLayer, formFields: formFields);
 
+    private sealed class FakeTemplateRouter : IPageTemplateRouter
+    {
+        public int Calls;
+        public PageTemplateMatch? TryRoute(byte[] pdf, int pageNumber)
+        {
+            Calls++;
+            if (pageNumber != 1) return null;   // only page 1 is a known template → page 2 falls back
+            return new PageTemplateMatch("SF1449-21", 1.0, new[]
+            {
+                new FormField("SOLICITATION NUMBER", "12121212", FieldKind.Text),
+                new FormField("27", "27b ADDENDA — ARE NOT ATTACHED", FieldKind.Checkbox),
+            });
+        }
+    }
+
+    private static DocumentProcessor NewProcessor(
+        FakeOcr ocr, ITextLayerReader textLayer, IPageTemplateRouter router) =>
+        new(new FakeRenderer(), new FakeLayout(), ocr, new FakeTables(),
+            new XyCutReadingOrder(), textLayer, templateRouter: router);
+
     private static readonly byte[] FakePdf = { 0x25, 0x50, 0x44, 0x46 };   // "%PDF" — fakes ignore it
 
     // ── Tests ────────────────────────────────────────────────────────────────
@@ -475,6 +495,43 @@ public class DocumentProcessorTests
             FakePdf, new ProcessingOptions { Verify = false, ExtractFormFields = true });
 
         Assert.All(result.Pages, p => Assert.Null(p.FormFields));   // option on, but no extractor → no-op
+    }
+
+    // ── Template routing (per-page deterministic binding) ──────────────────────────────
+
+    [Fact]
+    public async Task TemplateRouting_MatchedPage_AppendsSection_AndSetsFields()
+    {
+        var router = new FakeTemplateRouter();
+        using var processor = NewProcessor(new FakeOcr(), new FakeTextLayer { WordCount = 50 }, router);
+
+        var result = await processor.ProcessAsync(FakePdf, new ProcessingOptions { Verify = false });
+
+        var p1 = result.Pages.Single(p => p.PageNumber == 1);
+        Assert.Contains("### Form fields — SF1449-21", p1.Markdown);
+        Assert.Contains("27b ADDENDA — ARE NOT ATTACHED", p1.Markdown);        // checkbox label, unambiguous
+        Assert.Contains("**SOLICITATION NUMBER:** 12121212", p1.Markdown);     // text field, label-bound
+        Assert.Contains("embedded layer text", p1.Markdown);                   // base Markdown still present (additive)
+        Assert.NotNull(p1.FormFields);
+        Assert.Contains(p1.FormFields!, f => f.Value == "12121212");
+
+        // Page 2 is not a template → falls back, fully untouched.
+        var p2 = result.Pages.Single(p => p.PageNumber == 2);
+        Assert.DoesNotContain("Form fields —", p2.Markdown);
+        Assert.Null(p2.FormFields);
+    }
+
+    [Fact]
+    public async Task TemplateRouting_Off_IsNoOp()
+    {
+        var router = new FakeTemplateRouter();
+        using var processor = NewProcessor(new FakeOcr(), new FakeTextLayer { WordCount = 50 }, router);
+
+        var result = await processor.ProcessAsync(
+            FakePdf, new ProcessingOptions { Verify = false, UseTemplateRouting = false });
+
+        Assert.Equal(0, router.Calls);   // router never consulted when routing is off
+        Assert.All(result.Pages, p => Assert.DoesNotContain("Form fields —", p.Markdown));
     }
 
     // ── AcroForm/XFA filled-value recovery (regression guard for the 1.1.1 bug, #12) ──────────

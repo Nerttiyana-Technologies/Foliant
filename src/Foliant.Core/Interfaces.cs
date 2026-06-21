@@ -91,6 +91,27 @@ public interface IFormFieldExtractor
         byte[] pdf, int pageNumber, PageImage image, IReadOnlyList<TextLine> lines);
 }
 
+/// <summary>
+/// One page recognized as a known form template: which template, the match confidence, and the
+/// deterministic, template-bound fields (each field's label comes from the reviewed template, not from
+/// runtime geometry). The pipeline emits these instead of guessing the page's form structure.
+/// </summary>
+public sealed record PageTemplateMatch(string TemplateId, double Score, IReadOnlyList<FormField> Fields);
+
+/// <summary>
+/// Recognizes whether one page IS a known form template (federal Standard Form or customer-registered) and,
+/// when so, returns its deterministic fields. Per page, so a package of mixed forms + scanned exhibits gets a
+/// page-by-page decision; an unrecognized page returns null and falls back to default processing. The
+/// contract lives in Core so the pipeline can consume it without depending on the template store.
+/// </summary>
+public interface IPageTemplateRouter
+{
+    /// <param name="pdf">The PDF file contents.</param>
+    /// <param name="pageNumber">1-based page number.</param>
+    /// <returns>The match when the page is a recognized template; null to fall back to default processing.</returns>
+    PageTemplateMatch? TryRoute(byte[] pdf, int pageNumber);
+}
+
 /// <summary>The embedded text layer of one PDF page, mapped to raster coordinates.</summary>
 /// <param name="Lines">Text lines grouped from the embedded words, in raster coordinates.</param>
 /// <param name="WordCount">Raw word count before line grouping (drives the Auto fast-path decision).</param>

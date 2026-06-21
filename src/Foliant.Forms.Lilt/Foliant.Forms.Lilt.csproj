@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Description>LiLT form key-value backend for Foliant (ONNX, runs fully local via ONNX Runtime). Token-classification head over RoBERTa + layout: flags filled form-field VALUE tokens; paired with labels for key-value extraction.</Description>
+    <!-- Experimental: not referenced by any shipping pipeline (harness/eval only). Kept out of the
+         NuGet release until validated — the shipping form path is WidgetFormFieldExtractor + Foliant.Templates. -->
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Foliant.Core\Foliant.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.ML.OnnxRuntime" Version="1.27.0" />
+    <PackageReference Update="MinVer" Version="7.0.0" />
+  </ItemGroup>
+
+</Project>

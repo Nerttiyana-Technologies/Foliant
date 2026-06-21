@@ -10,10 +10,7 @@ using Foliant.Tables.TableTransformer;
 namespace Foliant.Pipeline;
 
 /// <summary>
-/// Table-structure backend selection for <see cref="FoliantProcessor.CreateDefault(string, TableBackend, ReadingOrderBackend)"/>.
-/// TableTransformer (+ ruling-line hybrid) is the current default; PaddleStructure (SLANet-plus)
-/// is the v0.2.0 raster-table candidate. The default switches only when the Gate 5 cell-accuracy
-/// scorecard proves it on the reference corpus (KICKOFF quality roadmap).
+/// Table backend selection. TableTransformer (default) is the fastest, but TableTransformer
 /// </summary>
 public enum TableBackend
 {
@@ -48,7 +45,8 @@ public static class FoliantProcessor
         string modelsDirectory,
         TableBackend tableBackend = TableBackend.TableTransformer,
         ReadingOrderBackend readingOrder = ReadingOrderBackend.XyCutPlusPlus,
-        IFormFieldExtractor? formFields = null)
+        IFormFieldExtractor? formFields = null,
+        IPageTemplateRouter? templateRouter = null)
     {
         string Require(string fileName)
         {
@@ -88,7 +86,8 @@ public static class FoliantProcessor
             ownsComponents: true,
             preprocessor: new DefaultPagePreprocessor(),
             scanResolution: new PdfImageScanResolutionEstimator(),
-            formFields: formFields ?? new AcroFormFieldExtractor());
+            formFields: formFields ?? new AcroFormFieldExtractor(),
+            templateRouter: templateRouter);
         // No IScanUpscaler is wired by default: the Gate 8 ledger measured classical (bicubic)
         // upscaling as net-negative for OCR recall on low-DPI scans (it enlarges artifacts it
         // cannot add detail to). The IScanUpscaler seam stays for a future ML super-resolution
@@ -105,11 +104,12 @@ public static class FoliantProcessor
         CancellationToken cancellationToken = default,
         TableBackend tableBackend = TableBackend.TableTransformer,
         ReadingOrderBackend readingOrder = ReadingOrderBackend.XyCutPlusPlus,
-        IFormFieldExtractor? formFields = null)
+        IFormFieldExtractor? formFields = null,
+        IPageTemplateRouter? templateRouter = null)
     {
         cache ??= new ModelCache();
         await cache.GetPathsAsync(ModelCatalog.DefaultPipeline, downloadProgress, cancellationToken)
             .ConfigureAwait(false);
-        return CreateDefault(cache.CacheDirectory, tableBackend, readingOrder, formFields);
+        return CreateDefault(cache.CacheDirectory, tableBackend, readingOrder, formFields, templateRouter);
     }
 }
