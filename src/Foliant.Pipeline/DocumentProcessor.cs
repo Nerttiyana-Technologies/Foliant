@@ -280,9 +280,7 @@ public sealed class DocumentProcessor : IDocumentProcessor, IDisposable
         // page's printed "STANDARD FORM N" designation). Non-forms compose exactly as before.
         bool federalForm = FormIdentifier.IsFederalForm(lines);
 
-        // Decide template routing BEFORE composition: a matched page renders its form region as clean
-        // reading-order text (plainFormBody) — the structured values come from the appended Form-fields
-        // section below — instead of a scrambled markdown grid. No-op unless a router is wired.
+        // Decide template routing BEFORE composition. No-op unless a router is wired.
         var templated = (options.UseTemplateRouting && _templateRouter is not null)
             ? _templateRouter.TryRoute(pdf, pageNumber)
             : null;
@@ -291,17 +289,24 @@ public sealed class DocumentProcessor : IDocumentProcessor, IDisposable
         // matched by its printed "STANDARD FORM N" designation and bound to the known template geometry
         // (checkbox state from pixels, values from OCR within each field rect). Federal-scoped; only fires
         // when the widget route missed AND the page is a recognized Standard Form.
+        bool scannedMatch = false;
         if (templated is null && options.UseTemplateRouting && federalForm
             && _templateRouter is IScannedFormRouter scanned
             && FormIdentifier.Identify(lines) is { } designation)
         {
             string? revisionYear = FormIdentifier.IdentifyRevisionYear(lines);
             templated = scanned.TryRouteByDesignation(designation, revisionYear, image, lines, pageNumber);
+            scannedMatch = templated is not null;
         }
 
+        // plainFormBody (flatten the form region to reading-order prose) is ONLY for the scanned/by-identity
+        // path, where the OCR'd form grid would be garbled. A born-digital WIDGET match keeps its clean
+        // FederalFormTableRenderer grid (each value stays in its labelled cell, e.g. "5. SOLICITATION NUMBER
+        // 80TECH24R0001"); flattening that grid would scatter values away from their labels. The structured
+        // values are appended as a Form-fields section below regardless of which body rendering is used.
         var composed = _composer.Compose(
             image, regions, lines, options.EnumeratorReadingOrder, federalForm,
-            plainFormBody: templated is not null);
+            plainFormBody: scannedMatch);
 
         // ── Self-verification ────────────────────────────────────────────────
         int lost = ExtractionVerifier.CountLostLines(composed.Markdown, lines, composed.PageFurniture);
