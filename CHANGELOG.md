@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.3.3 — 2026-06-21 (fix: born-digital matched forms keep their clean grid body)
+
+Bug fix. 1.3.x flattened the body of **every** template-matched page to reading-order prose
+(`plainFormBody`), which was right for scanned/flattened forms (garbled OCR grid) but **wrong for
+born-digital widget-matched forms**: it scattered each filled value away from its label (e.g. the
+solicitation number rendered after the block 2–6 label run instead of in its `5. SOLICITATION NUMBER`
+cell). Now `plainFormBody` applies **only to the scanned/by-identity path**; a born-digital widget match
+keeps its `FederalFormTableRenderer` grid, so each value stays in its labelled cell. The appended
+`### Form fields` section is unchanged (it's added regardless of body rendering). No API change.
+
 ## 1.3.2 — 2026-06-21 (ships the by-identity feature that 1.3.0/1.3.1 packages omitted)
 
 Corrective release. The 1.3.0 and 1.3.1 **packages did not actually contain the by-identity routing** —
