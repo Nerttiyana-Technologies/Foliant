@@ -24,7 +24,14 @@ public sealed class TemplateStore : IDisposable
     public TemplateStore(string databasePath)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(databasePath);
-        _connection = new SqliteConnection($"Data Source={databasePath}");
+        // Pooling=false so disposing the store releases the file handle immediately — otherwise the pooled
+        // connection keeps the .db open and a later delete/replace fails on Windows (file-locked).
+        var connectionString = new SqliteConnectionStringBuilder
+        {
+            DataSource = databasePath,
+            Pooling = false,
+        }.ToString();
+        _connection = new SqliteConnection(connectionString);
         _connection.Open();
         EnsureSchema();
     }
