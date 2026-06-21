@@ -16,7 +16,6 @@ using System.Text.Json.Serialization;
 using Foliant;
 using Foliant.Pipeline;
 using Foliant.Templates;
-using Foliant.ScanUpscale.SuperResolution;
 using Foliant.Verification;
 
 string? pdfDir = null;
@@ -51,11 +50,6 @@ string? matchExtractTemplate = null;  //   ...against <template.json> (determini
 string? routePdf = null;              // --route <upload.pdf>: per-page router over BUNDLED templates
 string? routeDb = null;               // --templates-db <file>: also include customer-registered templates
 bool withTemplates = false;           // --with-templates: wire the bundled router into the full pipeline run
-string? recModel = null;              // --rec-model <path>: override the OCR recognition model (A/B a stronger rec)
-string? recDict = null;               // --rec-dict <path>: dict for --rec-model (default = catalog English dict)
-string? superResModel = null;         // --super-res <path>: ML super-resolution ONNX for low-DPI scans (A/B on Gate 8)
-int superResTile = 256;               // --super-res-tile N: tile edge (px) for super-res inference
-bool gate8Dump = false;               // --gate8-dump: save each arm's OCR-input image (degraded / upscaled) as PNG
 string? regBlank = null, regDb = null;        // --register <blank.pdf> <db>: register a customer template
 string? listTplDb = null;             // --list-templates <db>
 string[]? exportTpl = null;           // --export-template <db> <id> <out.json>
@@ -95,11 +89,6 @@ for (int i = 0; i < args.Length; i++)
     if (args[i] == "--route" && i + 1 < args.Length) { routePdf = args[++i]; continue; }
     if (args[i] == "--templates-db" && i + 1 < args.Length) { routeDb = args[++i]; continue; }
     if (args[i] == "--with-templates") { withTemplates = true; continue; }
-    if (args[i] == "--rec-model" && i + 1 < args.Length) { recModel = args[++i]; continue; }
-    if (args[i] == "--rec-dict" && i + 1 < args.Length) { recDict = args[++i]; continue; }
-    if (args[i] == "--super-res" && i + 1 < args.Length) { superResModel = args[++i]; continue; }
-    if (args[i] == "--super-res-tile" && i + 1 < args.Length) { superResTile = int.Parse(args[++i]); continue; }
-    if (args[i] == "--gate8-dump") { gate8Dump = true; continue; }
     if (args[i] == "--register" && i + 2 < args.Length) { regBlank = args[++i]; regDb = args[++i]; continue; }
     if (args[i] == "--list-templates" && i + 1 < args.Length) { listTplDb = args[++i]; continue; }
     if (args[i] == "--export-template" && i + 3 < args.Length) { exportTpl = new[] { args[++i], args[++i], args[++i] }; continue; }
@@ -280,8 +269,6 @@ if (pdfDir == null || !Directory.Exists(pdfDir))
         "[--route <upload.pdf> [--templates-db <file>]] " +
         "[--register <blank.pdf> <db>] [--list-templates <db>] [--export-template <db> <id> <out.json>] " +
         "[--import-template <db> <reviewed.json>] [--unregister <db> <id>] " +
-        "[--with-templates] [--rec-model <rec.onnx> [--rec-dict <dict.txt>]] " +
-        "[--super-res <model.onnx> [--super-res-tile N]] " +
         "[--table-backend tt|slanet] [--reading-order xycut|xycut++]");
     return 2;
 }
@@ -317,13 +304,7 @@ IFormFieldExtractor? formExtractor =
 IPageTemplateRouter? pipelineRouter = withTemplates
     ? new TemplateRouter(new TemplateRegistry(routeDb != null ? new TemplateStore(routeDb) : null))
     : null;
-IScanUpscaler? superResUpscaler = superResModel != null
-    ? new OnnxSuperResolutionUpscaler(superResModel, superResTile)
-    : null;
-using var processor = FoliantProcessor.CreateDefault(modelsDir, tableBackend, readingOrder, formExtractor, pipelineRouter,
-    recognitionModelPath: recModel, recognitionDictPath: recDict, scanUpscaler: superResUpscaler);
-if (recModel != null) Console.WriteLine($"Mode: --rec-model '{recModel}' (A/B recognition model; dict: {recDict ?? "catalog default"})");
-if (superResModel != null) Console.WriteLine($"Mode: --super-res '{superResModel}' (ML super-resolution on low-DPI scans; tile {superResTile})");
+using var processor = FoliantProcessor.CreateDefault(modelsDir, tableBackend, readingOrder, formExtractor, pipelineRouter);
 if (withTemplates) Console.WriteLine("Mode: --with-templates (per-page template routing on; bundled federal templates)");
 if (tableBackend != TableBackend.TableTransformer)
     Console.WriteLine($"Table backend: {tableBackend}");
@@ -339,7 +320,6 @@ var options = new ProcessingOptions
     DetectOrientation = !noOrientation,
     EnumeratorReadingOrder = enumeratorOrder,
     ExtractFormFields = gate3ExtractCsv != null || dumpWidgetFields,
-    UpscaleLowResolutionScans = superResModel != null,   // --super-res turns on the low-DPI upscale path
 };
 if (enumeratorOrder) Console.WriteLine("Mode: --enumerator-order (numbered-mosaic reading-order post-pass on)");
 if (ocrOnly) Console.WriteLine("Mode: --ocr-only (text layer disabled for extraction; still used as recall truth)");
@@ -372,7 +352,7 @@ if (gate3Csv != null || gate3ExtractCsv != null || gate5Dir != null || gate6Dir 
     // Gates 7 and 8 manage their own per-page options (forced OCR + degradation transforms), so
     // they take the born-digital dir directly rather than the shared `options`/`pdfDir`.
     if (gate7Dir != null) gatesOk &= await Gate7Runner.RunAsync(processor, gate7Dir, outDir, gate7Pages);
-    if (gate8Dir != null) gatesOk &= await Gate8Runner.RunAsync(processor, gate8Dir, outDir, gate8Pages, upscaler: superResUpscaler, dumpImages: gate8Dump);
+    if (gate8Dir != null) gatesOk &= await Gate8Runner.RunAsync(processor, gate8Dir, outDir, gate8Pages);
     return gatesOk ? 0 : 1;
 }
 

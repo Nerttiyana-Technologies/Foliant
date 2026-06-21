@@ -20,63 +20,36 @@
 // reach for an ML super-resolution backend via the IScanUpscaler seam instead).
 
 using System.Globalization;
-using System.Runtime.InteropServices;
 using Foliant;
 using Foliant.Pipeline;
-using SkiaSharp;
 
 namespace Foliant.Verification;
 
 internal static class Gate8Runner
 {
-    // Tee transform: saves the image (the actual OCR input for this arm) to PNG, then passes it through.
-    private sealed class SaveTee(string path) : IPageImageTransform
-    {
-        public PageImage Transform(PageImage image) { SavePng(image, path); return image; }
-    }
-
-    private static void SavePng(PageImage img, string path)
-    {
-        using var bmp = new SKBitmap(new SKImageInfo(img.Width, img.Height, SKColorType.Bgra8888, SKAlphaType.Opaque));
-        Marshal.Copy(img.PixelsBgra8888, 0, bmp.GetPixels(), img.PixelsBgra8888.Length);
-        bmp.NotifyPixelsChanged();
-        using var data = bmp.Encode(SKEncodedImageFormat.Png, 100);
-        using var fs = File.Create(path);
-        data.SaveTo(fs);
-    }
-
-    private static string Sanitize(string name)
-    {
-        foreach (char c in Path.GetInvalidFileNameChars()) name = name.Replace(c, '_');
-        return name.Replace(' ', '_');
-    }
-
     // Simulated source resolutions (the rendered page is 300 DPI; these drop detail below it).
     private static readonly int[] LevelsDpi = [150, 100, 72];
 
     // Upscale arms applied to each low-DPI level. 1.0 = no upscale (the per-level baseline).
     private static readonly float[] Factors = [1.0f, 1.5f, 2.0f];
 
-    private sealed class UpscaleTransform(IScanUpscaler upscaler, float factor) : IPageImageTransform
+    private sealed class UpscaleTransform(float factor) : IPageImageTransform
     {
-        public PageImage Transform(PageImage image) => upscaler.Upscale(image, factor);
+        private static readonly ClassicalScanUpscaler Upscaler = new();
+        public PageImage Transform(PageImage image) => Upscaler.Upscale(image, factor);
     }
 
-    private static IPageImageTransform ArmTransform(IScanUpscaler upscaler, int levelDpi, float factor) =>
+    private static IPageImageTransform ArmTransform(int levelDpi, float factor) =>
         factor <= 1f
             ? ScanDegrader.Downscale(levelDpi)
-            : ScanDegrader.Compose(ScanDegrader.Downscale(levelDpi), new UpscaleTransform(upscaler, factor));
+            : ScanDegrader.Compose(ScanDegrader.Downscale(levelDpi), new UpscaleTransform(factor));
 
     /// <param name="pagesPerPdf">How many usable (text-bearing) pages to sample from each PDF.</param>
     /// <param name="minTruthWords">A page needs at least this many text-layer words to be a usable truth source.</param>
     public static async Task<bool> RunAsync(
         DocumentProcessor processor, string pdfDir, string outDir,
-        int pagesPerPdf = 2, int minTruthWords = 50, IScanUpscaler? upscaler = null, bool dumpImages = false)
+        int pagesPerPdf = 2, int minTruthWords = 50)
     {
-        // Default arm = the classical (bicubic) baseline; --super-res injects the ONNX model to A/B against it.
-        upscaler ??= new ClassicalScanUpscaler();
-        string imgDir = Path.Combine(outDir, "gate8-img");
-        if (dumpImages) { Directory.CreateDirectory(imgDir); Console.WriteLine($"Dumping OCR-input images to {imgDir}"); }
         var pdfs = Directory.GetFiles(pdfDir, "*.pdf").OrderBy(p => p).ToList();
         if (pdfs.Count == 0) { Console.Error.WriteLine($"gate8: no PDFs in {pdfDir}"); return true; }
 
@@ -140,13 +113,7 @@ internal static class Gate8Runner
                         double recall; double secs;
                         try
                         {
-                            var arm = ArmTransform(upscaler, levelDpi, factor);
-                            if (dumpImages)
-                            {
-                                string fn = $"{Path.GetFileNameWithoutExtension(name)}_p{page}_{levelDpi}dpi_x{factor.ToString("0.0", CultureInfo.InvariantCulture)}.png";
-                                arm = ScanDegrader.Compose(arm, new SaveTee(Path.Combine(imgDir, Sanitize(fn))));
-                            }
-                            var doc = await processor.ProcessAsync(bytes, OptsFor(page, arm));
+                            var doc = await processor.ProcessAsync(bytes, OptsFor(page, ArmTransform(levelDpi, factor)));
                             var pr = doc.Pages.Count > 0 ? doc.Pages[0] : null;
                             if (pr is null) continue;
                             recall = pr.Verification.RecallPercent ?? 0;

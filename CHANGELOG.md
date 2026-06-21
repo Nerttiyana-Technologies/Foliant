@@ -1,50 +1,5 @@
 # Changelog
 
-## 1.3.0 — 2026-06-21 (scanned & flattened federal forms — extraction by printed identity)
-
-Minor release. Extends template-aware extraction to **scanned and flattened federal forms that carry no
-usable AcroForm widgets** — the case the 1.2.0 widget-matcher could not reach. Such a page is recognized by
-its **printed form designation + GSA revision** and its values are read from the known template geometry
-(checkbox state from pixels, text from OCR within each field's rect). **Additive and non-breaking** under
-`API-STABILITY.md`: a new optional interface plus a federal-scoped pipeline fallback — the default pipeline
-and the 1.2.0 widget path are unchanged.
-
-### Added
-- **By-identity routing for flattened/scanned federal forms.** New **`IScannedFormRouter`** (in
-  `Foliant.Core`), implemented by `TemplateRouter`. When a page has no usable widget signature but prints a
-  recognized Standard Form designation, Foliant binds it to the bundled template **of the same revision** and
-  extracts deterministically — otherwise it abstains and the page falls back to the default pipeline.
-  - **Form + revision is the trust key.** **`FormIdentifier.IdentifyRevisionYear`** reads the printed GSA
-    revision (e.g. `REV. 11/2021`). A template's geometry is applied only on a page of the **same form and
-    revision** — the same printed GSA layout even across agencies (only fillable-widget placement differs,
-    which pixel/positional extraction ignores). A different revision abstains; an unreadable revision falls
-    back to a strict layout-anchor check. This **generalizes across agencies**: a SEWP SF-1449 and an Air
-    Force SF-1449 of the same revision both extract from one bundled template.
-  - **OCR-free checkbox detection** (`CheckboxPixelDetector`): checkbox state from the dark-pixel fraction
-    inside the known box — no model required.
-  - **`ScannedFormExtractor`** reads each field from the OCR lines inside its known rect: every line is
-    assigned to at most one field (nearest centre — no value copied across overlapping rects), printed-label
-    echo is stripped, and junk marks (lone characters/punctuation) are dropped.
-  - **`LayoutAnchorVerifier`** — the fallback layout guard used when the revision can't be read.
-
-### Changed / Fixed
-- **Cleaner matched-form body.** Matched federal pages now compose flowing prose instead of being forced into
-  a grid table (`MarkdownComposer` plain-form-body), fixing scrambled/garbled body text on scanned amendments.
-- **Gold field captions for SF-1449 and SF-30.** Text-field labels re-sourced from the blank forms'
-  authoritative AcroForm `/TU` names, so values read with the right captions (e.g. `10. NAICS: 721214`,
-  `10. SIZE STANDARD:`, `8. OFFER DUE DATE`, `7. … TELEPHONE NUMBER`) instead of mis-paired printed
-  fragments. The set-aside / UCF **checkbox** gold labels from 1.2.0 are untouched.
-- Re-kinded three SF-30 header/date elements (9B & 10B *DATED*, 11 *SOLICITATION AMENDED*) from checkbox to
-  text so their values extract as text.
-
-### Notes
-- Resolves the SEWP VI (solicitation 80TECH24R0001) customer escalation on scanned SF-30 / SF-1449 copies,
-  end to end. Verification gates pass (recall, zero text loss); a scanned page with no embedded text layer
-  reports corpus-recall *n/a* by construction (no ground truth to score against) — not a regression.
-- An experimental low-DPI super-resolution backend (`Foliant.ScanUpscale.SuperResolution`) ships in the
-  solution and Gate-8 harness but is **not published to NuGet** (`IsPackable=false`) — Gate 8 measured
-  upscaling net-negative for OCR. Parked pending the 2.0.0 learned-model work.
-
 ## 1.2.0 — 2026-06-21 (template-aware forms + bring-your-own-template library)
 
 Minor release. Adds a **template-aware extraction** layer that binds fixed-layout forms to their *known*
