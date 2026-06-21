@@ -33,7 +33,8 @@ public sealed class LiltTokenizerParityTests
     [Fact]
     public void LiltTokenizerParity_PrintIds()
     {
-        string dir = FindModelDir();
+        string? dir = FindModelDir();
+        if (dir is null) return;   // LiLT model is local-only (models/ gitignored) — skip in CI
         var tok = LiltTokenizer.Load(dir);
 
         _out.WriteLine($"model dir: {dir}");
@@ -48,8 +49,9 @@ public sealed class LiltTokenizerParityTests
 
     private static string Quote(string s) => "\"" + s + "\"";
 
-    // Walk up from the test bin dir to the repo root and locate the gitignored model folder.
-    private static string FindModelDir()
+    // Walk up from the test bin dir to the repo root and locate the gitignored model folder. Returns null
+    // when absent — LiLT is experimental/excluded and its model is local-only, so the test early-returns in CI.
+    private static string? FindModelDir()
     {
         var d = new DirectoryInfo(AppContext.BaseDirectory);
         while (d is not null)
@@ -58,8 +60,6 @@ public sealed class LiltTokenizerParityTests
             if (Directory.Exists(candidate)) return candidate;
             d = d.Parent;
         }
-        throw new DirectoryNotFoundException(
-            "Could not find models/form-kv-lilt above the test output dir. " +
-            "Place the exported model + tokenizer files there (model.onnx, vocab.json, merges.txt, …).");
+        return null;
     }
 }

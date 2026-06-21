@@ -50,6 +50,13 @@ public sealed class DocumentProcessor : IDocumentProcessor, IDisposable
     /// <see cref="PageResult.LowResolution"/>, applied only when
     /// <see cref="ProcessingOptions.UpscaleLowResolutionScans"/> is on. Null disables upscaling
     /// (default in the bare constructor; wired by <see cref="FoliantProcessor.CreateDefault"/>).</param>
+    /// <param name="formFields">Optional typed key-value form-field extractor; populates
+    /// <see cref="PageResult.FormFields"/> when <see cref="ProcessingOptions.ExtractFormFields"/> is on.
+    /// Null disables it (the default bare constructor wires none).</param>
+    /// <param name="templateRouter">Optional per-page template router. When supplied and
+    /// <see cref="ProcessingOptions.UseTemplateRouting"/> is on, a page recognized as a known form gets
+    /// deterministic, label-bound fields plus an appended template-field Markdown section. Null disables it
+    /// (the default pipeline wires none).</param>
     public DocumentProcessor(
         IPageRenderer renderer,
         ILayoutDetector layout,
