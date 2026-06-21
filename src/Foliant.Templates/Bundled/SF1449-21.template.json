@@ -1,0 +1,4305 @@
+{
+  "TemplateId": "SF1449-21",
+  "Name": "SF1449-21",
+  "Elements": [
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.5890637,
+        "Y1": 0.058450796,
+        "X2": 0.8057516,
+        "Y2": 0.07468938,
+        "CenterX": 0.69740766,
+        "CenterY": 0.06657009
+      },
+      "Label": "NOTE: OFFEROR TO COMPLETE BLOCKS 12, 17, 23, 24, AND 30.",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.8241078,
+        "Y1": 0.058450796,
+        "X2": 0.948286,
+        "Y2": 0.07468938,
+        "CenterX": 0.8861969,
+        "CenterY": 0.06657009
+      },
+      "Label": "NOTE: OFFEROR TO COMPLETE BLOCKS 12, 17, 23, 24, AND 30.",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.047240194,
+        "Y1": 0.10416921,
+        "X2": 0.24234478,
+        "Y2": 0.11999242,
+        "CenterX": 0.14479248,
+        "CenterY": 0.11208081
+      },
+      "Label": "2. CONTRACT NUMBER",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.39057353,
+        "Y1": 0.10323611,
+        "X2": 0.5818105,
+        "Y2": 0.11958583,
+        "CenterX": 0.486192,
+        "CenterY": 0.11141097
+      },
+      "Label": "4. ORDER NUMBER",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.58896244,
+        "Y1": 0.10392676,
+        "X2": 0.8049101,
+        "Y2": 0.119882606,
+        "CenterX": 0.69693625,
+        "CenterY": 0.11190468
+      },
+      "Label": "5. SOLICITATION NUMBER",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.24862419,
+        "Y1": 0.14062245,
+        "X2": 0.58091664,
+        "Y2": 0.17239773,
+        "CenterX": 0.41477042,
+        "CenterY": 0.15651008
+      },
+      "Label": "7. FOR SOLICITATION",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.58838886,
+        "Y1": 0.15691538,
+        "X2": 0.8049101,
+        "Y2": 0.17267045,
+        "CenterX": 0.6966495,
+        "CenterY": 0.16479293
+      },
+      "Label": "calls)",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.3948072,
+        "Y1": 0.17599118,
+        "X2": 0.47271404,
+        "Y2": 0.18886489,
+        "CenterX": 0.4337606,
+        "CenterY": 0.18242803
+      },
+      "Label": "CODE",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.8574526,
+        "Y1": 0.175726,
+        "X2": 0.9060588,
+        "Y2": 0.19410606,
+        "CenterX": 0.8817557,
+        "CenterY": 0.18491602
+      },
+      "Label": "SET ASIDE:",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.24918954,
+        "Y1": 0.28734088,
+        "X2": 0.4768039,
+        "Y2": 0.3316427,
+        "CenterX": 0.36299673,
+        "CenterY": 0.30949178
+      },
+      "Label": "BOARD (FOB) DESTINATION",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.7646356,
+        "Y1": 0.27381188,
+        "X2": 0.9512353,
+        "Y2": 0.290923,
+        "CenterX": 0.8579354,
+        "CenterY": 0.28236744
+      },
+      "Label": "13b. RATING",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.04854085,
+        "Y1": 0.34942675,
+        "X2": 0.47854087,
+        "Y2": 0.39328912,
+        "CenterX": 0.26354086,
+        "CenterY": 0.37135792
+      },
+      "Label": "CODE",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.86457676,
+        "Y1": 0.3344091,
+        "X2": 0.952812,
+        "Y2": 0.34822854,
+        "CenterX": 0.9086944,
+        "CenterY": 0.34131882
+      },
+      "Label": "CODE",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.4839281,
+        "Y1": 0.34942675,
+        "X2": 0.9484019,
+        "Y2": 0.39328912,
+        "CenterX": 0.716165,
+        "CenterY": 0.37135792
+      },
+      "Label": "FACILITY",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.21440524,
+        "Y1": 0.39526513,
+        "X2": 0.31368628,
+        "Y2": 0.4090846,
+        "CenterX": 0.26404577,
+        "CenterY": 0.40217486
+      },
+      "Label": "CODE",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.04854085,
+        "Y1": 0.42197222,
+        "X2": 0.47561437,
+        "Y2": 0.48394066,
+        "CenterX": 0.2620776,
+        "CenterY": 0.45295644
+      },
+      "Label": "OFFEROR",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.14519282,
+        "Y1": 0.513404,
+        "X2": 0.47596243,
+        "Y2": 0.5285871,
+        "CenterX": 0.31057763,
+        "CenterY": 0.52099556
+      },
+      "Label": "OFFER",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.4848219,
+        "Y1": 0.42197222,
+        "X2": 0.94750816,
+        "Y2": 0.4954293,
+        "CenterX": 0.716165,
+        "CenterY": 0.45870078
+      },
+      "Label": "17b. CHECK IF REMITTANCE IS DIFFERENT AND PUT SUCH ADDRESS IN",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.052246734,
+        "Y1": 0.5637222,
+        "X2": 0.13430719,
+        "Y2": 0.57810605,
+        "CenterX": 0.09327696,
+        "CenterY": 0.57091415
+      },
+      "Label": "ITEM NUMBER",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.14604902,
+        "Y1": 0.5632639,
+        "X2": 0.57579905,
+        "Y2": 0.57764775,
+        "CenterX": 0.36092404,
+        "CenterY": 0.5704558
+      },
+      "Label": "SCHEDULE OF SUPPLIES/SERVICES",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.5809036,
+        "Y1": 0.5632639,
+        "X2": 0.6494591,
+        "Y2": 0.57764775,
+        "CenterX": 0.6151813,
+        "CenterY": 0.5704558
+      },
+      "Label": "QUANTITY",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.66079736,
+        "Y1": 0.5632639,
+        "X2": 0.69618464,
+        "Y2": 0.57764775,
+        "CenterX": 0.678491,
+        "CenterY": 0.5704558
+      },
+      "Label": "UNIT",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.7086062,
+        "Y1": 0.5632639,
+        "X2": 0.7976013,
+        "Y2": 0.57764775,
+        "CenterX": 0.75310373,
+        "CenterY": 0.5704558
+      },
+      "Label": "UNIT PRICE",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.80883336,
+        "Y1": 0.5632639,
+        "X2": 0.94445103,
+        "Y2": 0.57764775,
+        "CenterX": 0.8766422,
+        "CenterY": 0.5704558
+      },
+      "Label": "AMOUNT",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.052246734,
+        "Y1": 0.5806338,
+        "X2": 0.13430719,
+        "Y2": 0.5950177,
+        "CenterX": 0.09327696,
+        "CenterY": 0.5878258
+      },
+      "Label": "ITEM NUMBER",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.14604902,
+        "Y1": 0.5801755,
+        "X2": 0.57579905,
+        "Y2": 0.5945593,
+        "CenterX": 0.36092404,
+        "CenterY": 0.5873674
+      },
+      "Label": "SCHEDULE OF SUPPLIES/SERVICES",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.5809036,
+        "Y1": 0.5801755,
+        "X2": 0.6494591,
+        "Y2": 0.5945593,
+        "CenterX": 0.6151813,
+        "CenterY": 0.5873674
+      },
+      "Label": "QUANTITY",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.66079736,
+        "Y1": 0.5801755,
+        "X2": 0.69618464,
+        "Y2": 0.5945593,
+        "CenterX": 0.678491,
+        "CenterY": 0.5873674
+      },
+      "Label": "UNIT",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.7086062,
+        "Y1": 0.5801755,
+        "X2": 0.7976013,
+        "Y2": 0.5945593,
+        "CenterX": 0.75310373,
+        "CenterY": 0.5873674
+      },
+      "Label": "UNIT PRICE",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.80883336,
+        "Y1": 0.5801755,
+        "X2": 0.94445103,
+        "Y2": 0.5945593,
+        "CenterX": 0.8766422,
+        "CenterY": 0.5873674
+      },
+      "Label": "AMOUNT",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.052246734,
+        "Y1": 0.5966174,
+        "X2": 0.13430719,
+        "Y2": 0.61100125,
+        "CenterX": 0.09327696,
+        "CenterY": 0.60380936
+      },
+      "Label": "ITEM NUMBER",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.14604902,
+        "Y1": 0.5961591,
+        "X2": 0.57579905,
+        "Y2": 0.6105429,
+        "CenterX": 0.36092404,
+        "CenterY": 0.603351
+      },
+      "Label": "SCHEDULE OF SUPPLIES/SERVICES",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.5809036,
+        "Y1": 0.5961591,
+        "X2": 0.6494591,
+        "Y2": 0.6105429,
+        "CenterX": 0.6151813,
+        "CenterY": 0.603351
+      },
+      "Label": "QUANTITY",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.66079736,
+        "Y1": 0.5961591,
+        "X2": 0.69618464,
+        "Y2": 0.6105429,
+        "CenterX": 0.678491,
+        "CenterY": 0.603351
+      },
+      "Label": "UNIT",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.7086062,
+        "Y1": 0.5961591,
+        "X2": 0.7976013,
+        "Y2": 0.6105429,
+        "CenterX": 0.75310373,
+        "CenterY": 0.603351
+      },
+      "Label": "UNIT PRICE",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.80883336,
+        "Y1": 0.5961591,
+        "X2": 0.94445103,
+        "Y2": 0.6105429,
+        "CenterX": 0.8766422,
+        "CenterY": 0.603351
+      },
+      "Label": "AMOUNT",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.052246734,
+        "Y1": 0.6132033,
+        "X2": 0.13430719,
+        "Y2": 0.62758714,
+        "CenterX": 0.09327696,
+        "CenterY": 0.6203952
+      },
+      "Label": "ITEM NUMBER",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.14604902,
+        "Y1": 0.6132033,
+        "X2": 0.57579905,
+        "Y2": 0.62758714,
+        "CenterX": 0.36092404,
+        "CenterY": 0.6203952
+      },
+      "Label": "SCHEDULE OF SUPPLIES/SERVICES",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.5809036,
+        "Y1": 0.6132033,
+        "X2": 0.6494591,
+        "Y2": 0.62758714,
+        "CenterX": 0.6151813,
+        "CenterY": 0.6203952
+      },
+      "Label": "QUANTITY",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.66079736,
+        "Y1": 0.6132033,
+        "X2": 0.69618464,
+        "Y2": 0.62758714,
+        "CenterX": 0.678491,
+        "CenterY": 0.6203952
+      },
+      "Label": "UNIT",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.7086062,
+        "Y1": 0.6132033,
+        "X2": 0.7976013,
+        "Y2": 0.62758714,
+        "CenterX": 0.75310373,
+        "CenterY": 0.6203952
+      },
+      "Label": "UNIT PRICE",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.80883336,
+        "Y1": 0.6132033,
+        "X2": 0.94445103,
+        "Y2": 0.62758714,
+        "CenterX": 0.8766422,
+        "CenterY": 0.6203952
+      },
+      "Label": "AMOUNT",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.052246734,
+        "Y1": 0.63011867,
+        "X2": 0.13430719,
+        "Y2": 0.6445025,
+        "CenterX": 0.09327696,
+        "CenterY": 0.6373106
+      },
+      "Label": "ITEM NUMBER",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.14604902,
+        "Y1": 0.63011867,
+        "X2": 0.57579905,
+        "Y2": 0.6445025,
+        "CenterX": 0.36092404,
+        "CenterY": 0.6373106
+      },
+      "Label": "SCHEDULE OF SUPPLIES/SERVICES",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.5809036,
+        "Y1": 0.63011867,
+        "X2": 0.6494591,
+        "Y2": 0.6445025,
+        "CenterX": 0.6151813,
+        "CenterY": 0.6373106
+      },
+      "Label": "QUANTITY",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.66079736,
+        "Y1": 0.63011867,
+        "X2": 0.69618464,
+        "Y2": 0.6445025,
+        "CenterX": 0.678491,
+        "CenterY": 0.6373106
+      },
+      "Label": "UNIT",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.7086062,
+        "Y1": 0.63011867,
+        "X2": 0.7976013,
+        "Y2": 0.6445025,
+        "CenterX": 0.75310373,
+        "CenterY": 0.6373106
+      },
+      "Label": "UNIT PRICE",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.80883336,
+        "Y1": 0.63011867,
+        "X2": 0.94445103,
+        "Y2": 0.6445025,
+        "CenterX": 0.8766422,
+        "CenterY": 0.6373106
+      },
+      "Label": "AMOUNT",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.052246734,
+        "Y1": 0.64702904,
+        "X2": 0.13430719,
+        "Y2": 0.6614129,
+        "CenterX": 0.09327696,
+        "CenterY": 0.65422094
+      },
+      "Label": "ITEM NUMBER",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.5809036,
+        "Y1": 0.64702904,
+        "X2": 0.6494591,
+        "Y2": 0.6614129,
+        "CenterX": 0.6151813,
+        "CenterY": 0.65422094
+      },
+      "Label": "QUANTITY",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.66079736,
+        "Y1": 0.64702904,
+        "X2": 0.69618464,
+        "Y2": 0.6614129,
+        "CenterX": 0.678491,
+        "CenterY": 0.65422094
+      },
+      "Label": "UNIT",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.7086062,
+        "Y1": 0.64702904,
+        "X2": 0.7976013,
+        "Y2": 0.6614129,
+        "CenterX": 0.75310373,
+        "CenterY": 0.65422094
+      },
+      "Label": "UNIT PRICE",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.80883336,
+        "Y1": 0.64702904,
+        "X2": 0.94445103,
+        "Y2": 0.6614129,
+        "CenterX": 0.8766422,
+        "CenterY": 0.65422094
+      },
+      "Label": "AMOUNT",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.052246734,
+        "Y1": 0.6630139,
+        "X2": 0.13430719,
+        "Y2": 0.6773977,
+        "CenterX": 0.09327696,
+        "CenterY": 0.67020583
+      },
+      "Label": "ITEM NUMBER",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.14604902,
+        "Y1": 0.64702904,
+        "X2": 0.57579905,
+        "Y2": 0.6614129,
+        "CenterX": 0.36092404,
+        "CenterY": 0.65422094
+      },
+      "Label": "SCHEDULE OF SUPPLIES/SERVICES",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.14604902,
+        "Y1": 0.6630139,
+        "X2": 0.57579905,
+        "Y2": 0.6773977,
+        "CenterX": 0.36092404,
+        "CenterY": 0.67020583
+      },
+      "Label": "SCHEDULE OF SUPPLIES/SERVICES",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.5809036,
+        "Y1": 0.6630139,
+        "X2": 0.6494591,
+        "Y2": 0.6773977,
+        "CenterX": 0.6151813,
+        "CenterY": 0.67020583
+      },
+      "Label": "QUANTITY",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.66079736,
+        "Y1": 0.6630139,
+        "X2": 0.69618464,
+        "Y2": 0.6773977,
+        "CenterX": 0.678491,
+        "CenterY": 0.67020583
+      },
+      "Label": "UNIT",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.7086062,
+        "Y1": 0.6630139,
+        "X2": 0.7976013,
+        "Y2": 0.6773977,
+        "CenterX": 0.75310373,
+        "CenterY": 0.67020583
+      },
+      "Label": "UNIT PRICE",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.80883336,
+        "Y1": 0.6630139,
+        "X2": 0.94445103,
+        "Y2": 0.6773977,
+        "CenterX": 0.8766422,
+        "CenterY": 0.67020583
+      },
+      "Label": "AMOUNT",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.052246734,
+        "Y1": 0.67899746,
+        "X2": 0.13430719,
+        "Y2": 0.6933813,
+        "CenterX": 0.09327696,
+        "CenterY": 0.6861894
+      },
+      "Label": "ITEM NUMBER",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.14604902,
+        "Y1": 0.67899746,
+        "X2": 0.57579905,
+        "Y2": 0.6933813,
+        "CenterX": 0.36092404,
+        "CenterY": 0.6861894
+      },
+      "Label": "SCHEDULE OF SUPPLIES/SERVICES",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.5809036,
+        "Y1": 0.67899746,
+        "X2": 0.6494591,
+        "Y2": 0.6933813,
+        "CenterX": 0.6151813,
+        "CenterY": 0.6861894
+      },
+      "Label": "QUANTITY",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.66079736,
+        "Y1": 0.67899746,
+        "X2": 0.69618464,
+        "Y2": 0.6933813,
+        "CenterX": 0.678491,
+        "CenterY": 0.6861894
+      },
+      "Label": "UNIT",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.7086062,
+        "Y1": 0.67899746,
+        "X2": 0.7976013,
+        "Y2": 0.6933813,
+        "CenterX": 0.75310373,
+        "CenterY": 0.6861894
+      },
+      "Label": "UNIT PRICE",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.80883336,
+        "Y1": 0.67899746,
+        "X2": 0.94445103,
+        "Y2": 0.6933813,
+        "CenterX": 0.8766422,
+        "CenterY": 0.6861894
+      },
+      "Label": "AMOUNT",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.04764706,
+        "Y1": 0.7270152,
+        "X2": 0.6481095,
+        "Y2": 0.7412247,
+        "CenterX": 0.34787828,
+        "CenterY": 0.73411995
+      },
+      "Label": "25. ACCOUNTING AND APPROPRIATION DATA",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.48046243,
+        "Y1": 0.77949494,
+        "X2": 0.5259657,
+        "Y2": 0.7954773,
+        "CenterX": 0.50321406,
+        "CenterY": 0.7874861
+      },
+      "Label": "28. CONTRACTOR IS REQUIRED TO SIGN THIS DOCUMENT AND RETURN",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.78221405,
+        "Y1": 0.7794911,
+        "X2": 0.91252124,
+        "Y2": 0.79547596,
+        "CenterX": 0.84736764,
+        "CenterY": 0.7874836
+      },
+      "Label": "29. AWARD OF CONTRACT: REFERENCE",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.8268039,
+        "Y1": 0.8239546,
+        "X2": 0.93581694,
+        "Y2": 0.8381313,
+        "CenterX": 0.88131046,
+        "CenterY": 0.83104295
+      },
+      "Label": "SET FORTH HEREIN, IS ACCEPTED AS TO ITEMS:",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.049629085,
+        "Y1": 0.89372224,
+        "X2": 0.3580817,
+        "Y2": 0.908106,
+        "CenterX": 0.2038554,
+        "CenterY": 0.90091413
+      },
+      "Label": "30b. NAME AND TITLE OF SIGNER (Type or print)",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.049629085,
+        "Y1": 0.90970325,
+        "X2": 0.3580817,
+        "Y2": 0.9248864,
+        "CenterX": 0.2038554,
+        "CenterY": 0.91729486
+      },
+      "Label": "30b. NAME AND TITLE OF SIGNER (Type or print)",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.48691994,
+        "Y1": 0.90867555,
+        "X2": 0.8266601,
+        "Y2": 0.92581564,
+        "CenterX": 0.65679,
+        "CenterY": 0.9172456
+      },
+      "Label": "31b. NAME OF CONTRACTING OFFICER (Type or print)",
+      "Group": null
+    },
+    {
+      "Kind": "Checkbox",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.6280931,
+        "Y1": 0.17745957,
+        "X2": 0.644433,
+        "Y2": 0.19008583,
+        "CenterX": 0.6362631,
+        "CenterY": 0.1837727
+      },
+      "Label": "10. UNRESTRICTED",
+      "Group": "10"
+    },
+    {
+      "Kind": "Checkbox",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.76580065,
+        "Y1": 0.17745957,
+        "X2": 0.78214055,
+        "Y2": 0.19008583,
+        "CenterX": 0.7739706,
+        "CenterY": 0.1837727
+      },
+      "Label": "10. SET ASIDE",
+      "Group": "10"
+    },
+    {
+      "Kind": "Checkbox",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.0735866,
+        "Y1": 0.31650004,
+        "X2": 0.089926474,
+        "Y2": 0.3291263,
+        "CenterX": 0.08175653,
+        "CenterY": 0.32281315
+      },
+      "Label": "SEE SCHEDULE",
+      "Group": null
+    },
+    {
+      "Kind": "Checkbox",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.4849804,
+        "Y1": 0.28641033,
+        "X2": 0.5013203,
+        "Y2": 0.2990366,
+        "CenterX": 0.49315035,
+        "CenterY": 0.29272348
+      },
+      "Label": "RATED ORDER UNDER DPAS (15 CFR 700)",
+      "Group": null
+    },
+    {
+      "Kind": "Checkbox",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.69591177,
+        "Y1": 0.30757704,
+        "X2": 0.71225166,
+        "Y2": 0.3202033,
+        "CenterX": 0.7040817,
+        "CenterY": 0.31389016
+      },
+      "Label": "REQUEST",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.7900278,
+        "Y1": 0.22822855,
+        "X2": 0.95051795,
+        "Y2": 0.24211745,
+        "CenterX": 0.8702729,
+        "CenterY": 0.235173
+      },
+      "Label": "WOMEN-OWNED SMALL",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.7900278,
+        "Y1": 0.25654927,
+        "X2": 0.9519264,
+        "Y2": 0.27141285,
+        "CenterX": 0.8709771,
+        "CenterY": 0.26398104
+      },
+      "Label": "BUSINESS (EDWOSB)",
+      "Group": null
+    },
+    {
+      "Kind": "Checkbox",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.7866716,
+        "Y1": 0.30757704,
+        "X2": 0.8030114,
+        "Y2": 0.3202033,
+        "CenterX": 0.7948415,
+        "CenterY": 0.31389016
+      },
+      "Label": "INVITATION",
+      "Group": null
+    },
+    {
+      "Kind": "Checkbox",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.87605065,
+        "Y1": 0.30757704,
+        "X2": 0.89239055,
+        "Y2": 0.3202033,
+        "CenterX": 0.8842206,
+        "CenterY": 0.31389016
+      },
+      "Label": "FOR",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.38923532,
+        "Y1": 0.39526513,
+        "X2": 0.4745474,
+        "Y2": 0.4090846,
+        "CenterX": 0.43189135,
+        "CenterY": 0.40217486
+      },
+      "Label": "FACILITY",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.1872402,
+        "Y1": 0.48572603,
+        "X2": 0.4690703,
+        "Y2": 0.49850002,
+        "CenterX": 0.32815525,
+        "CenterY": 0.49211302
+      },
+      "Label": "TELEPHONE NUMBER",
+      "Group": null
+    },
+    {
+      "Kind": "Checkbox",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.05023693,
+        "Y1": 0.7454912,
+        "X2": 0.066576794,
+        "Y2": 0.75811744,
+        "CenterX": 0.05840686,
+        "CenterY": 0.75180435
+      },
+      "Label": "27a. SOLICITATION INCORPORATES FAR CLAUSES BY REFERENCE",
+      "Group": "27"
+    },
+    {
+      "Kind": "Checkbox",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.05023693,
+        "Y1": 0.764202,
+        "X2": 0.066576794,
+        "Y2": 0.7768283,
+        "CenterX": 0.05840686,
+        "CenterY": 0.77051514
+      },
+      "Label": "27b. CONTRACT INCORPORATES FAR CLAUSES BY REFERENCE",
+      "Group": "27"
+    },
+    {
+      "Kind": "Checkbox",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.753067,
+        "Y1": 0.7468725,
+        "X2": 0.7694069,
+        "Y2": 0.7594988,
+        "CenterX": 0.76123697,
+        "CenterY": 0.75318563
+      },
+      "Label": "27a ADDENDA \u2014 ARE ATTACHED",
+      "Group": "27"
+    },
+    {
+      "Kind": "Checkbox",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.8111879,
+        "Y1": 0.7468725,
+        "X2": 0.82752776,
+        "Y2": 0.7594988,
+        "CenterX": 0.8193579,
+        "CenterY": 0.75318563
+      },
+      "Label": "27a ADDENDA \u2014 ARE NOT ATTACHED",
+      "Group": "27"
+    },
+    {
+      "Kind": "Checkbox",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.75316995,
+        "Y1": 0.7628207,
+        "X2": 0.7695098,
+        "Y2": 0.77544695,
+        "CenterX": 0.7613399,
+        "CenterY": 0.7691338
+      },
+      "Label": "27b ADDENDA \u2014 ARE ATTACHED",
+      "Group": "27"
+    },
+    {
+      "Kind": "Checkbox",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.8112385,
+        "Y1": 0.7628207,
+        "X2": 0.8275784,
+        "Y2": 0.77544695,
+        "CenterX": 0.8194085,
+        "CenterY": 0.7691338
+      },
+      "Label": "27b ADDENDA \u2014 ARE NOT ATTACHED",
+      "Group": "27"
+    },
+    {
+      "Kind": "Checkbox",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.050241828,
+        "Y1": 0.78201896,
+        "X2": 0.0665817,
+        "Y2": 0.7946452,
+        "CenterX": 0.058411766,
+        "CenterY": 0.7883321
+      },
+      "Label": "28. CONTRACTOR SIGN & RETURN",
+      "Group": null
+    },
+    {
+      "Kind": "Checkbox",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.53300816,
+        "Y1": 0.78201896,
+        "X2": 0.549348,
+        "Y2": 0.7946452,
+        "CenterX": 0.5411781,
+        "CenterY": 0.7883321
+      },
+      "Label": "29. AWARD OF CONTRACT",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.5960262,
+        "Y1": 0.7991591,
+        "X2": 0.7005752,
+        "Y2": 0.813048,
+        "CenterX": 0.64830065,
+        "CenterY": 0.8061036
+      },
+      "Label": "DATED .",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.36729577,
+        "Y1": 0.9082361,
+        "X2": 0.4787827,
+        "Y2": 0.9257349,
+        "CenterX": 0.42303926,
+        "CenterY": 0.9169855
+      },
+      "Label": "30c. DATE SIGNED",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.8367108,
+        "Y1": 0.90898734,
+        "X2": 0.9481977,
+        "Y2": 0.9254053,
+        "CenterX": 0.89245427,
+        "CenterY": 0.91719633
+      },
+      "Label": "31c. DATE SIGNED",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.24928269,
+        "Y1": 0.10206565,
+        "X2": 0.3753219,
+        "Y2": 0.11943185,
+        "CenterX": 0.3123023,
+        "CenterY": 0.11074875
+      },
+      "Label": "DATE",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.81248695,
+        "Y1": 0.10392676,
+        "X2": 0.93666506,
+        "Y2": 0.11943185,
+        "CenterX": 0.874576,
+        "CenterY": 0.11167931
+      },
+      "Label": "DATE",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.82436275,
+        "Y1": 0.14359723,
+        "X2": 0.93697554,
+        "Y2": 0.15970327,
+        "CenterX": 0.8806691,
+        "CenterY": 0.15165025
+      },
+      "Label": "INFORMATION CALL:",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.82436275,
+        "Y1": 0.15829667,
+        "X2": 0.93697554,
+        "Y2": 0.17405176,
+        "CenterX": 0.8806691,
+        "CenterY": 0.16617422
+      },
+      "Label": "LOCAL TIME",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.39032844,
+        "Y1": 0.3344091,
+        "X2": 0.47564054,
+        "Y2": 0.34822854,
+        "CenterX": 0.43298447,
+        "CenterY": 0.34131882
+      },
+      "Label": "CODE",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.04992157,
+        "Y1": 0.19544698,
+        "X2": 0.47562253,
+        "Y2": 0.26896843,
+        "CenterX": 0.26277205,
+        "CenterY": 0.23220772
+      },
+      "Label": "9. ISSUED BY",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.8642892,
+        "Y1": 0.39526513,
+        "X2": 0.95252454,
+        "Y2": 0.4090846,
+        "CenterX": 0.90840685,
+        "CenterY": 0.40217486
+      },
+      "Label": "CODE",
+      "Group": null
+    },
+    {
+      "Kind": "Checkbox",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.6466667,
+        "Y1": 0.5144924,
+        "X2": 0.66300654,
+        "Y2": 0.5271187,
+        "CenterX": 0.65483665,
+        "CenterY": 0.52080554
+      },
+      "Label": "SEE ADDENDUM",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.6544232,
+        "Y1": 0.7270152,
+        "X2": 0.95013887,
+        "Y2": 0.7412247,
+        "CenterX": 0.802281,
+        "CenterY": 0.73411995
+      },
+      "Label": "26. TOTAL AWARD AMOUNT (For Government Use Only)",
+      "Group": null
+    },
+    {
+      "Kind": "Checkbox",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.054998368,
+        "Y1": 0.50934213,
+        "X2": 0.07133824,
+        "Y2": 0.5219684,
+        "CenterX": 0.0631683,
+        "CenterY": 0.5156553
+      },
+      "Label": "17b. REMITTANCE ADDRESS DIFFERENT",
+      "Group": null
+    },
+    {
+      "Kind": "Checkbox",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.6272402,
+        "Y1": 0.2576566,
+        "X2": 0.6435801,
+        "Y2": 0.27028286,
+        "CenterX": 0.63541013,
+        "CenterY": 0.26396972
+      },
+      "Label": "10. SET ASIDE \u2014 8(A)",
+      "Group": "10"
+    },
+    {
+      "Kind": "Checkbox",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.6272402,
+        "Y1": 0.2272083,
+        "X2": 0.6435801,
+        "Y2": 0.23983456,
+        "CenterX": 0.63541013,
+        "CenterY": 0.23352143
+      },
+      "Label": "10. SET ASIDE \u2014 ECONOMICALLY DISADVANTAGED WOMEN-OWNED SMALL BUSINESS (EDWOSB)",
+      "Group": "10"
+    },
+    {
+      "Kind": "Checkbox",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.6272402,
+        "Y1": 0.20044446,
+        "X2": 0.6435801,
+        "Y2": 0.21307072,
+        "CenterX": 0.63541013,
+        "CenterY": 0.20675759
+      },
+      "Label": "10. SET ASIDE \u2014 WOMEN-OWNED SMALL BUSINESS (WOSB)",
+      "Group": "10"
+    },
+    {
+      "Kind": "Checkbox",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.48575816,
+        "Y1": 0.23893052,
+        "X2": 0.502098,
+        "Y2": 0.25155678,
+        "CenterX": 0.49392807,
+        "CenterY": 0.24524365
+      },
+      "Label": "10. SET ASIDE \u2014 SERVICE-DISABLED VETERAN-OWNED SMALL BUSINESS",
+      "Group": "10"
+    },
+    {
+      "Kind": "Checkbox",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.48575816,
+        "Y1": 0.21334723,
+        "X2": 0.502098,
+        "Y2": 0.2259735,
+        "CenterX": 0.49392807,
+        "CenterY": 0.21966037
+      },
+      "Label": "10. SET ASIDE \u2014 HUBZONE SMALL BUSINESS",
+      "Group": "10"
+    },
+    {
+      "Kind": "Checkbox",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.48575816,
+        "Y1": 0.1925025,
+        "X2": 0.502098,
+        "Y2": 0.20512876,
+        "CenterX": 0.49392807,
+        "CenterY": 0.19881563
+      },
+      "Label": "10. SET ASIDE \u2014 SMALL BUSINESS",
+      "Group": "10"
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.04654085,
+        "Y1": 0.07991413,
+        "X2": 0.13548039,
+        "Y2": 0.09429924,
+        "CenterX": 0.091010615,
+        "CenterY": 0.08710669
+      },
+      "Label": "ITEM NUMBER",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.14943954,
+        "Y1": 0.07991413,
+        "X2": 0.5570817,
+        "Y2": 0.094298005,
+        "CenterX": 0.35326064,
+        "CenterY": 0.087106064
+      },
+      "Label": "SCHEDULE OF SUPPLIES/SERVICES",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.57438236,
+        "Y1": 0.07911613,
+        "X2": 0.63302124,
+        "Y2": 0.09481442,
+        "CenterX": 0.60370183,
+        "CenterY": 0.08696528
+      },
+      "Label": "QUANTITY",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.64688724,
+        "Y1": 0.07991413,
+        "X2": 0.6861879,
+        "Y2": 0.094298005,
+        "CenterX": 0.6665376,
+        "CenterY": 0.087106064
+      },
+      "Label": "UNIT",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.7037386,
+        "Y1": 0.07991413,
+        "X2": 0.79273367,
+        "Y2": 0.093156606,
+        "CenterX": 0.7482361,
+        "CenterY": 0.086535364
+      },
+      "Label": "UNIT PRICE",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.8077075,
+        "Y1": 0.07911613,
+        "X2": 0.94332516,
+        "Y2": 0.09332576,
+        "CenterX": 0.8755163,
+        "CenterY": 0.08622094
+      },
+      "Label": "AMOUNT",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.04654085,
+        "Y1": 0.0975227,
+        "X2": 0.13548039,
+        "Y2": 0.1119078,
+        "CenterX": 0.091010615,
+        "CenterY": 0.10471525
+      },
+      "Label": "ITEM NUMBER",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.14943954,
+        "Y1": 0.0975227,
+        "X2": 0.5570817,
+        "Y2": 0.11190657,
+        "CenterX": 0.35326064,
+        "CenterY": 0.10471463
+      },
+      "Label": "SCHEDULE OF SUPPLIES/SERVICES",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.57438236,
+        "Y1": 0.09672477,
+        "X2": 0.63302124,
+        "Y2": 0.11242298,
+        "CenterX": 0.60370183,
+        "CenterY": 0.104573876
+      },
+      "Label": "QUANTITY",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.64688724,
+        "Y1": 0.0975227,
+        "X2": 0.6861879,
+        "Y2": 0.11190657,
+        "CenterX": 0.6665376,
+        "CenterY": 0.10471463
+      },
+      "Label": "UNIT",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.7037386,
+        "Y1": 0.0975227,
+        "X2": 0.79273367,
+        "Y2": 0.11076517,
+        "CenterX": 0.7482361,
+        "CenterY": 0.10414393
+      },
+      "Label": "UNIT PRICE",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.8077075,
+        "Y1": 0.09672477,
+        "X2": 0.94332516,
+        "Y2": 0.110934325,
+        "CenterX": 0.8755163,
+        "CenterY": 0.10382955
+      },
+      "Label": "AMOUNT",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.04654085,
+        "Y1": 0.11513257,
+        "X2": 0.13548039,
+        "Y2": 0.12951767,
+        "CenterX": 0.091010615,
+        "CenterY": 0.12232512
+      },
+      "Label": "ITEM NUMBER",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.14943954,
+        "Y1": 0.11513635,
+        "X2": 0.5570817,
+        "Y2": 0.12952022,
+        "CenterX": 0.35326064,
+        "CenterY": 0.12232828
+      },
+      "Label": "SCHEDULE OF SUPPLIES/SERVICES",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.57438236,
+        "Y1": 0.11433457,
+        "X2": 0.63302124,
+        "Y2": 0.13003285,
+        "CenterX": 0.60370183,
+        "CenterY": 0.12218371
+      },
+      "Label": "QUANTITY",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.64688724,
+        "Y1": 0.11513635,
+        "X2": 0.6861879,
+        "Y2": 0.12952022,
+        "CenterX": 0.6665376,
+        "CenterY": 0.12232828
+      },
+      "Label": "UNIT",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.7037386,
+        "Y1": 0.11513257,
+        "X2": 0.79273367,
+        "Y2": 0.12837496,
+        "CenterX": 0.7482361,
+        "CenterY": 0.12175377
+      },
+      "Label": "UNIT PRICE",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.8077075,
+        "Y1": 0.11433079,
+        "X2": 0.94332516,
+        "Y2": 0.12854043,
+        "CenterX": 0.8755163,
+        "CenterY": 0.12143561
+      },
+      "Label": "AMOUNT",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.04736928,
+        "Y1": 0.13385858,
+        "X2": 0.13630882,
+        "Y2": 0.14824368,
+        "CenterX": 0.091839045,
+        "CenterY": 0.14105113
+      },
+      "Label": "ITEM NUMBER",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.14943954,
+        "Y1": 0.13274491,
+        "X2": 0.5570817,
+        "Y2": 0.14712879,
+        "CenterX": 0.35326064,
+        "CenterY": 0.13993685
+      },
+      "Label": "SCHEDULE OF SUPPLIES/SERVICES",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.57438236,
+        "Y1": 0.13194698,
+        "X2": 0.63302124,
+        "Y2": 0.1476452,
+        "CenterX": 0.60370183,
+        "CenterY": 0.1397961
+      },
+      "Label": "QUANTITY",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.64688724,
+        "Y1": 0.13274491,
+        "X2": 0.6861879,
+        "Y2": 0.14712879,
+        "CenterX": 0.6665376,
+        "CenterY": 0.13993685
+      },
+      "Label": "UNIT",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.7037386,
+        "Y1": 0.13274491,
+        "X2": 0.79273367,
+        "Y2": 0.14598739,
+        "CenterX": 0.7482361,
+        "CenterY": 0.13936615
+      },
+      "Label": "UNIT PRICE",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.8077075,
+        "Y1": 0.13194698,
+        "X2": 0.94332516,
+        "Y2": 0.14615655,
+        "CenterX": 0.8755163,
+        "CenterY": 0.13905177
+      },
+      "Label": "AMOUNT",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.04654085,
+        "Y1": 0.15035479,
+        "X2": 0.13548039,
+        "Y2": 0.16473989,
+        "CenterX": 0.091010615,
+        "CenterY": 0.15754734
+      },
+      "Label": "ITEM NUMBER",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.57438236,
+        "Y1": 0.14955679,
+        "X2": 0.63302124,
+        "Y2": 0.16525507,
+        "CenterX": 0.60370183,
+        "CenterY": 0.15740593
+      },
+      "Label": "QUANTITY",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.64688724,
+        "Y1": 0.15035479,
+        "X2": 0.6861863,
+        "Y2": 0.16473989,
+        "CenterX": 0.6665368,
+        "CenterY": 0.15754734
+      },
+      "Label": "UNIT",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.7037386,
+        "Y1": 0.15035734,
+        "X2": 0.79273367,
+        "Y2": 0.16359973,
+        "CenterX": 0.7482361,
+        "CenterY": 0.15697853
+      },
+      "Label": "UNIT PRICE",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.8077075,
+        "Y1": 0.14955679,
+        "X2": 0.94332516,
+        "Y2": 0.16376641,
+        "CenterX": 0.8755163,
+        "CenterY": 0.1566616
+      },
+      "Label": "AMOUNT",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.04654085,
+        "Y1": 0.16796336,
+        "X2": 0.13548039,
+        "Y2": 0.18234846,
+        "CenterX": 0.091010615,
+        "CenterY": 0.17515591
+      },
+      "Label": "ITEM NUMBER",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.14943954,
+        "Y1": 0.15035479,
+        "X2": 0.5570817,
+        "Y2": 0.16473867,
+        "CenterX": 0.35326064,
+        "CenterY": 0.15754673
+      },
+      "Label": "SCHEDULE OF SUPPLIES/SERVICES",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.14943954,
+        "Y1": 0.16796336,
+        "X2": 0.5570817,
+        "Y2": 0.18234722,
+        "CenterX": 0.35326064,
+        "CenterY": 0.17515528
+      },
+      "Label": "SCHEDULE OF SUPPLIES/SERVICES",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.57438236,
+        "Y1": 0.16716543,
+        "X2": 0.63302124,
+        "Y2": 0.18286364,
+        "CenterX": 0.60370183,
+        "CenterY": 0.17501453
+      },
+      "Label": "QUANTITY",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.64688724,
+        "Y1": 0.16796336,
+        "X2": 0.6861863,
+        "Y2": 0.18234846,
+        "CenterX": 0.6665368,
+        "CenterY": 0.17515591
+      },
+      "Label": "UNIT",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.7037386,
+        "Y1": 0.16796336,
+        "X2": 0.79273367,
+        "Y2": 0.18120582,
+        "CenterX": 0.7482361,
+        "CenterY": 0.1745846
+      },
+      "Label": "UNIT PRICE",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.8077075,
+        "Y1": 0.16716166,
+        "X2": 0.94332516,
+        "Y2": 0.18137121,
+        "CenterX": 0.8755163,
+        "CenterY": 0.17426643
+      },
+      "Label": "AMOUNT",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.04654085,
+        "Y1": 0.18557324,
+        "X2": 0.13548039,
+        "Y2": 0.19995834,
+        "CenterX": 0.091010615,
+        "CenterY": 0.19276579
+      },
+      "Label": "ITEM NUMBER",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.14943954,
+        "Y1": 0.18557577,
+        "X2": 0.5570817,
+        "Y2": 0.19995958,
+        "CenterX": 0.35326064,
+        "CenterY": 0.19276768
+      },
+      "Label": "SCHEDULE OF SUPPLIES/SERVICES",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.57438236,
+        "Y1": 0.184774,
+        "X2": 0.63302124,
+        "Y2": 0.2004722,
+        "CenterX": 0.60370183,
+        "CenterY": 0.19262311
+      },
+      "Label": "QUANTITY",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.64688724,
+        "Y1": 0.18557324,
+        "X2": 0.6861863,
+        "Y2": 0.19995834,
+        "CenterX": 0.6665368,
+        "CenterY": 0.19276579
+      },
+      "Label": "UNIT",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.7037386,
+        "Y1": 0.18557324,
+        "X2": 0.79273367,
+        "Y2": 0.19881563,
+        "CenterX": 0.7482361,
+        "CenterY": 0.19219443
+      },
+      "Label": "UNIT PRICE",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.8077075,
+        "Y1": 0.184774,
+        "X2": 0.94332516,
+        "Y2": 0.19898355,
+        "CenterX": 0.8755163,
+        "CenterY": 0.19187877
+      },
+      "Label": "AMOUNT",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.14943954,
+        "Y1": 0.2031818,
+        "X2": 0.5570817,
+        "Y2": 0.21756567,
+        "CenterX": 0.35326064,
+        "CenterY": 0.21037373
+      },
+      "Label": "SCHEDULE OF SUPPLIES/SERVICES",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.57438236,
+        "Y1": 0.20238002,
+        "X2": 0.63302124,
+        "Y2": 0.2180783,
+        "CenterX": 0.60370183,
+        "CenterY": 0.21022916
+      },
+      "Label": "QUANTITY",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.64688724,
+        "Y1": 0.2031818,
+        "X2": 0.6861863,
+        "Y2": 0.2175669,
+        "CenterX": 0.6665368,
+        "CenterY": 0.21037436
+      },
+      "Label": "UNIT",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.8077075,
+        "Y1": 0.20238388,
+        "X2": 0.94332516,
+        "Y2": 0.21659343,
+        "CenterX": 0.8755163,
+        "CenterY": 0.20948866
+      },
+      "Label": "AMOUNT",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.04654085,
+        "Y1": 0.2031818,
+        "X2": 0.13548039,
+        "Y2": 0.2175669,
+        "CenterX": 0.091010615,
+        "CenterY": 0.21037436
+      },
+      "Label": "ITEM NUMBER",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.04654085,
+        "Y1": 0.22079422,
+        "X2": 0.13548039,
+        "Y2": 0.23517932,
+        "CenterX": 0.091010615,
+        "CenterY": 0.22798677
+      },
+      "Label": "ITEM NUMBER",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.14943954,
+        "Y1": 0.22079422,
+        "X2": 0.5570817,
+        "Y2": 0.23517801,
+        "CenterX": 0.35326064,
+        "CenterY": 0.22798611
+      },
+      "Label": "SCHEDULE OF SUPPLIES/SERVICES",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.57438236,
+        "Y1": 0.21999621,
+        "X2": 0.63302124,
+        "Y2": 0.23569442,
+        "CenterX": 0.60370183,
+        "CenterY": 0.22784531
+      },
+      "Label": "QUANTITY",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.64688724,
+        "Y1": 0.22079422,
+        "X2": 0.6861863,
+        "Y2": 0.23517932,
+        "CenterX": 0.6665368,
+        "CenterY": 0.22798677
+      },
+      "Label": "UNIT",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.7037386,
+        "Y1": 0.2031818,
+        "X2": 0.79273367,
+        "Y2": 0.21642427,
+        "CenterX": 0.7482361,
+        "CenterY": 0.20980304
+      },
+      "Label": "UNIT PRICE",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.7037386,
+        "Y1": 0.22079422,
+        "X2": 0.79273367,
+        "Y2": 0.23403661,
+        "CenterX": 0.7482361,
+        "CenterY": 0.22741541
+      },
+      "Label": "UNIT PRICE",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.8077075,
+        "Y1": 0.21999621,
+        "X2": 0.94332516,
+        "Y2": 0.23420584,
+        "CenterX": 0.8755163,
+        "CenterY": 0.22710103
+      },
+      "Label": "AMOUNT",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.046596404,
+        "Y1": 0.23865402,
+        "X2": 0.13553594,
+        "Y2": 0.25303912,
+        "CenterX": 0.091066174,
+        "CenterY": 0.24584657
+      },
+      "Label": "ITEM NUMBER",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.14943954,
+        "Y1": 0.23840779,
+        "X2": 0.5570817,
+        "Y2": 0.25279167,
+        "CenterX": 0.35326064,
+        "CenterY": 0.24559973
+      },
+      "Label": "SCHEDULE OF SUPPLIES/SERVICES",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.57438236,
+        "Y1": 0.2376061,
+        "X2": 0.63302124,
+        "Y2": 0.2533043,
+        "CenterX": 0.60370183,
+        "CenterY": 0.2454552
+      },
+      "Label": "QUANTITY",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.64688724,
+        "Y1": 0.23840402,
+        "X2": 0.6861863,
+        "Y2": 0.2527891,
+        "CenterX": 0.6665368,
+        "CenterY": 0.24559656
+      },
+      "Label": "UNIT",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.7037386,
+        "Y1": 0.23840779,
+        "X2": 0.79273367,
+        "Y2": 0.25165027,
+        "CenterX": 0.7482361,
+        "CenterY": 0.24502903
+      },
+      "Label": "UNIT PRICE",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.8077075,
+        "Y1": 0.2376061,
+        "X2": 0.94332516,
+        "Y2": 0.25181565,
+        "CenterX": 0.8755163,
+        "CenterY": 0.24471086
+      },
+      "Label": "AMOUNT",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.04654085,
+        "Y1": 0.25601265,
+        "X2": 0.13548039,
+        "Y2": 0.27039775,
+        "CenterX": 0.091010615,
+        "CenterY": 0.2632052
+      },
+      "Label": "ITEM NUMBER",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.14943954,
+        "Y1": 0.25601265,
+        "X2": 0.5570817,
+        "Y2": 0.27039644,
+        "CenterX": 0.35326064,
+        "CenterY": 0.26320454
+      },
+      "Label": "SCHEDULE OF SUPPLIES/SERVICES",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.57438236,
+        "Y1": 0.25521466,
+        "X2": 0.63302124,
+        "Y2": 0.27091286,
+        "CenterX": 0.60370183,
+        "CenterY": 0.26306376
+      },
+      "Label": "QUANTITY",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.64688724,
+        "Y1": 0.25601265,
+        "X2": 0.6861863,
+        "Y2": 0.27039775,
+        "CenterX": 0.6665368,
+        "CenterY": 0.2632052
+      },
+      "Label": "UNIT",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.7037386,
+        "Y1": 0.25601265,
+        "X2": 0.79273367,
+        "Y2": 0.26925504,
+        "CenterX": 0.7482361,
+        "CenterY": 0.26263386
+      },
+      "Label": "UNIT PRICE",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.8077075,
+        "Y1": 0.25521466,
+        "X2": 0.94332516,
+        "Y2": 0.2694242,
+        "CenterX": 0.8755163,
+        "CenterY": 0.26231945
+      },
+      "Label": "AMOUNT",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.04654085,
+        "Y1": 0.273625,
+        "X2": 0.13548039,
+        "Y2": 0.28801012,
+        "CenterX": 0.091010615,
+        "CenterY": 0.28081757
+      },
+      "Label": "ITEM NUMBER",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.14943954,
+        "Y1": 0.273625,
+        "X2": 0.5570817,
+        "Y2": 0.28800887,
+        "CenterX": 0.35326064,
+        "CenterY": 0.2808169
+      },
+      "Label": "SCHEDULE OF SUPPLIES/SERVICES",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.57438236,
+        "Y1": 0.27282453,
+        "X2": 0.63302124,
+        "Y2": 0.28852275,
+        "CenterX": 0.60370183,
+        "CenterY": 0.28067362
+      },
+      "Label": "QUANTITY",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.64688724,
+        "Y1": 0.273625,
+        "X2": 0.6861863,
+        "Y2": 0.28801012,
+        "CenterX": 0.6665368,
+        "CenterY": 0.28081757
+      },
+      "Label": "UNIT",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.7037386,
+        "Y1": 0.273625,
+        "X2": 0.79273367,
+        "Y2": 0.28686738,
+        "CenterX": 0.7482361,
+        "CenterY": 0.2802462
+      },
+      "Label": "UNIT PRICE",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.8077075,
+        "Y1": 0.27282453,
+        "X2": 0.94332516,
+        "Y2": 0.2870341,
+        "CenterX": 0.8755163,
+        "CenterY": 0.2799293
+      },
+      "Label": "AMOUNT",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.04654085,
+        "Y1": 0.29123488,
+        "X2": 0.13548039,
+        "Y2": 0.30561998,
+        "CenterX": 0.091010615,
+        "CenterY": 0.29842743
+      },
+      "Label": "ITEM NUMBER",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.14943954,
+        "Y1": 0.29123488,
+        "X2": 0.5570817,
+        "Y2": 0.30561867,
+        "CenterX": 0.35326064,
+        "CenterY": 0.29842678
+      },
+      "Label": "SCHEDULE OF SUPPLIES/SERVICES",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.57438236,
+        "Y1": 0.29043686,
+        "X2": 0.63302124,
+        "Y2": 0.3061351,
+        "CenterX": 0.60370183,
+        "CenterY": 0.29828596
+      },
+      "Label": "QUANTITY",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.64688724,
+        "Y1": 0.29123488,
+        "X2": 0.6861863,
+        "Y2": 0.30561998,
+        "CenterX": 0.6665368,
+        "CenterY": 0.29842743
+      },
+      "Label": "UNIT",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.7037386,
+        "Y1": 0.29123488,
+        "X2": 0.79273367,
+        "Y2": 0.30447727,
+        "CenterX": 0.7482361,
+        "CenterY": 0.2978561
+      },
+      "Label": "UNIT PRICE",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.8077075,
+        "Y1": 0.29043686,
+        "X2": 0.94332516,
+        "Y2": 0.3046465,
+        "CenterX": 0.8755163,
+        "CenterY": 0.29754168
+      },
+      "Label": "AMOUNT",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.04654085,
+        "Y1": 0.30884343,
+        "X2": 0.13548039,
+        "Y2": 0.32322854,
+        "CenterX": 0.091010615,
+        "CenterY": 0.316036
+      },
+      "Label": "ITEM NUMBER",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.14943954,
+        "Y1": 0.30884343,
+        "X2": 0.5570817,
+        "Y2": 0.32322723,
+        "CenterX": 0.35326064,
+        "CenterY": 0.31603533
+      },
+      "Label": "SCHEDULE OF SUPPLIES/SERVICES",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.57438236,
+        "Y1": 0.30804166,
+        "X2": 0.63302124,
+        "Y2": 0.32373986,
+        "CenterX": 0.60370183,
+        "CenterY": 0.31589076
+      },
+      "Label": "QUANTITY",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.64688724,
+        "Y1": 0.30884343,
+        "X2": 0.6861863,
+        "Y2": 0.32322854,
+        "CenterX": 0.6665368,
+        "CenterY": 0.316036
+      },
+      "Label": "UNIT",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.7037386,
+        "Y1": 0.30884343,
+        "X2": 0.79273367,
+        "Y2": 0.32208583,
+        "CenterX": 0.7482361,
+        "CenterY": 0.31546462
+      },
+      "Label": "UNIT PRICE",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.8077075,
+        "Y1": 0.30804166,
+        "X2": 0.94332516,
+        "Y2": 0.3222513,
+        "CenterX": 0.8755163,
+        "CenterY": 0.31514648
+      },
+      "Label": "AMOUNT",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.04654085,
+        "Y1": 0.32645333,
+        "X2": 0.13548039,
+        "Y2": 0.34083834,
+        "CenterX": 0.091010615,
+        "CenterY": 0.33364582
+      },
+      "Label": "ITEM NUMBER",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.14943954,
+        "Y1": 0.32645708,
+        "X2": 0.5570817,
+        "Y2": 0.34084088,
+        "CenterX": 0.35326064,
+        "CenterY": 0.33364898
+      },
+      "Label": "SCHEDULE OF SUPPLIES/SERVICES",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.57438236,
+        "Y1": 0.3256553,
+        "X2": 0.63302124,
+        "Y2": 0.34135354,
+        "CenterX": 0.60370183,
+        "CenterY": 0.33350444
+      },
+      "Label": "QUANTITY",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.64688724,
+        "Y1": 0.32645333,
+        "X2": 0.6861863,
+        "Y2": 0.34083834,
+        "CenterX": 0.6665368,
+        "CenterY": 0.33364582
+      },
+      "Label": "UNIT",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.7037386,
+        "Y1": 0.32645333,
+        "X2": 0.79273367,
+        "Y2": 0.33969572,
+        "CenterX": 0.7482361,
+        "CenterY": 0.3330745
+      },
+      "Label": "UNIT PRICE",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.8075768,
+        "Y1": 0.3259205,
+        "X2": 0.94319445,
+        "Y2": 0.33986488,
+        "CenterX": 0.87538564,
+        "CenterY": 0.3328927
+      },
+      "Label": "AMOUNT",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.04654085,
+        "Y1": 0.34406188,
+        "X2": 0.13548039,
+        "Y2": 0.358447,
+        "CenterX": 0.091010615,
+        "CenterY": 0.35125443
+      },
+      "Label": "ITEM NUMBER",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.14943954,
+        "Y1": 0.34406188,
+        "X2": 0.5570817,
+        "Y2": 0.3584457,
+        "CenterX": 0.35326064,
+        "CenterY": 0.3512538
+      },
+      "Label": "SCHEDULE OF SUPPLIES/SERVICES",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.57438236,
+        "Y1": 0.34326386,
+        "X2": 0.63302124,
+        "Y2": 0.35896212,
+        "CenterX": 0.60370183,
+        "CenterY": 0.351113
+      },
+      "Label": "QUANTITY",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.64688724,
+        "Y1": 0.34406188,
+        "X2": 0.6861863,
+        "Y2": 0.358447,
+        "CenterX": 0.6665368,
+        "CenterY": 0.35125443
+      },
+      "Label": "UNIT",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.7037386,
+        "Y1": 0.34406188,
+        "X2": 0.79273367,
+        "Y2": 0.35730428,
+        "CenterX": 0.7482361,
+        "CenterY": 0.3506831
+      },
+      "Label": "UNIT PRICE",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.8077075,
+        "Y1": 0.3432601,
+        "X2": 0.94332516,
+        "Y2": 0.3574697,
+        "CenterX": 0.8755163,
+        "CenterY": 0.35036492
+      },
+      "Label": "AMOUNT",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.04654085,
+        "Y1": 0.36167172,
+        "X2": 0.13548039,
+        "Y2": 0.37605682,
+        "CenterX": 0.091010615,
+        "CenterY": 0.36886427
+      },
+      "Label": "ITEM NUMBER",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.14943954,
+        "Y1": 0.36167172,
+        "X2": 0.5570817,
+        "Y2": 0.37605557,
+        "CenterX": 0.35326064,
+        "CenterY": 0.36886364
+      },
+      "Label": "SCHEDULE OF SUPPLIES/SERVICES",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.57438236,
+        "Y1": 0.36087376,
+        "X2": 0.63302124,
+        "Y2": 0.37657195,
+        "CenterX": 0.60370183,
+        "CenterY": 0.36872286
+      },
+      "Label": "QUANTITY",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.64688724,
+        "Y1": 0.36246967,
+        "X2": 0.6861863,
+        "Y2": 0.37605557,
+        "CenterX": 0.6665368,
+        "CenterY": 0.36926264
+      },
+      "Label": "UNIT",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.7037386,
+        "Y1": 0.3616755,
+        "X2": 0.79273367,
+        "Y2": 0.37491792,
+        "CenterX": 0.7482361,
+        "CenterY": 0.3682967
+      },
+      "Label": "UNIT PRICE",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.8077075,
+        "Y1": 0.36087376,
+        "X2": 0.94332516,
+        "Y2": 0.37508336,
+        "CenterX": 0.8755163,
+        "CenterY": 0.36797857
+      },
+      "Label": "AMOUNT",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.04654085,
+        "Y1": 0.37928033,
+        "X2": 0.13548039,
+        "Y2": 0.3936654,
+        "CenterX": 0.091010615,
+        "CenterY": 0.38647288
+      },
+      "Label": "ITEM NUMBER",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.14943954,
+        "Y1": 0.37928033,
+        "X2": 0.5570817,
+        "Y2": 0.39366415,
+        "CenterX": 0.35326064,
+        "CenterY": 0.38647223
+      },
+      "Label": "SCHEDULE OF SUPPLIES/SERVICES",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.57438236,
+        "Y1": 0.3784823,
+        "X2": 0.63302124,
+        "Y2": 0.39418057,
+        "CenterX": 0.60370183,
+        "CenterY": 0.38633144
+      },
+      "Label": "QUANTITY",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.64688724,
+        "Y1": 0.3800783,
+        "X2": 0.6861863,
+        "Y2": 0.39366415,
+        "CenterX": 0.6665368,
+        "CenterY": 0.38687122
+      },
+      "Label": "UNIT",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.7037386,
+        "Y1": 0.37928033,
+        "X2": 0.79273367,
+        "Y2": 0.39252272,
+        "CenterX": 0.7482361,
+        "CenterY": 0.3859015
+      },
+      "Label": "UNIT PRICE",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.8077075,
+        "Y1": 0.3784823,
+        "X2": 0.94332516,
+        "Y2": 0.3926919,
+        "CenterX": 0.8755163,
+        "CenterY": 0.3855871
+      },
+      "Label": "AMOUNT",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.04654085,
+        "Y1": 0.39689395,
+        "X2": 0.13548039,
+        "Y2": 0.41127905,
+        "CenterX": 0.091010615,
+        "CenterY": 0.4040865
+      },
+      "Label": "ITEM NUMBER",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.14943954,
+        "Y1": 0.39689648,
+        "X2": 0.5570817,
+        "Y2": 0.4112803,
+        "CenterX": 0.35326064,
+        "CenterY": 0.40408838
+      },
+      "Label": "SCHEDULE OF SUPPLIES/SERVICES",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.57438236,
+        "Y1": 0.3960947,
+        "X2": 0.63302124,
+        "Y2": 0.41179293,
+        "CenterX": 0.60370183,
+        "CenterY": 0.40394384
+      },
+      "Label": "QUANTITY",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.64688724,
+        "Y1": 0.3976919,
+        "X2": 0.6861863,
+        "Y2": 0.41127777,
+        "CenterX": 0.6665368,
+        "CenterY": 0.40448484
+      },
+      "Label": "UNIT",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.7037386,
+        "Y1": 0.39689395,
+        "X2": 0.79273367,
+        "Y2": 0.41013637,
+        "CenterX": 0.7482361,
+        "CenterY": 0.40351516
+      },
+      "Label": "UNIT PRICE",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.8077075,
+        "Y1": 0.3960947,
+        "X2": 0.94332516,
+        "Y2": 0.41030428,
+        "CenterX": 0.8755163,
+        "CenterY": 0.4031995
+      },
+      "Label": "AMOUNT",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.046596404,
+        "Y1": 0.41474622,
+        "X2": 0.13553594,
+        "Y2": 0.42913133,
+        "CenterX": 0.091066174,
+        "CenterY": 0.42193878
+      },
+      "Label": "ITEM NUMBER",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.14943954,
+        "Y1": 0.41450253,
+        "X2": 0.5570817,
+        "Y2": 0.42888638,
+        "CenterX": 0.35326064,
+        "CenterY": 0.42169446
+      },
+      "Label": "SCHEDULE OF SUPPLIES/SERVICES",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.57438236,
+        "Y1": 0.41370454,
+        "X2": 0.63302124,
+        "Y2": 0.4294028,
+        "CenterX": 0.60370183,
+        "CenterY": 0.42155367
+      },
+      "Label": "QUANTITY",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.64688724,
+        "Y1": 0.41530052,
+        "X2": 0.6861863,
+        "Y2": 0.42888638,
+        "CenterX": 0.6665368,
+        "CenterY": 0.42209345
+      },
+      "Label": "UNIT",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.7037386,
+        "Y1": 0.41450253,
+        "X2": 0.79273367,
+        "Y2": 0.42774493,
+        "CenterX": 0.7482361,
+        "CenterY": 0.42112374
+      },
+      "Label": "UNIT PRICE",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.8077075,
+        "Y1": 0.41370454,
+        "X2": 0.94332516,
+        "Y2": 0.42791414,
+        "CenterX": 0.8755163,
+        "CenterY": 0.42080933
+      },
+      "Label": "AMOUNT",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.046596404,
+        "Y1": 0.43185356,
+        "X2": 0.13553594,
+        "Y2": 0.44623864,
+        "CenterX": 0.091066174,
+        "CenterY": 0.43904608
+      },
+      "Label": "ITEM NUMBER",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.14943954,
+        "Y1": 0.4321111,
+        "X2": 0.5570817,
+        "Y2": 0.44649494,
+        "CenterX": 0.35326064,
+        "CenterY": 0.43930304
+      },
+      "Label": "SCHEDULE OF SUPPLIES/SERVICES",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.57438236,
+        "Y1": 0.43131313,
+        "X2": 0.63302124,
+        "Y2": 0.44701135,
+        "CenterX": 0.60370183,
+        "CenterY": 0.43916225
+      },
+      "Label": "QUANTITY",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.64688724,
+        "Y1": 0.43291035,
+        "X2": 0.6861863,
+        "Y2": 0.44649622,
+        "CenterX": 0.6665368,
+        "CenterY": 0.4397033
+      },
+      "Label": "UNIT",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.7037386,
+        "Y1": 0.4321111,
+        "X2": 0.79273367,
+        "Y2": 0.44535354,
+        "CenterX": 0.7482361,
+        "CenterY": 0.43873233
+      },
+      "Label": "UNIT PRICE",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.8077075,
+        "Y1": 0.43131313,
+        "X2": 0.94332516,
+        "Y2": 0.44552273,
+        "CenterX": 0.8755163,
+        "CenterY": 0.4384179
+      },
+      "Label": "AMOUNT",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.04654085,
+        "Y1": 0.44972095,
+        "X2": 0.13548039,
+        "Y2": 0.46410605,
+        "CenterX": 0.091010615,
+        "CenterY": 0.4569135
+      },
+      "Label": "ITEM NUMBER",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.14943954,
+        "Y1": 0.44972476,
+        "X2": 0.5570817,
+        "Y2": 0.4641086,
+        "CenterX": 0.35326064,
+        "CenterY": 0.4569167
+      },
+      "Label": "SCHEDULE OF SUPPLIES/SERVICES",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.57438236,
+        "Y1": 0.44892296,
+        "X2": 0.63302124,
+        "Y2": 0.46462122,
+        "CenterX": 0.60370183,
+        "CenterY": 0.4567721
+      },
+      "Label": "QUANTITY",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.64688724,
+        "Y1": 0.45051894,
+        "X2": 0.6861863,
+        "Y2": 0.4641048,
+        "CenterX": 0.6665368,
+        "CenterY": 0.45731187
+      },
+      "Label": "UNIT",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.7037386,
+        "Y1": 0.44972476,
+        "X2": 0.79273367,
+        "Y2": 0.4629672,
+        "CenterX": 0.7482361,
+        "CenterY": 0.45634598
+      },
+      "Label": "UNIT PRICE",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.8077075,
+        "Y1": 0.44892296,
+        "X2": 0.94332516,
+        "Y2": 0.46313256,
+        "CenterX": 0.8755163,
+        "CenterY": 0.45602775
+      },
+      "Label": "AMOUNT",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.04654085,
+        "Y1": 0.46732953,
+        "X2": 0.13548039,
+        "Y2": 0.48171467,
+        "CenterX": 0.091010615,
+        "CenterY": 0.4745221
+      },
+      "Label": "ITEM NUMBER",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.14943954,
+        "Y1": 0.46732953,
+        "X2": 0.5570817,
+        "Y2": 0.48171338,
+        "CenterX": 0.35326064,
+        "CenterY": 0.47452146
+      },
+      "Label": "SCHEDULE OF SUPPLIES/SERVICES",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.57438236,
+        "Y1": 0.46653157,
+        "X2": 0.63302124,
+        "Y2": 0.4822298,
+        "CenterX": 0.60370183,
+        "CenterY": 0.47438067
+      },
+      "Label": "QUANTITY",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.64688724,
+        "Y1": 0.46812752,
+        "X2": 0.6861863,
+        "Y2": 0.48171338,
+        "CenterX": 0.6665368,
+        "CenterY": 0.47492045
+      },
+      "Label": "UNIT",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.7037386,
+        "Y1": 0.46732953,
+        "X2": 0.79273367,
+        "Y2": 0.480572,
+        "CenterX": 0.7482361,
+        "CenterY": 0.47395074
+      },
+      "Label": "UNIT PRICE",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.8077075,
+        "Y1": 0.46653157,
+        "X2": 0.94332516,
+        "Y2": 0.48074117,
+        "CenterX": 0.8755163,
+        "CenterY": 0.4736364
+      },
+      "Label": "AMOUNT",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.04654085,
+        "Y1": 0.4849394,
+        "X2": 0.13548039,
+        "Y2": 0.4993245,
+        "CenterX": 0.091010615,
+        "CenterY": 0.49213195
+      },
+      "Label": "ITEM NUMBER",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.14943954,
+        "Y1": 0.4849394,
+        "X2": 0.5570817,
+        "Y2": 0.49932322,
+        "CenterX": 0.35326064,
+        "CenterY": 0.4921313
+      },
+      "Label": "SCHEDULE OF SUPPLIES/SERVICES",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.57438236,
+        "Y1": 0.4849432,
+        "X2": 0.63302124,
+        "Y2": 0.5006414,
+        "CenterX": 0.60370183,
+        "CenterY": 0.4927923
+      },
+      "Label": "QUANTITY",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.64688724,
+        "Y1": 0.48574117,
+        "X2": 0.6861863,
+        "Y2": 0.49932703,
+        "CenterX": 0.6665368,
+        "CenterY": 0.4925341
+      },
+      "Label": "UNIT",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.7037386,
+        "Y1": 0.4849394,
+        "X2": 0.79273367,
+        "Y2": 0.49818182,
+        "CenterX": 0.7482361,
+        "CenterY": 0.4915606
+      },
+      "Label": "UNIT PRICE",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.8077075,
+        "Y1": 0.4841414,
+        "X2": 0.94332516,
+        "Y2": 0.498351,
+        "CenterX": 0.8755163,
+        "CenterY": 0.49124622
+      },
+      "Label": "AMOUNT",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.04654412,
+        "Y1": 0.50255173,
+        "X2": 0.13548367,
+        "Y2": 0.5169369,
+        "CenterX": 0.09101389,
+        "CenterY": 0.5097443
+      },
+      "Label": "ITEM NUMBER",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.14943954,
+        "Y1": 0.50255173,
+        "X2": 0.5570817,
+        "Y2": 0.5169356,
+        "CenterX": 0.35326064,
+        "CenterY": 0.5097437
+      },
+      "Label": "SCHEDULE OF SUPPLIES/SERVICES",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.57438236,
+        "Y1": 0.50255173,
+        "X2": 0.63302124,
+        "Y2": 0.51825,
+        "CenterX": 0.60370183,
+        "CenterY": 0.5104009
+      },
+      "Label": "QUANTITY",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.64688724,
+        "Y1": 0.5033498,
+        "X2": 0.6861863,
+        "Y2": 0.5169356,
+        "CenterX": 0.6665368,
+        "CenterY": 0.5101427
+      },
+      "Label": "UNIT",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.7037386,
+        "Y1": 0.50255173,
+        "X2": 0.79273367,
+        "Y2": 0.5157942,
+        "CenterX": 0.7482361,
+        "CenterY": 0.509173
+      },
+      "Label": "UNIT PRICE",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.8077075,
+        "Y1": 0.5017538,
+        "X2": 0.94332516,
+        "Y2": 0.5159634,
+        "CenterX": 0.8755163,
+        "CenterY": 0.50885856
+      },
+      "Label": "AMOUNT",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.04654085,
+        "Y1": 0.5208308,
+        "X2": 0.13548039,
+        "Y2": 0.5345454,
+        "CenterX": 0.091010615,
+        "CenterY": 0.52768815
+      },
+      "Label": "ITEM NUMBER",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.14943954,
+        "Y1": 0.52016413,
+        "X2": 0.5570817,
+        "Y2": 0.534548,
+        "CenterX": 0.35326064,
+        "CenterY": 0.527356
+      },
+      "Label": "SCHEDULE OF SUPPLIES/SERVICES",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.57438236,
+        "Y1": 0.52016413,
+        "X2": 0.63302124,
+        "Y2": 0.5358624,
+        "CenterX": 0.60370183,
+        "CenterY": 0.5280132
+      },
+      "Label": "QUANTITY",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.64688724,
+        "Y1": 0.5209634,
+        "X2": 0.6861863,
+        "Y2": 0.53454924,
+        "CenterX": 0.6665368,
+        "CenterY": 0.52775633
+      },
+      "Label": "UNIT",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.7037386,
+        "Y1": 0.52016413,
+        "X2": 0.79273367,
+        "Y2": 0.53340656,
+        "CenterX": 0.7482361,
+        "CenterY": 0.5267854
+      },
+      "Label": "UNIT PRICE",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.8077075,
+        "Y1": 0.5193624,
+        "X2": 0.94332516,
+        "Y2": 0.53357196,
+        "CenterX": 0.8755163,
+        "CenterY": 0.5264672
+      },
+      "Label": "AMOUNT",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.04654085,
+        "Y1": 0.5377702,
+        "X2": 0.13548039,
+        "Y2": 0.5521553,
+        "CenterX": 0.091010615,
+        "CenterY": 0.54496276
+      },
+      "Label": "ITEM NUMBER",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.14943954,
+        "Y1": 0.53777397,
+        "X2": 0.5570817,
+        "Y2": 0.5521578,
+        "CenterX": 0.35326064,
+        "CenterY": 0.54496586
+      },
+      "Label": "SCHEDULE OF SUPPLIES/SERVICES",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.57438236,
+        "Y1": 0.5377702,
+        "X2": 0.63302124,
+        "Y2": 0.5534684,
+        "CenterX": 0.60370183,
+        "CenterY": 0.5456193
+      },
+      "Label": "QUANTITY",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.64688724,
+        "Y1": 0.5385682,
+        "X2": 0.6861863,
+        "Y2": 0.55215406,
+        "CenterX": 0.6665368,
+        "CenterY": 0.54536116
+      },
+      "Label": "UNIT",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.7037386,
+        "Y1": 0.53777397,
+        "X2": 0.79273367,
+        "Y2": 0.5510164,
+        "CenterX": 0.7482361,
+        "CenterY": 0.5443952
+      },
+      "Label": "UNIT PRICE",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.8077075,
+        "Y1": 0.5369722,
+        "X2": 0.94332516,
+        "Y2": 0.55118185,
+        "CenterX": 0.8755163,
+        "CenterY": 0.54407704
+      },
+      "Label": "AMOUNT",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.04654085,
+        "Y1": 0.55540407,
+        "X2": 0.13548039,
+        "Y2": 0.5697892,
+        "CenterX": 0.091010615,
+        "CenterY": 0.5625966
+      },
+      "Label": "ITEM NUMBER",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.14943954,
+        "Y1": 0.55540407,
+        "X2": 0.5570817,
+        "Y2": 0.56978786,
+        "CenterX": 0.35326064,
+        "CenterY": 0.56259596
+      },
+      "Label": "SCHEDULE OF SUPPLIES/SERVICES",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.57438236,
+        "Y1": 0.55540407,
+        "X2": 0.63302124,
+        "Y2": 0.57110226,
+        "CenterX": 0.60370183,
+        "CenterY": 0.56325316
+      },
+      "Label": "QUANTITY",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.64688724,
+        "Y1": 0.556202,
+        "X2": 0.6861863,
+        "Y2": 0.56978786,
+        "CenterX": 0.6665368,
+        "CenterY": 0.56299496
+      },
+      "Label": "UNIT",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.7037386,
+        "Y1": 0.55540407,
+        "X2": 0.79273367,
+        "Y2": 0.5686465,
+        "CenterX": 0.7482361,
+        "CenterY": 0.5620253
+      },
+      "Label": "UNIT PRICE",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.8077075,
+        "Y1": 0.554606,
+        "X2": 0.94332516,
+        "Y2": 0.56881565,
+        "CenterX": 0.8755163,
+        "CenterY": 0.56171083
+      },
+      "Label": "AMOUNT",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.7166552,
+        "Y1": 0.5881212,
+        "X2": 0.9490915,
+        "Y2": 0.6104975,
+        "CenterX": 0.83287334,
+        "CenterY": 0.5993093
+      },
+      "Label": "ACCEPTED, AND CONFORMS TO THE CONTRACT, EXCEPT AS NOTED:",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.52082026,
+        "Y1": 0.64282703,
+        "X2": 0.94666505,
+        "Y2": 0.65960985,
+        "CenterX": 0.73374265,
+        "CenterY": 0.6512184
+      },
+      "Label": "REPRESENTATIVE",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.52082026,
+        "Y1": 0.66022855,
+        "X2": 0.94666994,
+        "Y2": 0.6770114,
+        "CenterX": 0.7337451,
+        "CenterY": 0.66862
+      },
+      "Label": "REPRESENTATIVE",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.048730392,
+        "Y1": 0.69130296,
+        "X2": 0.5109297,
+        "Y2": 0.74241287,
+        "CenterX": 0.27983004,
+        "CenterY": 0.7168579
+      },
+      "Label": "32e. MAILING ADDRESS OF AUTHORIZED GOVERNMENT REPRESENTATIVE",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.517884,
+        "Y1": 0.69677526,
+        "X2": 0.9492451,
+        "Y2": 0.7139406,
+        "CenterX": 0.73356456,
+        "CenterY": 0.7053579
+      },
+      "Label": "32f. TELPHONE NUMBER OF AUTHORZED GOVERNMENT REPRESENTATIVE",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.51779085,
+        "Y1": 0.72818565,
+        "X2": 0.9492451,
+        "Y2": 0.74213,
+        "CenterX": 0.733518,
+        "CenterY": 0.73515785
+      },
+      "Label": "32g. EMAIL OF AUTHORIZED GOVERNMENT REPRESENTATIVE",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.04757353,
+        "Y1": 0.7573661,
+        "X2": 0.19597058,
+        "Y2": 0.774947,
+        "CenterX": 0.12177205,
+        "CenterY": 0.76615655
+      },
+      "Label": "33. SHIP NUMBER",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.20293137,
+        "Y1": 0.77824616,
+        "X2": 0.35518625,
+        "Y2": 0.7925657,
+        "CenterX": 0.2790588,
+        "CenterY": 0.78540593
+      },
+      "Label": "FINAL",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.3603562,
+        "Y1": 0.77824616,
+        "X2": 0.5116716,
+        "Y2": 0.7925657,
+        "CenterX": 0.4360139,
+        "CenterY": 0.78540593
+      },
+      "Label": "FINAL",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.81472385,
+        "Y1": 0.77824616,
+        "X2": 0.9476144,
+        "Y2": 0.7925657,
+        "CenterX": 0.8811691,
+        "CenterY": 0.78540593
+      },
+      "Label": "FINAL",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.04727124,
+        "Y1": 0.81955934,
+        "X2": 0.19596896,
+        "Y2": 0.83788764,
+        "CenterX": 0.121620096,
+        "CenterY": 0.8287235
+      },
+      "Label": "38. S/R ACCOUNT NUMBER 39. S/R VOUCHER NUMBER",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.20258497,
+        "Y1": 0.81956315,
+        "X2": 0.3560768,
+        "Y2": 0.8378914,
+        "CenterX": 0.27933088,
+        "CenterY": 0.82872725
+      },
+      "Label": "38. S/R ACCOUNT NUMBER 39. S/R VOUCHER NUMBER",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.36121896,
+        "Y1": 0.8060303,
+        "X2": 0.94750816,
+        "Y2": 0.8221654,
+        "CenterX": 0.6543636,
+        "CenterY": 0.8140979
+      },
+      "Label": "38. S/R ACCOUNT NUMBER 39. S/R VOUCHER NUMBER",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.05176961,
+        "Y1": 0.89442044,
+        "X2": 0.356183,
+        "Y2": 0.9128345,
+        "CenterX": 0.2039763,
+        "CenterY": 0.9036275
+      },
+      "Label": "41b. SIGNATURE AND TITLE OF CERTIFYING OFFICER",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.4845719,
+        "Y1": 0.8359848,
+        "X2": 0.9484019,
+        "Y2": 0.8516465,
+        "CenterX": 0.71648693,
+        "CenterY": 0.8438157
+      },
+      "Label": "41a. I CERTIFY THIS ACCOUNT IS CORRECT AND PROPER FOR PAYMENT",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.48450655,
+        "Y1": 0.86762375,
+        "X2": 0.9484019,
+        "Y2": 0.88376516,
+        "CenterX": 0.71645427,
+        "CenterY": 0.87569445
+      },
+      "Label": "42b. RECEIVED AT (Location)",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.696433,
+        "Y1": 0.89442044,
+        "X2": 0.95029575,
+        "Y2": 0.9128345,
+        "CenterX": 0.8233644,
+        "CenterY": 0.9036275
+      },
+      "Label": "42c. DATE RECEIVED (MM/DD/YYYY) 42d. TOTAL CONTAINERS",
+      "Group": null
+    },
+    {
+      "Kind": "Checkbox",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.05159477,
+        "Y1": 0.59267426,
+        "X2": 0.06793464,
+        "Y2": 0.60530055,
+        "CenterX": 0.059764706,
+        "CenterY": 0.5989874
+      },
+      "Label": "RECEIVED",
+      "Group": null
+    },
+    {
+      "Kind": "Checkbox",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.17400816,
+        "Y1": 0.59267426,
+        "X2": 0.19034803,
+        "Y2": 0.60530055,
+        "CenterX": 0.1821781,
+        "CenterY": 0.5989874
+      },
+      "Label": "INSPECTED",
+      "Group": null
+    },
+    {
+      "Kind": "Checkbox",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.29729575,
+        "Y1": 0.59267426,
+        "X2": 0.31363565,
+        "Y2": 0.60530055,
+        "CenterX": 0.3054657,
+        "CenterY": 0.5989874
+      },
+      "Label": "ACCEPTED, AND CONFORMS TO THE CONTRACT, EXCEPT AS NOTED:",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.36183825,
+        "Y1": 0.89442044,
+        "X2": 0.46710458,
+        "Y2": 0.9128345,
+        "CenterX": 0.41447142,
+        "CenterY": 0.9036275
+      },
+      "Label": "41c. DATE",
+      "Group": null
+    },
+    {
+      "Kind": "Checkbox",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.05177941,
+        "Y1": 0.7779886,
+        "X2": 0.06811928,
+        "Y2": 0.7906149,
+        "CenterX": 0.059949346,
+        "CenterY": 0.78430176
+      },
+      "Label": "PARTIAL",
+      "Group": null
+    },
+    {
+      "Kind": "Checkbox",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.13654086,
+        "Y1": 0.77910227,
+        "X2": 0.15288073,
+        "Y2": 0.79172856,
+        "CenterX": 0.1447108,
+        "CenterY": 0.7854154
+      },
+      "Label": "FINAL",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.39051795,
+        "Y1": 0.6552866,
+        "X2": 0.50786436,
+        "Y2": 0.6741667,
+        "CenterX": 0.44919115,
+        "CenterY": 0.6647266
+      },
+      "Label": "32c. DATE",
+      "Group": null
+    },
+    {
+      "Kind": "Checkbox",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.5284216,
+        "Y1": 0.7768359,
+        "X2": 0.5447615,
+        "Y2": 0.78946215,
+        "CenterX": 0.53659153,
+        "CenterY": 0.783149
+      },
+      "Label": "COMPLETE",
+      "Group": null
+    },
+    {
+      "Kind": "Checkbox",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.6292598,
+        "Y1": 0.7768359,
+        "X2": 0.64559966,
+        "Y2": 0.78946215,
+        "CenterX": 0.6374297,
+        "CenterY": 0.783149
+      },
+      "Label": "PARTIAL",
+      "Group": null
+    },
+    {
+      "Kind": "Checkbox",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.7359624,
+        "Y1": 0.7768359,
+        "X2": 0.7523023,
+        "Y2": 0.78946215,
+        "CenterX": 0.74413234,
+        "CenterY": 0.783149
+      },
+      "Label": "FINAL",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 2,
+      "Rect": {
+        "X1": 0.4848595,
+        "Y1": 0.89442044,
+        "X2": 0.5963464,
+        "Y2": 0.9128345,
+        "CenterX": 0.5406029,
+        "CenterY": 0.9036275
+      },
+      "Label": "42c. DATE RECEIVED (MM/DD/YYYY) 42d. TOTAL CONTAINERS",
+      "Group": null
+    }
+  ],
+  "Fingerprint": "4d6e52cc36a2a823cd828b3bf6d9b7b1484104b2371dcef4f1264f02a6a08411"
+}

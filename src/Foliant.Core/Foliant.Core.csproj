@@ -5,4 +5,8 @@
     <!-- Interfaces + DTOs only. No dependencies, by design. Keep it that way. -->
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Update="MinVer" Version="7.0.0" />
+  </ItemGroup>
+
 </Project>

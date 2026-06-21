@@ -8,4 +8,8 @@
     <ProjectReference Include="..\Foliant.Core\Foliant.Core.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Update="MinVer" Version="7.0.0" />
+  </ItemGroup>
+
 </Project>

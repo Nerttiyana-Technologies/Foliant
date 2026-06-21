@@ -109,6 +109,16 @@ public sealed record ProcessingOptions
     /// </summary>
     public bool ExtractFormFields { get; init; } = false;
 
+    /// <summary>
+    /// Route each page through the injected <see cref="IPageTemplateRouter"/>: a page recognized as a known
+    /// form template (federal Standard Form or customer-registered) gets deterministic, label-bound fields
+    /// (<see cref="PageResult.FormFields"/>) and an appended template-field Markdown section, instead of
+    /// runtime geometric guessing. On by default, but a no-op unless a router is wired into the pipeline (the
+    /// default <c>FoliantProcessor.CreateDefault</c> wires none). Additive only — unmatched pages and the base
+    /// Markdown are untouched, so it cannot regress recall or reading order.
+    /// </summary>
+    public bool UseTemplateRouting { get; init; } = true;
+
     /// <summary>1-based page numbers to process; null processes all pages.</summary>
     public IReadOnlyCollection<int>? Pages { get; init; }
 

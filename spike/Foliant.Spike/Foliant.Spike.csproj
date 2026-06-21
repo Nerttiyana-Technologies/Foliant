@@ -14,7 +14,7 @@
     <!-- PDF rasterization via bundled pdfium (PdfPig cannot rasterize — see spike/NOTES.md) -->
     <PackageReference Include="PDFtoImage" Version="5.2.1" />
     <!-- ONNX model hosting -->
-    <PackageReference Include="Microsoft.ML.OnnxRuntime" Version="1.26.0" />
+    <PackageReference Include="Microsoft.ML.OnnxRuntime" Version="1.27.0" />
     <!-- Image pre/post-processing; already transitive via PDFtoImage, pinned explicitly -->
     <PackageReference Include="SkiaSharp" Version="3.119.4" />
     <PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="3.119.4" />
