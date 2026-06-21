@@ -263,7 +263,7 @@ breaking it now requires a 2.0. 1.0 is a stability commitment over the proven, m
 below (GPU/ML super-res, ML form understanding, post-OCR LM correction, multilingual OCR, more
 `Foliant.Forms.*` packs) all lands additively on top of the frozen contract.
 
-Shipped in 1.3.1: **by-identity extraction for scanned & flattened federal forms** (no AcroForm
+Shipped in 1.3.2: **by-identity extraction for scanned & flattened federal forms** (no AcroForm
 widgets). A page is recognized by its printed Standard-Form designation **and GSA revision**, then bound
 to the bundled template of that revision — same form + revision is the same printed layout across agencies,
 so one template covers, e.g., a SEWP and an Air Force SF-1449 of the same revision. Checkbox state reads
