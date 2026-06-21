@@ -79,7 +79,7 @@ verifiability as a feature:
 | [`Foliant.Tables.TableTransformer`](https://www.nuget.org/packages/Foliant.Tables.TableTransformer) | TableTransformer + ruling-grid table-structure backend (default) |
 | [`Foliant.Tables.PaddleStructure`](https://www.nuget.org/packages/Foliant.Tables.PaddleStructure) | SLANet-plus table backend for raster/screenshot tables (opt-in) |
 | [`Foliant.Models`](https://www.nuget.org/packages/Foliant.Models) | Model catalog + SHA-256-verified local cache |
-| [`Foliant.Templates`](https://www.nuget.org/packages/Foliant.Templates) | Template-aware extraction + bring-your-own-template library: register a blank form, route matching uploads to deterministic field/checkbox binding (else the default pipeline). 12 U.S. federal Standard Forms bundled |
+| [`Foliant.Templates`](https://www.nuget.org/packages/Foliant.Templates) | Template-aware extraction + bring-your-own-template library: register a blank form, route matching uploads to deterministic field/checkbox binding (else the default pipeline). 12 U.S. federal Standard Forms bundled. Also extracts **scanned/flattened** federal forms (no widgets) by their printed **designation + GSA revision** — generalizing across agencies of the same revision |
 
 Model weights (~280 MB) are not inside the packages. They download on first use into the
 local cache (`~/.local/share/Foliant/models` on macOS/Linux, `%LocalAppData%\Foliant\models`
@@ -262,6 +262,15 @@ breaking it now requires a 2.0. 1.0 is a stability commitment over the proven, m
 (Gates 1–8, 99.7% reference recall, in production use) — not a new feature. The parked roadmap
 below (GPU/ML super-res, ML form understanding, post-OCR LM correction, multilingual OCR, more
 `Foliant.Forms.*` packs) all lands additively on top of the frozen contract.
+
+Shipped in 1.3.0: **by-identity extraction for scanned & flattened federal forms** (no AcroForm
+widgets). A page is recognized by its printed Standard-Form designation **and GSA revision**, then bound
+to the bundled template of that revision — same form + revision is the same printed layout across agencies,
+so one template covers, e.g., a SEWP and an Air Force SF-1449 of the same revision. Checkbox state reads
+OCR-free from pixels; text values read from OCR within each known field rect (one line per field, label-echo
+and junk stripped). Different revision → abstain → default pipeline. New `IScannedFormRouter`; additive and
+non-breaking. SF-1449 / SF-30 field captions re-sourced to the blank forms' authoritative `/TU` names.
+Shipped behind 1.2.0's template layer (register your own blank templates; 12 federal forms bundled).
 
 Shipped in 1.0.2: a **grid-fit guard** for box-grid forms. When the layout model mislabels a dense
 form block as a table, the table-structure model can impose a grid whose cell borders cut across a

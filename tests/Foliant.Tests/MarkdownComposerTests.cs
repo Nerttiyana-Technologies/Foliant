@@ -207,6 +207,47 @@ public class MarkdownComposerTests
     }
 
     [Fact]
+    public void Compose_PlainFormBody_RendersFormRegionAsProse_NotGrid()
+    {
+        // On a MATCHED template page (plainFormBody), the form region renders as flowing reading-order text
+        // — the structured values come from the appended Form-fields section — even when the table grid would
+        // otherwise fit. Recall-safe: every line is still emitted. Control: the same input WITHOUT
+        // plainFormBody still renders the grid.
+        var lines = new[]
+        {
+            L("2. CONTRACT NUMBER", 0, 0, 30, 10),  L("80TECH24R0001", 50, 0, 90, 10),
+            L("9B. DATED", 0, 10, 30, 20),          L("05/23/2024", 50, 10, 90, 20),
+        };
+        TableExtraction Grid() => new(
+            new TableStructure(2, 2, new List<TableCell>
+            {
+                new(0, 0, "2. CONTRACT NUMBER", new BoundingBox(0, 0, 30, 10)),
+                new(0, 1, "80TECH24R0001", new BoundingBox(50, 0, 90, 10)),
+                new(1, 0, "9B. DATED", new BoundingBox(0, 10, 30, 20)),
+                new(1, 1, "05/23/2024", new BoundingBox(50, 10, 90, 20)),
+            }),
+            Array.Empty<TextLine>());
+        var regions = new[]
+        {
+            new LayoutRegion(RegionType.Table, "table", 0.9f, new BoundingBox(0, 0, 100, 30)),
+        };
+
+        var matched = NewComposer(new StubTables { Result = Grid() })
+            .Compose(Page, regions, lines, plainFormBody: true);
+        var unmatched = NewComposer(new StubTables { Result = Grid() })
+            .Compose(Page, regions, lines, plainFormBody: false);
+
+        // Matched → clean prose, no markdown grid, no text lost.
+        Assert.DoesNotContain("|---", matched.Markdown);
+        Assert.Contains("80TECH24R0001", matched.Markdown);
+        Assert.Contains("05/23/2024", matched.Markdown);
+        Assert.Equal(0, ExtractionVerifier.CountLostLines(matched.Markdown, lines, matched.PageFurniture));
+
+        // Unmatched control → still a grid.
+        Assert.Contains("|---|---|", unmatched.Markdown);
+    }
+
+    [Fact]
     public void Compose_RealTable_StillRendersGrid()
     {
         // A genuine data table: the grid captures all of the region's text (nothing ejected), so the

@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Description>ML super-resolution IScanUpscaler backend for Foliant (ONNX, runs fully local via ONNX Runtime). Sharpens low-DPI scanned pages before OCR with a Real-ESRGAN-class model, tiled to bound memory. Off by default; wired only when ProcessingOptions.UpscaleLowResolutionScans is on and a model is supplied. Gate 8 measures it before it ships as a default.</Description>
+    <!-- Experimental research backend (Gate 8 measured it net-negative — see CHANGELOG). Kept in the
+         solution + Gate-8 harness, but NOT published to NuGet until/unless it proves out. -->
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Foliant.Core\Foliant.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.ML.OnnxRuntime" Version="1.27.0" />
+    <PackageReference Include="SkiaSharp" Version="3.119.4" />
+    <PackageReference Update="MinVer" Version="7.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="..\Shared\SkiaInterop.cs" Link="Internal\SkiaInterop.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Foliant.Tests" />
+  </ItemGroup>
+
+</Project>
