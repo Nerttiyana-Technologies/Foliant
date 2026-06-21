@@ -21,6 +21,7 @@
     <!-- Image plumbing; transitive via PDFtoImage, pinned explicitly -->
     <PackageReference Include="SkiaSharp" Version="3.119.4" />
     <PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="3.119.4" />
+    <PackageReference Update="MinVer" Version="7.0.0" />
   </ItemGroup>
 
   <ItemGroup>

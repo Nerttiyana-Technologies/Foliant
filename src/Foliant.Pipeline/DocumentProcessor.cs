@@ -25,6 +25,7 @@ public sealed class DocumentProcessor : IDocumentProcessor, IDisposable
     private readonly IScanResolutionEstimator? _scanResolution;
     private readonly IScanUpscaler? _upscaler;
     private readonly IFormFieldExtractor? _formFields;
+    private readonly IPageTemplateRouter? _templateRouter;
     private readonly MarkdownComposer _composer;
     private readonly bool _ownsComponents;
 
@@ -61,7 +62,8 @@ public sealed class DocumentProcessor : IDocumentProcessor, IDisposable
         OrientationDetector? orientation = null,
         IScanResolutionEstimator? scanResolution = null,
         IScanUpscaler? scanUpscaler = null,
-        IFormFieldExtractor? formFields = null)
+        IFormFieldExtractor? formFields = null,
+        IPageTemplateRouter? templateRouter = null)
     {
         _renderer = renderer;
         _layout = layout;
@@ -74,6 +76,7 @@ public sealed class DocumentProcessor : IDocumentProcessor, IDisposable
         _scanResolution = scanResolution;
         _upscaler = scanUpscaler;
         _formFields = formFields;
+        _templateRouter = templateRouter;
         _composer = new MarkdownComposer(readingOrder, tables);
         _ownsComponents = ownsComponents;
     }
@@ -147,6 +150,17 @@ public sealed class DocumentProcessor : IDocumentProcessor, IDisposable
                 else if (d.TryGet(NameToken.Create("Parent"), out DictionaryToken p)
                          && p.TryGet(NameToken.Create("V"), out StringToken pv) && !string.IsNullOrWhiteSpace(pv.Data))
                     value = pv.Data;
+
+                // Checkboxes/radios carry no text /V — their selected state is the widget's appearance
+                // state /AS ("Off" = unchecked). Without this, checked boxes leave NO mark in the text
+                // (the check renders as a glyph, not a content-stream character), so a side-by-side
+                // PDF-vs-markdown comparison shows the selection silently missing. Emit a visible mark
+                // for checked boxes so the form's selections survive into the output.
+                if (value is null
+                    && d.TryGet(NameToken.Create("AS"), out NameToken asTok)
+                    && !string.Equals(asTok.Data, "Off", StringComparison.Ordinal))
+                    value = "[X]";
+
                 if (value is null) continue;
 
                 var r = ann.Rectangle;   // PDF points, bottom-left origin → raster pixels, top-left
@@ -255,7 +269,10 @@ public sealed class DocumentProcessor : IDocumentProcessor, IDisposable
 
         // ── Structure: always from pixels ────────────────────────────────────
         var regions = _layout.Detect(image);
-        var composed = _composer.Compose(image, regions, lines, options.EnumeratorReadingOrder);
+        // Federal Standard Forms get schedule-aware table rendering (form-scoped; identified from the
+        // page's printed "STANDARD FORM N" designation). Non-forms compose exactly as before.
+        bool federalForm = FormIdentifier.IsFederalForm(lines);
+        var composed = _composer.Compose(image, regions, lines, options.EnumeratorReadingOrder, federalForm);
 
         // ── Self-verification ────────────────────────────────────────────────
         int lost = ExtractionVerifier.CountLostLines(composed.Markdown, lines, composed.PageFurniture);
@@ -285,12 +302,24 @@ public sealed class DocumentProcessor : IDocumentProcessor, IDisposable
         if (options.ExtractFormFields && _formFields is not null)
             formFields = _formFields.Extract(pdf, pageNumber, image, lines);
 
+        // ── Template routing ─────────────────────────────────────────────────
+        // A page recognized as a known form template gets deterministic, label-bound fields and an APPENDED
+        // template-field section. Additive: the base Markdown, regions, and reading order are untouched, so
+        // recall and ordering cannot regress; unmatched pages are unaffected. No-op unless a router is wired.
+        string markdown = composed.Markdown;
+        if (options.UseTemplateRouting && _templateRouter is not null
+            && _templateRouter.TryRoute(pdf, pageNumber) is { } templated)
+        {
+            formFields = templated.Fields;   // deterministic; supersedes geometric extraction for this page
+            markdown += "\n" + TemplateFieldSection.Render(templated);
+        }
+
         sw.Stop();
         return new PageResult(
             pageNumber, image.Width, image.Height, options.Dpi,
             composed.Regions, lines, composed.PageFurniture,
             useLayer ? TextSource.TextLayer : TextSource.Ocr,
-            composed.Markdown,
+            markdown,
             new PageVerification(lost, truthWords, truthFound, sw.Elapsed.TotalSeconds),
             OrientationApplied: orientationApplied,
             EffectiveDpi: effectiveDpi,

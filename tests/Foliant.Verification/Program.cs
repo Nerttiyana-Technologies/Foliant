@@ -11,8 +11,11 @@
 // Defaults: out-dir = verification-out/, models = models/ (relative to current directory).
 
 using System.Globalization;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using Foliant;
 using Foliant.Pipeline;
+using Foliant.Templates;
 using Foliant.Verification;
 
 string? pdfDir = null;
@@ -32,6 +35,26 @@ int orientPages = 5;
 bool noOrientation = false;
 bool enumeratorOrder = false;
 string? inspect = null;
+string? emitReadingOrderDir = null;   // ADR-0001 harvester: opt-in, local-only, no network
+string? emitFormKvDir = null;         // ADR-0001 Lever 2 harvester: opt-in, local-only, no network
+string kvLicense = "local-only";      // provenance tag per record; only "public-domain" may feed the base model
+bool emitFormKvOverlay = false;       // draw field widget rects on the page for transform verification
+string? synthFormKvDir = null;        // synthetic-fill mode: fill blank templates → form-kv records
+int synthVariants = 1;                // synthetic filled variants generated per template page
+bool formKvEval = false;              // LiLT Gate-3 eval: score value-word predictions on filled AcroForms
+string liltModelDir = "models/form-kv-lilt";   // LiLT model dir (model.onnx + tokenizer files)
+bool dumpWidgetFields = false;        // wire WidgetFormFieldExtractor + dump per-page FormFields (quality check)
+string? emitFormTemplate = null;      // --emit-form-template <blank.pdf>: emit a draft FormLayout JSON for review
+string? matchExtractPdf = null;       // --match-extract <filled.pdf>: validate template-aware extraction
+string? matchExtractTemplate = null;  //   ...against <template.json> (deterministic, per page)
+string? routePdf = null;              // --route <upload.pdf>: per-page router over BUNDLED templates
+string? routeDb = null;               // --templates-db <file>: also include customer-registered templates
+bool withTemplates = false;           // --with-templates: wire the bundled router into the full pipeline run
+string? regBlank = null, regDb = null;        // --register <blank.pdf> <db>: register a customer template
+string? listTplDb = null;             // --list-templates <db>
+string[]? exportTpl = null;           // --export-template <db> <id> <out.json>
+string[]? importTpl = null;           // --import-template <db> <reviewed.json>
+string[]? unregTpl = null;            // --unregister <db> <id>
 var tableBackend = TableBackend.TableTransformer;
 var readingOrder = ReadingOrderBackend.XyCutPlusPlus;
 
@@ -52,6 +75,25 @@ for (int i = 0; i < args.Length; i++)
     if (args[i] == "--no-orientation") { noOrientation = true; continue; }
     if (args[i] == "--enumerator-order") { enumeratorOrder = true; continue; }
     if (args[i] == "--inspect" && i + 1 < args.Length) { inspect = args[++i]; continue; }
+    if (args[i] == "--emit-reading-order" && i + 1 < args.Length) { emitReadingOrderDir = args[++i]; continue; }
+    if (args[i] == "--emit-form-kv" && i + 1 < args.Length) { emitFormKvDir = args[++i]; continue; }
+    if (args[i] == "--kv-license" && i + 1 < args.Length) { kvLicense = args[++i]; continue; }
+    if (args[i] == "--form-kv-overlay") { emitFormKvOverlay = true; continue; }
+    if (args[i] == "--synth-form-kv" && i + 1 < args.Length) { synthFormKvDir = args[++i]; continue; }
+    if (args[i] == "--synth-variants" && i + 1 < args.Length) { synthVariants = int.Parse(args[++i]); continue; }
+    if (args[i] == "--form-kv-eval") { formKvEval = true; continue; }
+    if (args[i] == "--lilt-model" && i + 1 < args.Length) { liltModelDir = args[++i]; continue; }
+    if (args[i] == "--widget-form-fields") { dumpWidgetFields = true; continue; }
+    if (args[i] == "--emit-form-template" && i + 1 < args.Length) { emitFormTemplate = args[++i]; continue; }
+    if (args[i] == "--match-extract" && i + 2 < args.Length) { matchExtractPdf = args[++i]; matchExtractTemplate = args[++i]; continue; }
+    if (args[i] == "--route" && i + 1 < args.Length) { routePdf = args[++i]; continue; }
+    if (args[i] == "--templates-db" && i + 1 < args.Length) { routeDb = args[++i]; continue; }
+    if (args[i] == "--with-templates") { withTemplates = true; continue; }
+    if (args[i] == "--register" && i + 2 < args.Length) { regBlank = args[++i]; regDb = args[++i]; continue; }
+    if (args[i] == "--list-templates" && i + 1 < args.Length) { listTplDb = args[++i]; continue; }
+    if (args[i] == "--export-template" && i + 3 < args.Length) { exportTpl = new[] { args[++i], args[++i], args[++i] }; continue; }
+    if (args[i] == "--import-template" && i + 2 < args.Length) { importTpl = new[] { args[++i], args[++i] }; continue; }
+    if (args[i] == "--unregister" && i + 2 < args.Length) { unregTpl = new[] { args[++i], args[++i] }; continue; }
     if (args[i] == "--table-backend" && i + 1 < args.Length)
     {
         tableBackend = args[++i].ToLowerInvariant() switch
@@ -76,6 +118,143 @@ for (int i = 0; i < args.Length; i++)
     else outDir = args[i];
 }
 
+// Template ingestion: read a BLANK form PDF, generate a draft FormLayout (widget geometry + auto-paired
+// labels + fingerprint), and write it as editable JSON next to the input for human review of dense blocks.
+if (emitFormTemplate != null)
+{
+    if (!File.Exists(emitFormTemplate))
+    {
+        Console.Error.WriteLine($"--emit-form-template: file not found: {emitFormTemplate}");
+        return 2;
+    }
+    byte[] templateBytes = await File.ReadAllBytesAsync(emitFormTemplate);
+    string templateId = Path.GetFileNameWithoutExtension(emitFormTemplate);
+    var layout = FormLayoutGenerator.Generate(templateBytes, templateId, templateId);
+    string layoutJson = JsonSerializer.Serialize(layout,
+        new JsonSerializerOptions { WriteIndented = true, Converters = { new JsonStringEnumConverter() } });
+    string templateOut = Path.ChangeExtension(emitFormTemplate, ".template.json");
+    await File.WriteAllTextAsync(templateOut, layoutJson);
+    int checkboxes = layout.Elements.Count(e => e.Kind == FormElementKind.Checkbox);
+    Console.WriteLine($"Template draft: {layout.Elements.Count} elements ({checkboxes} checkboxes) " +
+                      $"across {layout.Elements.Select(e => e.Page).DefaultIfEmpty(0).Max()} page(s) → {templateOut}");
+    Console.WriteLine("Review the labels (especially dense checkbox blocks), then bundle/register it.");
+    return 0;
+}
+
+if (matchExtractPdf != null && matchExtractTemplate != null)
+{
+    if (!File.Exists(matchExtractPdf)) { Console.Error.WriteLine($"--match-extract: pdf not found: {matchExtractPdf}"); return 2; }
+    if (!File.Exists(matchExtractTemplate)) { Console.Error.WriteLine($"--match-extract: template not found: {matchExtractTemplate}"); return 2; }
+
+    var jsonOpts = new JsonSerializerOptions { Converters = { new JsonStringEnumConverter() } };
+    var template = JsonSerializer.Deserialize<FormLayout>(await File.ReadAllTextAsync(matchExtractTemplate), jsonOpts)!;
+    byte[] uploadBytes = await File.ReadAllBytesAsync(matchExtractPdf);
+
+    using var probe = UglyToad.PdfPig.PdfDocument.Open(uploadBytes);
+    int pages = probe.NumberOfPages;
+    Console.WriteLine($"Upload: {Path.GetFileName(matchExtractPdf)} ({pages} page(s)) vs template '{template.Name}'");
+
+    int totalFields = 0;
+    for (int pg = 1; pg <= pages; pg++)
+    {
+        var match = FormMatcher.MatchPage(uploadBytes, pg, new[] { template });
+        if (match is null) { Console.WriteLine($"  page {pg}: no template match → DEFAULT pipeline"); continue; }
+
+        var fields = TemplateExtractor.Extract(uploadBytes, pg, match.Template, match.TemplatePage);
+        Console.WriteLine($"  page {pg}: MATCH template page {match.TemplatePage} (score {match.Score:F3}) → {fields.Count} field(s)");
+        foreach (var f in fields.Where(f => f.Kind == FieldKind.Checkbox))
+            Console.WriteLine($"      [X] {f.Value}");
+        foreach (var f in fields.Where(f => f.Kind == FieldKind.Text))
+            Console.WriteLine($"      {f.Name} = {f.Value}");
+        totalFields += fields.Count;
+    }
+    Console.WriteLine($"Total deterministic fields extracted: {totalFields}");
+    return 0;
+}
+
+if (routePdf != null)
+{
+    if (!File.Exists(routePdf)) { Console.Error.WriteLine($"--route: pdf not found: {routePdf}"); return 2; }
+
+    TemplateStore? store = routeDb != null ? new TemplateStore(routeDb) : null;
+    var registry = new TemplateRegistry(store);
+    Console.WriteLine($"Registry: {registry.Bundled.Count} bundled template(s)" +
+                      (store != null ? $" + customer store '{routeDb}' → {registry.All().Count} total" : "") + ".");
+
+    var router = new TemplateRouter(registry);
+    byte[] uploadBytes = await File.ReadAllBytesAsync(routePdf);
+    var routes = router.RouteDocument(uploadBytes);
+
+    int matched = 0, fieldTotal = 0;
+    foreach (var r in routes)
+    {
+        if (r.Matched)
+        {
+            matched++; fieldTotal += r.Fields.Count;
+            Console.WriteLine($"  page {r.Page}: → TEMPLATE '{r.Match!.Template.TemplateId}' " +
+                              $"(score {r.Match.Score:F3}, page {r.Match.TemplatePage}) → {r.Fields.Count} field(s)");
+        }
+        else Console.WriteLine($"  page {r.Page}: → DEFAULT pipeline (no confident match)");
+    }
+    Console.WriteLine($"{matched}/{routes.Count} page(s) template-routed; {fieldTotal} deterministic field(s).");
+    store?.Dispose();
+    return 0;
+}
+
+// ── Customer template library (BYO templates) management ──────────────────────────────
+if (regBlank != null && regDb != null)
+{
+    if (!File.Exists(regBlank)) { Console.Error.WriteLine($"--register: blank pdf not found: {regBlank}"); return 2; }
+    using var lib = new TemplateLibrary(regDb);
+    string id = Path.GetFileNameWithoutExtension(regBlank);
+    var draft = lib.Register(await File.ReadAllBytesAsync(regBlank), id, id);
+    int cb = draft.Elements.Count(e => e.Kind == FormElementKind.Checkbox);
+    Console.WriteLine($"Registered '{id}' → {draft.Elements.Count} elements ({cb} checkboxes) into {regDb}.");
+    Console.WriteLine($"Draft labels are auto-paired. Review them:");
+    Console.WriteLine($"  --export-template {regDb} {id} {id}.review.json   (edit labels)   --import-template {regDb} {id}.review.json");
+    return 0;
+}
+
+if (listTplDb != null)
+{
+    using var lib = new TemplateLibrary(listTplDb);
+    var cust = lib.CustomerTemplates();
+    Console.WriteLine($"Customer templates in {listTplDb}: {cust.Count}");
+    foreach (var t in cust)
+        Console.WriteLine($"  {t.TemplateId,-20} \"{t.Name}\"  {t.Elements.Count} elements  fp={(t.Fingerprint is { Length: >= 8 } f ? f[..8] : "—")}");
+    Console.WriteLine($"(+ {lib.AllTemplates().Count - cust.Count} bundled federal templates also routable)");
+    return 0;
+}
+
+if (exportTpl != null)
+{
+    using var lib = new TemplateLibrary(exportTpl[0]);
+    var t = lib.Get(exportTpl[1]);
+    if (t is null) { Console.Error.WriteLine($"--export-template: '{exportTpl[1]}' not found in {exportTpl[0]}"); return 2; }
+    await File.WriteAllTextAsync(exportTpl[2], TemplateLibrary.ToJson(t));
+    Console.WriteLine($"Exported '{exportTpl[1]}' → {exportTpl[2]}. Edit the labels, then --import-template {exportTpl[0]} {exportTpl[2]}");
+    return 0;
+}
+
+if (importTpl != null)
+{
+    if (!File.Exists(importTpl[1])) { Console.Error.WriteLine($"--import-template: file not found: {importTpl[1]}"); return 2; }
+    using var lib = new TemplateLibrary(importTpl[0]);
+    var reviewed = TemplateLibrary.FromJson(await File.ReadAllTextAsync(importTpl[1]));
+    lib.Update(reviewed);
+    Console.WriteLine($"Imported reviewed template '{reviewed.TemplateId}' into {importTpl[0]}.");
+    return 0;
+}
+
+if (unregTpl != null)
+{
+    using var lib = new TemplateLibrary(unregTpl[0]);
+    Console.WriteLine(lib.Unregister(unregTpl[1])
+        ? $"Unregistered '{unregTpl[1]}' from {unregTpl[0]}."
+        : $"'{unregTpl[1]}' not found in {unregTpl[0]}.");
+    return 0;
+}
+
 if (pdfDir == null || !Directory.Exists(pdfDir))
 {
     Console.Error.WriteLine(
@@ -84,6 +263,12 @@ if (pdfDir == null || !Directory.Exists(pdfDir))
         "[--gate7 <born-digital-dir> [--gate7-pages N]] " +
         "[--gate8 <born-digital-dir> [--gate8-pages N]] " +
         "[--orient-check [--orient-pages N]] [--no-orientation] [--enumerator-order] " +
+        "[--emit-reading-order <dir>] [--emit-form-kv <dir> [--kv-license <tag>] [--form-kv-overlay]] " +
+        "[--synth-form-kv <out-dir> [--kv-license <tag>] [--synth-variants N]] " +
+        "[--emit-form-template <blank.pdf>] [--match-extract <filled.pdf> <template.json>] " +
+        "[--route <upload.pdf> [--templates-db <file>]] " +
+        "[--register <blank.pdf> <db>] [--list-templates <db>] [--export-template <db> <id> <out.json>] " +
+        "[--import-template <db> <reviewed.json>] [--unregister <db> <id>] " +
         "[--table-backend tt|slanet] [--reading-order xycut|xycut++]");
     return 2;
 }
@@ -91,15 +276,36 @@ if (pdfDir == null || !Directory.Exists(pdfDir))
 var pdfs = Directory.GetFiles(pdfDir, "*.pdf").OrderBy(p => p).ToList();
 if (pdfs.Count == 0) { Console.Error.WriteLine($"No PDFs in {pdfDir}."); return 2; }
 
+// Synthetic-fill mode (ADR-0001 Lever 2 value signal): fill blank templates in <pdf-dir> with
+// synthetic values → license-clean form-kv records. Renderer-only; short-circuits before models.
+if (synthFormKvDir != null)
+    return await SyntheticFormFiller.RunAsync(pdfDir, synthFormKvDir, kvLicense, synthVariants, new ProcessingOptions().Dpi)
+        ? 0 : 1;
+
+// LiLT Gate-3 eval (born-digital quick read): score the model's VALUE-word predictions on filled
+// AcroForms against the widget /V regions. Pure PdfPig + LiLT, no rendering — short-circuits the
+// model-loading pipeline below. NOTE: this is a sanity read, not LiLT's production niche (forms with
+// /V are handled exactly by AcroFormFieldExtractor); the flattened/OCR eval is the real Gate-3 test.
+if (formKvEval)
+    return await FormKvEvalRunner.RunAsync(pdfDir, liltModelDir) ? 0 : 1;
+
 Directory.CreateDirectory(outDir);
 // Gate 3 extraction mode wires the composite form-field extractor (AcroForm + the SF-33 geometric
 // profile); every other mode uses the default (AcroForm only).
-IFormFieldExtractor? formExtractor = gate3ExtractCsv != null
-    ? new CompositeFormFieldExtractor(
-        new AcroFormFieldExtractor(),
-        new GeometricFormFieldExtractor(new[] { SampleProfiles.Sf33Solicitation }))
+IFormFieldExtractor? formExtractor =
+    dumpWidgetFields ? new WidgetFormFieldExtractor()
+    : gate3ExtractCsv != null
+        ? new CompositeFormFieldExtractor(
+            new AcroFormFieldExtractor(),
+            new GeometricFormFieldExtractor(new[] { SampleProfiles.Sf33Solicitation }))
+        : null;
+// --with-templates wires the per-page router over the bundled federal templates into the full pipeline,
+// so matched pages get deterministic, label-bound fields + an appended template-field Markdown section.
+IPageTemplateRouter? pipelineRouter = withTemplates
+    ? new TemplateRouter(new TemplateRegistry(routeDb != null ? new TemplateStore(routeDb) : null))
     : null;
-using var processor = FoliantProcessor.CreateDefault(modelsDir, tableBackend, readingOrder, formExtractor);
+using var processor = FoliantProcessor.CreateDefault(modelsDir, tableBackend, readingOrder, formExtractor, pipelineRouter);
+if (withTemplates) Console.WriteLine("Mode: --with-templates (per-page template routing on; bundled federal templates)");
 if (tableBackend != TableBackend.TableTransformer)
     Console.WriteLine($"Table backend: {tableBackend}");
 if (readingOrder != ReadingOrderBackend.XyCutPlusPlus)
@@ -113,7 +319,7 @@ var options = new ProcessingOptions
     TextLayer = ocrOnly ? TextLayerMode.Never : TextLayerMode.Auto,
     DetectOrientation = !noOrientation,
     EnumeratorReadingOrder = enumeratorOrder,
-    ExtractFormFields = gate3ExtractCsv != null,
+    ExtractFormFields = gate3ExtractCsv != null || dumpWidgetFields,
 };
 if (enumeratorOrder) Console.WriteLine("Mode: --enumerator-order (numbered-mosaic reading-order post-pass on)");
 if (ocrOnly) Console.WriteLine("Mode: --ocr-only (text layer disabled for extraction; still used as recall truth)");
@@ -151,6 +357,8 @@ if (gate3Csv != null || gate3ExtractCsv != null || gate5Dir != null || gate6Dir 
 }
 
 var rows = new List<Row>();
+int emitted = 0;   // ADR-0001 reading-order records harvested (when --emit-reading-order is set)
+int kvEmitted = 0; // ADR-0001 Lever 2 form-K-V records harvested (when --emit-form-kv is set)
 var total = System.Diagnostics.Stopwatch.StartNew();
 
 foreach (var pdf in pdfs)
@@ -160,33 +368,60 @@ foreach (var pdf in pdfs)
     Console.WriteLine($"\n{name}");
 
     DocumentResult result;
+    byte[] pdfBytes;
     try
     {
-        result = await processor.ProcessAsync(await File.ReadAllBytesAsync(pdf), options);
+        pdfBytes = await File.ReadAllBytesAsync(pdf);
+        result = await processor.ProcessAsync(pdfBytes, options);
     }
     catch (Exception ex)
     {
         Console.WriteLine($"  ERROR: {ex.Message}");
-        rows.Add(new Row(name, 0, 0, 0, 0, 0, 0, 0, null, true, $"error: {ex.Message}"));
+        rows.Add(new Row(name, 0, 0, 0, 0, 0, 0, 0, null, 0, 0, true, $"error: {ex.Message}"));
         continue;
     }
 
     foreach (var page in result.Pages)
     {
         var v = page.Verification;
-        var (flagged, reason) = Flag(v, page.Notice);
+        // Reading-order fidelity from the SHIPPING pipeline's own per-page Markdown — the axis
+        // recall is blind to (recall is set membership; a permuted page still scores 100%).
+        var (orderAnchors, orderInSeq) = OrderScore.Measure(pdfBytes, page.PageNumber, page.Markdown);
+        double? orderPct = orderAnchors >= 8 ? 100.0 * orderInSeq / orderAnchors : null;
+        var (flagged, reason) = Flag(v, orderPct, page.Notice);
         rows.Add(new Row(name, page.PageNumber, page.Lines.Count, page.Regions.Count,
                          v.Seconds, v.LinesLost, v.TruthWords, v.TruthWordsFound,
-                         v.RecallPercent, flagged, reason));
+                         v.RecallPercent, orderAnchors, orderInSeq, flagged, reason));
 
         await File.WriteAllTextAsync(
             Path.Combine(outDir, $"{stem}_p{page.PageNumber:D3}.md"), page.Markdown);
 
+        // Quality check for the widget+geometry structured-form path: dump each page's recovered
+        // FormFields as "label :: value" so we can eyeball label-pairing accuracy on real forms.
+        if (dumpWidgetFields && page.FormFields is { Count: > 0 })
+        {
+            await File.WriteAllTextAsync(
+                Path.Combine(outDir, $"{stem}_p{page.PageNumber:D3}.fields.txt"),
+                string.Join(Environment.NewLine, page.FormFields.Select(f => $"{f.Name}  ::  {f.Value}")));
+            Console.WriteLine($"  form-fields: {page.FormFields.Count}");
+        }
+
+        // ADR-0001 harvester (opt-in, local-only): emit a reading-order training record from the
+        // page's own text-layer order. License-clean; nothing leaves the machine.
+        if (emitReadingOrderDir != null && ReadingOrderEmitter.Append(emitReadingOrderDir, pdfBytes, name, page))
+            emitted++;
+
+        // ADR-0001 Lever 2 harvester (opt-in, local-only): emit a form-K-V record from the page's
+        // own AcroForm dictionary. License-clean; each record tagged with --kv-license provenance.
+        if (emitFormKvDir != null && FormKvEmitter.Append(emitFormKvDir, kvLicense, pdfBytes, name, page.PageNumber, options.Dpi, emitFormKvOverlay))
+            kvEmitted++;
+
         var recall = v.RecallPercent is { } r ? $"{r:0.0}%" : "n/a (no text layer)";
+        var order = orderPct is { } o ? $"{o:0.0}%" : "n/a";
         var cov = v.LinesLost == 0 ? "OK" : $"LOST {v.LinesLost}";
         var src = page.Source == TextSource.TextLayer ? "layer" : "ocr";
         Console.WriteLine($"  p{page.PageNumber:D3}  {page.Lines.Count,4} lines  {v.Seconds,5:0.0}s  " +
-                          $"src:{src}  cov:{cov}  recall:{recall}{(flagged ? "  ⚑" : "")}");
+                          $"src:{src}  cov:{cov}  recall:{recall}  order:{order}{(flagged ? "  ⚑" : "")}");
     }
 }
 total.Stop();
@@ -196,10 +431,10 @@ var csvPath = Path.Combine(outDir, "scorecard.csv");
 await using (var csv = new StreamWriter(csvPath))
 {
     await csv.WriteLineAsync(
-        "pdf,page,lines,regions,seconds,coverage_missing,truth_words,truth_found,recall_pct,flagged,reason");
+        "pdf,page,lines,regions,seconds,coverage_missing,truth_words,truth_found,recall_pct,order_anchors,order_pct,flagged,reason");
     foreach (var s in rows)
         await csv.WriteLineAsync(string.Create(CultureInfo.InvariantCulture,
-            $"\"{s.Pdf}\",{s.Page},{s.Lines},{s.Regions},{s.Seconds:0.0},{s.Lost},{s.TruthWords},{s.TruthFound},{(s.Recall.HasValue ? s.Recall.Value.ToString("0.0", CultureInfo.InvariantCulture) : "")},{s.Flagged},\"{s.Reason}\""));
+            $"\"{s.Pdf}\",{s.Page},{s.Lines},{s.Regions},{s.Seconds:0.0},{s.Lost},{s.TruthWords},{s.TruthFound},{(s.Recall.HasValue ? s.Recall.Value.ToString("0.0", CultureInfo.InvariantCulture) : "")},{s.OrderAnchors},{(s.OrderPct.HasValue ? s.OrderPct.Value.ToString("0.0", CultureInfo.InvariantCulture) : "")},{s.Flagged},\"{s.Reason}\""));
 }
 
 // ── Summary + gates ──────────────────────────────────────────────────────────
@@ -215,10 +450,22 @@ Console.WriteLine($"pages: {rows.Count}   time: {total.Elapsed.TotalMinutes:0.0}
 if (scored.Count > 0)
     Console.WriteLine($"recall: avg {avgRecall:0.0}%   min {scored.Min(s => s.Recall!.Value):0.0}%   " +
                       $"pages ≥95%: {scored.Count(s => s.Recall >= 95)}/{scored.Count} ({pct95:0.0}%)");
+var orderedRows = rows.Where(s => s.OrderPct.HasValue).ToList();
+if (orderedRows.Count > 0)
+    Console.WriteLine($"order:  avg {orderedRows.Average(s => s.OrderPct!.Value):0.0}%   " +
+                      $"min {orderedRows.Min(s => s.OrderPct!.Value):0.0}%   " +
+                      $"pages ≥{OrderScore.FlagThreshold:0}%: " +
+                      $"{orderedRows.Count(s => s.OrderPct >= OrderScore.FlagThreshold)}/{orderedRows.Count}");
 Console.WriteLine($"flagged for review: {flaggedRows.Count}/{rows.Count}");
 foreach (var f in flaggedRows.Take(30))
     Console.WriteLine($"  {f.Pdf} p{f.Page}: {f.Reason}");
 Console.WriteLine($"scorecard → {csvPath}");
+if (emitReadingOrderDir != null)
+    Console.WriteLine($"reading-order records harvested (local-only): {emitted} → " +
+                      $"{Path.Combine(emitReadingOrderDir, "reading-order.jsonl")}");
+if (emitFormKvDir != null)
+    Console.WriteLine($"form-K-V records harvested (local-only, license={kvLicense}): {kvEmitted} → " +
+                      $"{Path.Combine(emitFormKvDir, "form-kv.jsonl")}");
 
 bool gate1 = avgRecall >= 98.0 && pct95 >= 98.0;
 bool gate2 = totalLost == 0;
@@ -228,15 +475,86 @@ Console.WriteLine($"Gate 2 zero text loss  : {(gate2 ? "PASS" : "FAIL")}  ({tota
 
 return gate1 && gate2 ? 0 : 1;
 
-static (bool Flagged, string Reason) Flag(PageVerification v, string? notice = null)
+static (bool Flagged, string Reason) Flag(PageVerification v, double? orderPct, string? notice = null)
 {
     if (notice != null) return (true, notice);
     if (v.LinesLost > 0) return (true, $"{v.LinesLost} lines lost");
     if (v.TruthWords == 0) return (true, "no text layer (needs eyeball)");
     if (v.RecallPercent < 95.0) return (true, $"recall {v.RecallPercent:0.0}%");
+    if (orderPct < OrderScore.FlagThreshold) return (true, $"reading-order {orderPct:0.0}% (scramble)");
     return (false, "");
 }
 
 internal sealed record Row(
     string Pdf, int Page, int Lines, int Regions, double Seconds,
-    int Lost, int TruthWords, int TruthFound, double? Recall, bool Flagged, string Reason);
+    int Lost, int TruthWords, int TruthFound, double? Recall,
+    int OrderAnchors, int OrderInSeq, bool Flagged, string Reason)
+{
+    /// <summary>Reading-order fidelity; null when too few anchor words to judge (sparse/tabular page).</summary>
+    public double? OrderPct => OrderAnchors >= 8 ? 100.0 * OrderInSeq / OrderAnchors : null;
+}
+
+/// <summary>
+/// Reading-order fidelity scored against the PDF's own text layer — the axis word-recall is blind
+/// to (recall is set membership; a permuted page still scores 100%). PdfPig returns the page's
+/// text-layer words in reading order; using only words that occur exactly once (clean position
+/// anchors), we read off the pipeline output's anchor words in output order and measure the longest
+/// run kept in increasing truth position (a longest-increasing-subsequence, O(n log n)). A page that
+/// keeps every word but permutes it — the box-grid scramble — scores ~100% recall yet a low order
+/// fraction. Same metric as the spike harness, but computed from the SHIPPING pipeline's per-page
+/// Markdown, so the gate is a property of the library rather than a parallel re-implementation.
+/// </summary>
+internal static class OrderScore
+{
+    // Pages reading below this fidelity are flagged for review even at perfect recall.
+    public const double FlagThreshold = 90.0;
+
+    public static (int Anchors, int InSequence) Measure(byte[] pdfBytes, int pageNumber, string output)
+    {
+        try
+        {
+            using var doc = UglyToad.PdfPig.PdfDocument.Open(pdfBytes);
+            if (pageNumber < 1 || pageNumber > doc.NumberOfPages) return (0, 0);
+            var truth = doc.GetPage(pageNumber).GetWords()
+                .Select(w => Normalize(w.Text)).Where(t => t.Length >= 4).ToList();
+            if (truth.Count == 0) return (0, 0);
+
+            // Keep only words unique in the text layer → each is an unambiguous position anchor.
+            var counts = new Dictionary<string, int>();
+            foreach (var t in truth) counts[t] = counts.GetValueOrDefault(t) + 1;
+            var truthPos = new Dictionary<string, int>();
+            for (int i = 0; i < truth.Count; i++)
+                if (counts[truth[i]] == 1) truthPos[truth[i]] = i;
+            if (truthPos.Count < 8) return (0, 0);
+
+            // Output anchors, in output order, mapped to their truth positions.
+            var seq = new List<int>();
+            var seen = new HashSet<string>();
+            foreach (var w in output.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries))
+            {
+                var n = Normalize(w);
+                if (n.Length >= 4 && seen.Add(n) && truthPos.TryGetValue(n, out var idx))
+                    seq.Add(idx);
+            }
+            if (seq.Count < 8) return (0, 0);
+            return (seq.Count, Lis(seq));
+        }
+        catch { return (0, 0); }
+    }
+
+    /// <summary>Length of the longest strictly-increasing subsequence (patience sorting, O(n log n)).</summary>
+    private static int Lis(List<int> a)
+    {
+        var tails = new List<int>(a.Count);
+        foreach (var x in a)
+        {
+            int lo = 0, hi = tails.Count;
+            while (lo < hi) { int mid = (lo + hi) >> 1; if (tails[mid] < x) lo = mid + 1; else hi = mid; }
+            if (lo == tails.Count) tails.Add(x); else tails[lo] = x;
+        }
+        return tails.Count;
+    }
+
+    private static string Normalize(string s) =>
+        new string(s.Where(char.IsLetterOrDigit).ToArray()).ToUpperInvariant();
+}

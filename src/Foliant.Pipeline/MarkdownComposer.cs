@@ -26,7 +26,7 @@ internal sealed class MarkdownComposer
 
     public ComposedPage Compose(
         PageImage page, IReadOnlyList<LayoutRegion> rawRegions, IReadOnlyList<TextLine> lines,
-        bool enumeratorReadingOrder = false)
+        bool enumeratorReadingOrder = false, bool federalFormTables = false)
     {
         var ordered = _readingOrder.Order(XyCutReadingOrder.SuppressDuplicates(rawRegions));
         var furniture = new List<TextLine>();
@@ -85,7 +85,11 @@ internal sealed class MarkdownComposer
                     if (TableGridFits(extraction, regionLines))
                     {
                         table = extraction.Structure;
-                        md = RenderTable(extraction);
+                        // Federal forms get the schedule-aware renderer (splits collapsed multi-row
+                        // tables); every other document uses the unchanged default. Fully form-scoped.
+                        md = federalFormTables
+                            ? FederalFormTableRenderer.Render(extraction, regionLines)
+                            : RenderTable(extraction);
                     }
                     else
                     {

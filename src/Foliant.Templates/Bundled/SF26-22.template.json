@@ -1,0 +1,1281 @@
+{
+  "TemplateId": "SF26-22",
+  "Name": "SF26-22",
+  "Elements": [
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.6507173,
+        "Y1": 0.2537942,
+        "X2": 0.96447384,
+        "Y2": 0.30075884,
+        "CenterX": 0.8075956,
+        "CenterY": 0.27727652
+      },
+      "Label": "9. DISCOUNT FOR PROMPT PAYMENT",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.035526145,
+        "Y1": 0.36453158,
+        "X2": 0.49103266,
+        "Y2": 0.40998614,
+        "CenterX": 0.2632794,
+        "CenterY": 0.38725886
+      },
+      "Label": "CODE",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.037980393,
+        "Y1": 0.08808205,
+        "X2": 0.37612253,
+        "Y2": 0.10418817,
+        "CenterX": 0.20705146,
+        "CenterY": 0.09613511
+      },
+      "Label": "2. CONTRACT (Procurement, Instruction, Identification) NUMBER 3. EFFECTIVE DATE",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.6960637,
+        "Y1": 0.05869694,
+        "X2": 0.8320997,
+        "Y2": 0.074803054,
+        "CenterX": 0.7640817,
+        "CenterY": 0.06675
+      },
+      "Label": "at 15 CFR 700.",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.83825815,
+        "Y1": 0.05966418,
+        "X2": 0.8860588,
+        "Y2": 0.075770214,
+        "CenterX": 0.8621585,
+        "CenterY": 0.067717195
+      },
+      "Label": "at 15 CFR 700.",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.9081062,
+        "Y1": 0.05966418,
+        "X2": 0.96692973,
+        "Y2": 0.075770214,
+        "CenterX": 0.937518,
+        "CenterY": 0.067717195
+      },
+      "Label": "at 15 CFR 700.",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.57841665,
+        "Y1": 0.08901261,
+        "X2": 0.96076965,
+        "Y2": 0.10511872,
+        "CenterX": 0.7695931,
+        "CenterY": 0.097065665
+      },
+      "Label": "4. REQUISITION/PURCHASE REQUEST/PROJECT NUMBER",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.3358039,
+        "Y1": 0.10794568,
+        "X2": 0.48897713,
+        "Y2": 0.12122476,
+        "CenterX": 0.41239053,
+        "CenterY": 0.11458522
+      },
+      "Label": "CODE",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.83825815,
+        "Y1": 0.107015125,
+        "X2": 0.95956373,
+        "Y2": 0.12122476,
+        "CenterX": 0.89891094,
+        "CenterY": 0.11411995
+      },
+      "Label": "CODE",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.49754572,
+        "Y1": 0.12180683,
+        "X2": 0.9656797,
+        "Y2": 0.19625886,
+        "CenterX": 0.7316127,
+        "CenterY": 0.15903285
+      },
+      "Label": "7. NAME AND ADDRESS OF CONTRACTOR (Number, Street, County, State and ZIP Code)",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.04043464,
+        "Y1": 0.12180683,
+        "X2": 0.4877255,
+        "Y2": 0.19625886,
+        "CenterX": 0.26408008,
+        "CenterY": 0.15903285
+      },
+      "Label": "CODE",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.036776144,
+        "Y1": 0.21030812,
+        "X2": 0.6409444,
+        "Y2": 0.33242676,
+        "CenterX": 0.33886027,
+        "CenterY": 0.27136743
+      },
+      "Label": "CODE",
+      "Group": null
+    },
+    {
+      "Kind": "Checkbox",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.6662451,
+        "Y1": 0.22318561,
+        "X2": 0.682585,
+        "Y2": 0.23581187,
+        "CenterX": 0.67441505,
+        "CenterY": 0.22949874
+      },
+      "Label": "9. DELIVERY \u2014 FOB ORIGIN",
+      "Group": "9"
+    },
+    {
+      "Kind": "Checkbox",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.8180278,
+        "Y1": 0.22318561,
+        "X2": 0.83436763,
+        "Y2": 0.23581187,
+        "CenterX": 0.82619774,
+        "CenterY": 0.22949874
+      },
+      "Label": "9. DELIVERY \u2014 FOB OTHER",
+      "Group": "9"
+    },
+    {
+      "Kind": "Checkbox",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.52905226,
+        "Y1": 0.7613889,
+        "X2": 0.54539216,
+        "Y2": 0.7740152,
+        "CenterX": 0.5372222,
+        "CenterY": 0.76770204
+      },
+      "Label": "SEALED-BID AWARD (CONTRACTOR DOES NOT SIGN)",
+      "Group": null
+    },
+    {
+      "Kind": "Checkbox",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.06828268,
+        "Y1": 0.7614255,
+        "X2": 0.084622554,
+        "Y2": 0.7740518,
+        "CenterX": 0.07645261,
+        "CenterY": 0.76773864
+      },
+      "Label": "CONTRACTOR'S NEGOTIATED AGREEMENT (CONTRACTOR SIGNS)",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.22417812,
+        "Y1": 0.76990026,
+        "X2": 0.3077451,
+        "Y2": 0.7860063,
+        "CenterX": 0.26596162,
+        "CenterY": 0.77795327
+      },
+      "Label": "sign this document and return",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.6915425,
+        "Y1": 0.7733927,
+        "X2": 0.9632614,
+        "Y2": 0.78931946,
+        "CenterX": 0.827402,
+        "CenterY": 0.7813561
+      },
+      "Label": "Your bid on Solicitation Number",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.037240196,
+        "Y1": 0.87535733,
+        "X2": 0.4901912,
+        "Y2": 0.8985896,
+        "CenterX": 0.26371568,
+        "CenterY": 0.8869735
+      },
+      "Label": "19A. NAME AND TITLE OF SIGNER (Type or print)",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.4968415,
+        "Y1": 0.87535733,
+        "X2": 0.964085,
+        "Y2": 0.8985896,
+        "CenterX": 0.73046327,
+        "CenterY": 0.8869735
+      },
+      "Label": "20A. NAME OF CONTRACTING OFFICER",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.369616,
+        "Y1": 0.92839265,
+        "X2": 0.48110294,
+        "Y2": 0.94163513,
+        "CenterX": 0.4253595,
+        "CenterY": 0.9350139
+      },
+      "Label": "(Signature of person authorized to sign)",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.8294215,
+        "Y1": 0.92764896,
+        "X2": 0.9409085,
+        "Y2": 0.9408914,
+        "CenterX": 0.885165,
+        "CenterY": 0.93427014
+      },
+      "Label": "(Signature of Contracting Officer)",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.83825815,
+        "Y1": 0.31063002,
+        "X2": 0.96201956,
+        "Y2": 0.34699365,
+        "CenterX": 0.90013885,
+        "CenterY": 0.32881182
+      },
+      "Label": "otherwise specified)",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.3664199,
+        "Y1": 0.34942675,
+        "X2": 0.49018136,
+        "Y2": 0.36363637,
+        "CenterX": 0.42830062,
+        "CenterY": 0.35653156
+      },
+      "Label": "CODE",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.83700824,
+        "Y1": 0.35039398,
+        "X2": 0.96447384,
+        "Y2": 0.36363637,
+        "CenterX": 0.90074104,
+        "CenterY": 0.3570152
+      },
+      "Label": "CODE",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.49754572,
+        "Y1": 0.36453158,
+        "X2": 0.96076965,
+        "Y2": 0.40998614,
+        "CenterX": 0.7291577,
+        "CenterY": 0.38725886
+      },
+      "Label": "CODE",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.49754572,
+        "Y1": 0.42236996,
+        "X2": 0.96201956,
+        "Y2": 0.4536149,
+        "CenterX": 0.72978264,
+        "CenterY": 0.43799242
+      },
+      "Label": ")",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.035549022,
+        "Y1": 0.47048357,
+        "X2": 0.17599346,
+        "Y2": 0.48658964,
+        "CenterX": 0.10577124,
+        "CenterY": 0.4785366
+      },
+      "Label": "15A. ITEM NUMBER",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.035549022,
+        "Y1": 0.489452,
+        "X2": 0.17599346,
+        "Y2": 0.5055581,
+        "CenterX": 0.10577124,
+        "CenterY": 0.49750504
+      },
+      "Label": "15A. ITEM NUMBER",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.035549022,
+        "Y1": 0.50747347,
+        "X2": 0.17599346,
+        "Y2": 0.52357954,
+        "CenterX": 0.10577124,
+        "CenterY": 0.51552653
+      },
+      "Label": "15A. ITEM NUMBER",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.035549022,
+        "Y1": 0.5264066,
+        "X2": 0.17599346,
+        "Y2": 0.54251266,
+        "CenterX": 0.10577124,
+        "CenterY": 0.5344596
+      },
+      "Label": "15A. ITEM NUMBER",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.035549022,
+        "Y1": 0.54457825,
+        "X2": 0.17599346,
+        "Y2": 0.5606844,
+        "CenterX": 0.10577124,
+        "CenterY": 0.5526313
+      },
+      "Label": "15A. ITEM NUMBER",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.8530343,
+        "Y1": 0.47048357,
+        "X2": 0.9489771,
+        "Y2": 0.48658964,
+        "CenterX": 0.90100574,
+        "CenterY": 0.4785366
+      },
+      "Label": "15D. UNIT 15E. UNIT PRICE 15F. AMOUNT",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.8530343,
+        "Y1": 0.489452,
+        "X2": 0.9489771,
+        "Y2": 0.5055581,
+        "CenterX": 0.90100574,
+        "CenterY": 0.49750504
+      },
+      "Label": "15D. UNIT 15E. UNIT PRICE 15F. AMOUNT",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.8530343,
+        "Y1": 0.50747347,
+        "X2": 0.9489771,
+        "Y2": 0.52357954,
+        "CenterX": 0.90100574,
+        "CenterY": 0.51552653
+      },
+      "Label": "15D. UNIT 15E. UNIT PRICE 15F. AMOUNT",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.8530343,
+        "Y1": 0.5264066,
+        "X2": 0.9489771,
+        "Y2": 0.54251266,
+        "CenterX": 0.90100574,
+        "CenterY": 0.5344596
+      },
+      "Label": "15D. UNIT 15E. UNIT PRICE 15F. AMOUNT",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.8530343,
+        "Y1": 0.5447096,
+        "X2": 0.9489771,
+        "Y2": 0.56081563,
+        "CenterX": 0.90100574,
+        "CenterY": 0.5527626
+      },
+      "Label": "15D. UNIT 15E. UNIT PRICE 15F. AMOUNT",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.18131535,
+        "Y1": 0.47048357,
+        "X2": 0.4899853,
+        "Y2": 0.48658964,
+        "CenterX": 0.33565032,
+        "CenterY": 0.4785366
+      },
+      "Label": "15B. SUPPLIES/SERVICES",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.18131535,
+        "Y1": 0.489452,
+        "X2": 0.4899853,
+        "Y2": 0.5055581,
+        "CenterX": 0.33565032,
+        "CenterY": 0.49750504
+      },
+      "Label": "15B. SUPPLIES/SERVICES",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.18131535,
+        "Y1": 0.50747347,
+        "X2": 0.4899853,
+        "Y2": 0.52357954,
+        "CenterX": 0.33565032,
+        "CenterY": 0.51552653
+      },
+      "Label": "15B. SUPPLIES/SERVICES",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.18131535,
+        "Y1": 0.5264066,
+        "X2": 0.4899853,
+        "Y2": 0.54251266,
+        "CenterX": 0.33565032,
+        "CenterY": 0.5344596
+      },
+      "Label": "15B. SUPPLIES/SERVICES",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.73336273,
+        "Y1": 0.47048357,
+        "X2": 0.8293056,
+        "Y2": 0.48658964,
+        "CenterX": 0.78133416,
+        "CenterY": 0.4785366
+      },
+      "Label": "15D. UNIT 15E. UNIT PRICE 15F. AMOUNT",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.73336273,
+        "Y1": 0.489452,
+        "X2": 0.8293056,
+        "Y2": 0.5055581,
+        "CenterX": 0.78133416,
+        "CenterY": 0.49750504
+      },
+      "Label": "15D. UNIT 15E. UNIT PRICE 15F. AMOUNT",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.73336273,
+        "Y1": 0.50747347,
+        "X2": 0.8293056,
+        "Y2": 0.52357954,
+        "CenterX": 0.78133416,
+        "CenterY": 0.51552653
+      },
+      "Label": "15D. UNIT 15E. UNIT PRICE 15F. AMOUNT",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.73336273,
+        "Y1": 0.5264066,
+        "X2": 0.8293056,
+        "Y2": 0.54251266,
+        "CenterX": 0.78133416,
+        "CenterY": 0.5344596
+      },
+      "Label": "15D. UNIT 15E. UNIT PRICE 15F. AMOUNT",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.73336273,
+        "Y1": 0.54457825,
+        "X2": 0.8293056,
+        "Y2": 0.5606844,
+        "CenterX": 0.78133416,
+        "CenterY": 0.5526313
+      },
+      "Label": "15D. UNIT 15E. UNIT PRICE 15F. AMOUNT",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.64349675,
+        "Y1": 0.47048357,
+        "X2": 0.7108104,
+        "Y2": 0.48658964,
+        "CenterX": 0.6771536,
+        "CenterY": 0.4785366
+      },
+      "Label": "15D. UNIT 15E. UNIT PRICE 15F. AMOUNT",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.64349675,
+        "Y1": 0.489452,
+        "X2": 0.7108104,
+        "Y2": 0.5055581,
+        "CenterX": 0.6771536,
+        "CenterY": 0.49750504
+      },
+      "Label": "15D. UNIT 15E. UNIT PRICE 15F. AMOUNT",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.64349675,
+        "Y1": 0.50747347,
+        "X2": 0.7108104,
+        "Y2": 0.52357954,
+        "CenterX": 0.6771536,
+        "CenterY": 0.51552653
+      },
+      "Label": "15D. UNIT 15E. UNIT PRICE 15F. AMOUNT",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.64349675,
+        "Y1": 0.5264066,
+        "X2": 0.7108104,
+        "Y2": 0.54251266,
+        "CenterX": 0.6771536,
+        "CenterY": 0.5344596
+      },
+      "Label": "15D. UNIT 15E. UNIT PRICE 15F. AMOUNT",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.64349675,
+        "Y1": 0.54457825,
+        "X2": 0.7108104,
+        "Y2": 0.5606844,
+        "CenterX": 0.6771536,
+        "CenterY": 0.5526313
+      },
+      "Label": "15D. UNIT 15E. UNIT PRICE 15F. AMOUNT",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.4378562,
+        "Y1": 0.6218321,
+        "X2": 0.48852777,
+        "Y2": 0.637298,
+        "CenterX": 0.463192,
+        "CenterY": 0.629565
+      },
+      "Label": "SOLICITATION/CONTRACT FORM",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.4378562,
+        "Y1": 0.6367639,
+        "X2": 0.48852777,
+        "Y2": 0.65222985,
+        "CenterX": 0.463192,
+        "CenterY": 0.64449686
+      },
+      "Label": "SUPPLIES OR SERVICES AND PRICES/COSTS",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.4378562,
+        "Y1": 0.6522083,
+        "X2": 0.48852777,
+        "Y2": 0.6676742,
+        "CenterX": 0.463192,
+        "CenterY": 0.65994126
+      },
+      "Label": "DESCRIPTION/SPECIFICATIONS/WORK STATEMENT",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.4378562,
+        "Y1": 0.66733336,
+        "X2": 0.48852777,
+        "Y2": 0.6827992,
+        "CenterX": 0.463192,
+        "CenterY": 0.6750663
+      },
+      "Label": "PACKAGING AND MARKING",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.4378562,
+        "Y1": 0.68308204,
+        "X2": 0.48852777,
+        "Y2": 0.69854796,
+        "CenterX": 0.463192,
+        "CenterY": 0.690815
+      },
+      "Label": "INSPECTION AND ACCEPTANCE",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.4378562,
+        "Y1": 0.69823235,
+        "X2": 0.48852777,
+        "Y2": 0.71369827,
+        "CenterX": 0.463192,
+        "CenterY": 0.7059653
+      },
+      "Label": "DELIVERIES OR PERFORMANCE",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.4378562,
+        "Y1": 0.71338636,
+        "X2": 0.48852777,
+        "Y2": 0.7288523,
+        "CenterX": 0.463192,
+        "CenterY": 0.7211193
+      },
+      "Label": "CONTRACT ADMINISTRATION DATA",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.4378562,
+        "Y1": 0.7285391,
+        "X2": 0.48852777,
+        "Y2": 0.7440051,
+        "CenterX": 0.463192,
+        "CenterY": 0.7362721
+      },
+      "Label": "SPECIAL CONTRACT REQUIREMENTS",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.91425157,
+        "Y1": 0.6218321,
+        "X2": 0.96492326,
+        "Y2": 0.6372942,
+        "CenterX": 0.9395874,
+        "CenterY": 0.6295631
+      },
+      "Label": "CONTRACT CLAUSES",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.9142467,
+        "Y1": 0.6522083,
+        "X2": 0.9649184,
+        "Y2": 0.6657121,
+        "CenterX": 0.9395825,
+        "CenterY": 0.6589602
+      },
+      "Label": "LIST OF ATTACHMENTS",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.9142467,
+        "Y1": 0.69129163,
+        "X2": 0.9649184,
+        "Y2": 0.70739776,
+        "CenterX": 0.9395825,
+        "CenterY": 0.6993447
+      },
+      "Label": "REPRESENTATIONS, CERTIFICATIONS AND OTHER",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.9142467,
+        "Y1": 0.7127879,
+        "X2": 0.9649184,
+        "Y2": 0.7263422,
+        "CenterX": 0.9395825,
+        "CenterY": 0.71956503
+      },
+      "Label": "INSTRUCTIONS, CONDITIONS, AND NOTICES TO OFFERORS",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.9142467,
+        "Y1": 0.72727275,
+        "X2": 0.9649184,
+        "Y2": 0.74337876,
+        "CenterX": 0.9395825,
+        "CenterY": 0.73532575
+      },
+      "Label": "EVALUATION FACTORS FOR AWARD",
+      "Group": null
+    },
+    {
+      "Kind": "Checkbox",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.5000572,
+        "Y1": 0.6231035,
+        "X2": 0.51639706,
+        "Y2": 0.6357298,
+        "CenterX": 0.5082271,
+        "CenterY": 0.62941664
+      },
+      "Label": "SEC I \u2014 CONTRACT CLAUSES",
+      "Group": "UCF-section"
+    },
+    {
+      "Kind": "Checkbox",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.5000572,
+        "Y1": 0.65345454,
+        "X2": 0.51639706,
+        "Y2": 0.66608083,
+        "CenterX": 0.5082271,
+        "CenterY": 0.6597677
+      },
+      "Label": "SEC J \u2014 LIST OF ATTACHMENTS",
+      "Group": "UCF-section"
+    },
+    {
+      "Kind": "Checkbox",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.5000572,
+        "Y1": 0.68850756,
+        "X2": 0.51639706,
+        "Y2": 0.7011338,
+        "CenterX": 0.5082271,
+        "CenterY": 0.69482064
+      },
+      "Label": "SEC K \u2014 REPRESENTATIONS & CERTIFICATIONS",
+      "Group": "UCF-section"
+    },
+    {
+      "Kind": "Checkbox",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.5000572,
+        "Y1": 0.7136793,
+        "X2": 0.51639706,
+        "Y2": 0.72630554,
+        "CenterX": 0.5082271,
+        "CenterY": 0.7199924
+      },
+      "Label": "SEC L \u2014 INSTRUCTIONS, CONDITIONS & NOTICES",
+      "Group": "UCF-section"
+    },
+    {
+      "Kind": "Checkbox",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.5000572,
+        "Y1": 0.72882956,
+        "X2": 0.51639706,
+        "Y2": 0.74145585,
+        "CenterX": 0.5082271,
+        "CenterY": 0.7351427
+      },
+      "Label": "SEC M \u2014 EVALUATION FACTORS FOR AWARD",
+      "Group": "UCF-section"
+    },
+    {
+      "Kind": "Checkbox",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.04540196,
+        "Y1": 0.6231035,
+        "X2": 0.06174183,
+        "Y2": 0.6357298,
+        "CenterX": 0.053571895,
+        "CenterY": 0.62941664
+      },
+      "Label": "SEC A \u2014 SOLICITATION/CONTRACT FORM",
+      "Group": "UCF-section"
+    },
+    {
+      "Kind": "Checkbox",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.04540196,
+        "Y1": 0.63799244,
+        "X2": 0.06174183,
+        "Y2": 0.65061873,
+        "CenterX": 0.053571895,
+        "CenterY": 0.6443056
+      },
+      "Label": "SEC B \u2014 SUPPLIES OR SERVICES AND PRICES/COSTS",
+      "Group": "UCF-section"
+    },
+    {
+      "Kind": "Checkbox",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.04540196,
+        "Y1": 0.65345454,
+        "X2": 0.06174183,
+        "Y2": 0.66608083,
+        "CenterX": 0.053571895,
+        "CenterY": 0.6597677
+      },
+      "Label": "SEC C \u2014 DESCRIPTION/SPECS/WORK STATEMENT",
+      "Group": "UCF-section"
+    },
+    {
+      "Kind": "Checkbox",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.04540196,
+        "Y1": 0.66855806,
+        "X2": 0.06174183,
+        "Y2": 0.68118435,
+        "CenterX": 0.053571895,
+        "CenterY": 0.6748712
+      },
+      "Label": "SEC D \u2014 PACKAGING AND MARKING",
+      "Group": "UCF-section"
+    },
+    {
+      "Kind": "Checkbox",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.04540196,
+        "Y1": 0.6837121,
+        "X2": 0.06174183,
+        "Y2": 0.69633836,
+        "CenterX": 0.053571895,
+        "CenterY": 0.6900252
+      },
+      "Label": "SEC E \u2014 INSPECTION AND ACCEPTANCE",
+      "Group": "UCF-section"
+    },
+    {
+      "Kind": "Checkbox",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.04540196,
+        "Y1": 0.69857574,
+        "X2": 0.06174183,
+        "Y2": 0.71120197,
+        "CenterX": 0.053571895,
+        "CenterY": 0.7048888
+      },
+      "Label": "SEC F \u2014 DELIVERIES OR PERFORMANCE",
+      "Group": "UCF-section"
+    },
+    {
+      "Kind": "Checkbox",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.04540196,
+        "Y1": 0.7136793,
+        "X2": 0.06174183,
+        "Y2": 0.72630554,
+        "CenterX": 0.053571895,
+        "CenterY": 0.7199924
+      },
+      "Label": "SEC G \u2014 CONTRACT ADMINISTRATION DATA",
+      "Group": "UCF-section"
+    },
+    {
+      "Kind": "Checkbox",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.04540196,
+        "Y1": 0.72882956,
+        "X2": 0.06174183,
+        "Y2": 0.74145585,
+        "CenterX": 0.053571895,
+        "CenterY": 0.7351427
+      },
+      "Label": "SEC H \u2014 SPECIAL CONTRACT REQUIREMENTS",
+      "Group": "UCF-section"
+    },
+    {
+      "Kind": "Checkbox",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.2736193,
+        "Y1": 0.43545833,
+        "X2": 0.28995916,
+        "Y2": 0.4480846,
+        "CenterX": 0.28178924,
+        "CenterY": 0.44177145
+      },
+      "Label": "41 U.S.C. 3304(a)(",
+      "Group": null
+    },
+    {
+      "Kind": "Checkbox",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.04286928,
+        "Y1": 0.43545833,
+        "X2": 0.05920915,
+        "Y2": 0.4480846,
+        "CenterX": 0.051039215,
+        "CenterY": 0.44177145
+      },
+      "Label": "10 U.S.C. 3204(a)(",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.8578513,
+        "Y1": 0.56177527,
+        "X2": 0.95195913,
+        "Y2": 0.57598484,
+        "CenterX": 0.9049052,
+        "CenterY": 0.5688801
+      },
+      "Label": "$",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.07230229,
+        "Y1": 0.33332202,
+        "X2": 0.33700815,
+        "Y2": 0.34942803,
+        "CenterX": 0.20465522,
+        "CenterY": 0.34137502
+      },
+      "Label": "CODE",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.44117647,
+        "Y1": 0.3333573,
+        "X2": 0.6421487,
+        "Y2": 0.3494634,
+        "CenterX": 0.5416626,
+        "CenterY": 0.34141034
+      },
+      "Label": "FACILITY CODE",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.3821961,
+        "Y1": 0.08808205,
+        "X2": 0.56005234,
+        "Y2": 0.10418817,
+        "CenterX": 0.47112423,
+        "CenterY": 0.09613511
+      },
+      "Label": "2. CONTRACT (Procurement, Instruction, Identification) NUMBER 3. EFFECTIVE DATE",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.53245425,
+        "Y1": 0.47048357,
+        "X2": 0.6048497,
+        "Y2": 0.48658964,
+        "CenterX": 0.568652,
+        "CenterY": 0.4785366
+      },
+      "Label": "15C. QUANTITY",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.53245425,
+        "Y1": 0.489452,
+        "X2": 0.6048497,
+        "Y2": 0.5055581,
+        "CenterX": 0.568652,
+        "CenterY": 0.49750504
+      },
+      "Label": "15C. QUANTITY",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.53245425,
+        "Y1": 0.50747347,
+        "X2": 0.6048497,
+        "Y2": 0.52357954,
+        "CenterX": 0.568652,
+        "CenterY": 0.51552653
+      },
+      "Label": "15C. QUANTITY",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.53245425,
+        "Y1": 0.5264066,
+        "X2": 0.6048497,
+        "Y2": 0.54251266,
+        "CenterX": 0.568652,
+        "CenterY": 0.5344596
+      },
+      "Label": "15C. QUANTITY",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.53245425,
+        "Y1": 0.5446995,
+        "X2": 0.6048497,
+        "Y2": 0.56080556,
+        "CenterX": 0.568652,
+        "CenterY": 0.5527525
+      },
+      "Label": "15C. QUANTITY",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.1816389,
+        "Y1": 0.54457825,
+        "X2": 0.49030882,
+        "Y2": 0.5606844,
+        "CenterX": 0.33597386,
+        "CenterY": 0.5526313
+      },
+      "Label": "15B. SUPPLIES/SERVICES",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.16135783,
+        "Y1": 0.43358967,
+        "X2": 0.1797451,
+        "Y2": 0.4499533,
+        "CenterX": 0.17055146,
+        "CenterY": 0.44177148
+      },
+      "Label": "10 U.S.C. 3204(a)(",
+      "Group": null
+    },
+    {
+      "Kind": "Text",
+      "Page": 1,
+      "Rect": {
+        "X1": 0.3977369,
+        "Y1": 0.43358967,
+        "X2": 0.4161242,
+        "Y2": 0.4499533,
+        "CenterX": 0.40693057,
+        "CenterY": 0.44177148
+      },
+      "Label": "41 U.S.C. 3304(a)(",
+      "Group": null
+    }
+  ],
+  "Fingerprint": "4c5669f0375166c5b9966deaacc2a0e71ca3fe63003fe433d577dee4caa3a997"
+}
