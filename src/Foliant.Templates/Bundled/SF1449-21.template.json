@@ -13,7 +13,7 @@
         "CenterX": 0.69740766,
         "CenterY": 0.06657009
       },
-      "Label": "NOTE: OFFEROR TO COMPLETE BLOCKS 12, 17, 23, 24, AND 30.",
+      "Label": "1. REQUISITION NUMBER",
       "Group": null
     },
     {
@@ -97,7 +97,7 @@
         "CenterX": 0.6966495,
         "CenterY": 0.16479293
       },
-      "Label": "calls)",
+      "Label": "7. FOR SOLICITATION INFORMATION CALL: b. TELEPHONE NUMBER",
       "Group": null
     },
     {
@@ -111,7 +111,7 @@
         "CenterX": 0.4337606,
         "CenterY": 0.18242803
       },
-      "Label": "CODE",
+      "Label": "9. ISSUED BY CODE",
       "Group": null
     },
     {
@@ -125,7 +125,7 @@
         "CenterX": 0.8817557,
         "CenterY": 0.18491602
       },
-      "Label": "SET ASIDE:",
+      "Label": "10. SET ASIDE: PERCENT FOR",
       "Group": null
     },
     {
@@ -139,7 +139,7 @@
         "CenterX": 0.36299673,
         "CenterY": 0.30949178
       },
-      "Label": "BOARD (FOB) DESTINATION",
+      "Label": "12. DISCOUNT TERMS",
       "Group": null
     },
     {
@@ -167,7 +167,7 @@
         "CenterX": 0.26354086,
         "CenterY": 0.37135792
       },
-      "Label": "CODE",
+      "Label": "15. DELIVER TO",
       "Group": null
     },
     {
@@ -181,7 +181,7 @@
         "CenterX": 0.9086944,
         "CenterY": 0.34131882
       },
-      "Label": "CODE",
+      "Label": "16. ADMINISTERED BY CODE",
       "Group": null
     },
     {
@@ -195,7 +195,7 @@
         "CenterX": 0.716165,
         "CenterY": 0.37135792
       },
-      "Label": "FACILITY",
+      "Label": "16. ADMINISTERED BY",
       "Group": null
     },
     {
@@ -209,7 +209,7 @@
         "CenterX": 0.26404577,
         "CenterY": 0.40217486
       },
-      "Label": "CODE",
+      "Label": "17a. CONTRACTOR/OFFEROR CODE",
       "Group": null
     },
     {
@@ -223,7 +223,7 @@
         "CenterX": 0.2620776,
         "CenterY": 0.45295644
       },
-      "Label": "OFFEROR",
+      "Label": "17a. CONTRACTOR/OFFEROR",
       "Group": null
     },
     {
@@ -265,7 +265,7 @@
         "CenterX": 0.09327696,
         "CenterY": 0.57091415
       },
-      "Label": "ITEM NUMBER",
+      "Label": "19. ITEM NUMBER. Line 1 of 8",
       "Group": null
     },
     {
@@ -279,7 +279,7 @@
         "CenterX": 0.36092404,
         "CenterY": 0.5704558
       },
-      "Label": "SCHEDULE OF SUPPLIES/SERVICES",
+      "Label": "20. SCHEDULE OF SUPPLIES/ SERVICES",
       "Group": null
     },
     {
@@ -293,7 +293,7 @@
         "CenterX": 0.6151813,
         "CenterY": 0.5704558
       },
-      "Label": "QUANTITY",
+      "Label": "21. QUANTITY",
       "Group": null
     },
     {
@@ -307,7 +307,7 @@
         "CenterX": 0.678491,
         "CenterY": 0.5704558
       },
-      "Label": "UNIT",
+      "Label": "22. UNIT",
       "Group": null
     },
     {
@@ -321,7 +321,7 @@
         "CenterX": 0.75310373,
         "CenterY": 0.5704558
       },
-      "Label": "UNIT PRICE",
+      "Label": "23. UNIT PRICE",
       "Group": null
     },
     {
@@ -335,7 +335,7 @@
         "CenterX": 0.8766422,
         "CenterY": 0.5704558
       },
-      "Label": "AMOUNT",
+      "Label": "24. AMOUNT",
       "Group": null
     },
     {
@@ -349,7 +349,7 @@
         "CenterX": 0.09327696,
         "CenterY": 0.5878258
       },
-      "Label": "ITEM NUMBER",
+      "Label": "19. ITEM NUMBER. Line 2 of 8",
       "Group": null
     },
     {
@@ -363,7 +363,7 @@
         "CenterX": 0.36092404,
         "CenterY": 0.5873674
       },
-      "Label": "SCHEDULE OF SUPPLIES/SERVICES",
+      "Label": "20. SCHEDULE OF SUPPLIES/ SERVICES",
       "Group": null
     },
     {
@@ -377,7 +377,7 @@
         "CenterX": 0.6151813,
         "CenterY": 0.5873674
       },
-      "Label": "QUANTITY",
+      "Label": "21. QUANTITY",
       "Group": null
     },
     {
@@ -391,7 +391,7 @@
         "CenterX": 0.678491,
         "CenterY": 0.5873674
       },
-      "Label": "UNIT",
+      "Label": "22. UNIT",
       "Group": null
     },
     {
@@ -405,7 +405,7 @@
         "CenterX": 0.75310373,
         "CenterY": 0.5873674
       },
-      "Label": "UNIT PRICE",
+      "Label": "23. UNIT PRICE",
       "Group": null
     },
     {
@@ -419,7 +419,7 @@
         "CenterX": 0.8766422,
         "CenterY": 0.5873674
       },
-      "Label": "AMOUNT",
+      "Label": "24. AMOUNT",
       "Group": null
     },
     {
@@ -433,7 +433,7 @@
         "CenterX": 0.09327696,
         "CenterY": 0.60380936
       },
-      "Label": "ITEM NUMBER",
+      "Label": "19. ITEM NUMBER. Line 3 of 8",
       "Group": null
     },
     {
@@ -447,7 +447,7 @@
         "CenterX": 0.36092404,
         "CenterY": 0.603351
       },
-      "Label": "SCHEDULE OF SUPPLIES/SERVICES",
+      "Label": "20. SCHEDULE OF SUPPLIES/ SERVICES",
       "Group": null
     },
     {
@@ -461,7 +461,7 @@
         "CenterX": 0.6151813,
         "CenterY": 0.603351
       },
-      "Label": "QUANTITY",
+      "Label": "21. QUANTITY",
       "Group": null
     },
     {
@@ -475,7 +475,7 @@
         "CenterX": 0.678491,
         "CenterY": 0.603351
       },
-      "Label": "UNIT",
+      "Label": "22. UNIT",
       "Group": null
     },
     {
@@ -489,7 +489,7 @@
         "CenterX": 0.75310373,
         "CenterY": 0.603351
       },
-      "Label": "UNIT PRICE",
+      "Label": "23. UNIT PRICE",
       "Group": null
     },
     {
@@ -503,7 +503,7 @@
         "CenterX": 0.8766422,
         "CenterY": 0.603351
       },
-      "Label": "AMOUNT",
+      "Label": "24. AMOUNT",
       "Group": null
     },
     {
@@ -517,7 +517,7 @@
         "CenterX": 0.09327696,
         "CenterY": 0.6203952
       },
-      "Label": "ITEM NUMBER",
+      "Label": "19. ITEM NUMBER. Line 4 of 8",
       "Group": null
     },
     {
@@ -531,7 +531,7 @@
         "CenterX": 0.36092404,
         "CenterY": 0.6203952
       },
-      "Label": "SCHEDULE OF SUPPLIES/SERVICES",
+      "Label": "20. SCHEDULE OF SUPPLIES/ SERVICES",
       "Group": null
     },
     {
@@ -545,7 +545,7 @@
         "CenterX": 0.6151813,
         "CenterY": 0.6203952
       },
-      "Label": "QUANTITY",
+      "Label": "21. QUANTITY",
       "Group": null
     },
     {
@@ -559,7 +559,7 @@
         "CenterX": 0.678491,
         "CenterY": 0.6203952
       },
-      "Label": "UNIT",
+      "Label": "22. UNIT",
       "Group": null
     },
     {
@@ -573,7 +573,7 @@
         "CenterX": 0.75310373,
         "CenterY": 0.6203952
       },
-      "Label": "UNIT PRICE",
+      "Label": "23. UNIT PRICE",
       "Group": null
     },
     {
@@ -587,7 +587,7 @@
         "CenterX": 0.8766422,
         "CenterY": 0.6203952
       },
-      "Label": "AMOUNT",
+      "Label": "24. AMOUNT",
       "Group": null
     },
     {
@@ -601,7 +601,7 @@
         "CenterX": 0.09327696,
         "CenterY": 0.6373106
       },
-      "Label": "ITEM NUMBER",
+      "Label": "19. ITEM NUMBER. Line 5 of 8",
       "Group": null
     },
     {
@@ -615,7 +615,7 @@
         "CenterX": 0.36092404,
         "CenterY": 0.6373106
       },
-      "Label": "SCHEDULE OF SUPPLIES/SERVICES",
+      "Label": "20. SCHEDULE OF SUPPLIES/ SERVICES",
       "Group": null
     },
     {
@@ -629,7 +629,7 @@
         "CenterX": 0.6151813,
         "CenterY": 0.6373106
       },
-      "Label": "QUANTITY",
+      "Label": "21. QUANTITY",
       "Group": null
     },
     {
@@ -643,7 +643,7 @@
         "CenterX": 0.678491,
         "CenterY": 0.6373106
       },
-      "Label": "UNIT",
+      "Label": "22. UNIT",
       "Group": null
     },
     {
@@ -657,7 +657,7 @@
         "CenterX": 0.75310373,
         "CenterY": 0.6373106
       },
-      "Label": "UNIT PRICE",
+      "Label": "23. UNIT PRICE",
       "Group": null
     },
     {
@@ -671,7 +671,7 @@
         "CenterX": 0.8766422,
         "CenterY": 0.6373106
       },
-      "Label": "AMOUNT",
+      "Label": "24. AMOUNT",
       "Group": null
     },
     {
@@ -685,7 +685,7 @@
         "CenterX": 0.09327696,
         "CenterY": 0.65422094
       },
-      "Label": "ITEM NUMBER",
+      "Label": "19. ITEM NUMBER. Line 6 of 8",
       "Group": null
     },
     {
@@ -699,7 +699,7 @@
         "CenterX": 0.6151813,
         "CenterY": 0.65422094
       },
-      "Label": "QUANTITY",
+      "Label": "21. QUANTITY",
       "Group": null
     },
     {
@@ -713,7 +713,7 @@
         "CenterX": 0.678491,
         "CenterY": 0.65422094
       },
-      "Label": "UNIT",
+      "Label": "22. UNIT",
       "Group": null
     },
     {
@@ -727,7 +727,7 @@
         "CenterX": 0.75310373,
         "CenterY": 0.65422094
       },
-      "Label": "UNIT PRICE",
+      "Label": "23. UNIT PRICE",
       "Group": null
     },
     {
@@ -741,7 +741,7 @@
         "CenterX": 0.8766422,
         "CenterY": 0.65422094
       },
-      "Label": "AMOUNT",
+      "Label": "24. AMOUNT",
       "Group": null
     },
     {
@@ -755,7 +755,7 @@
         "CenterX": 0.09327696,
         "CenterY": 0.67020583
       },
-      "Label": "ITEM NUMBER",
+      "Label": "19. ITEM NUMBER. Line 7 of 8",
       "Group": null
     },
     {
@@ -769,7 +769,7 @@
         "CenterX": 0.36092404,
         "CenterY": 0.65422094
       },
-      "Label": "SCHEDULE OF SUPPLIES/SERVICES",
+      "Label": "20. SCHEDULE OF SUPPLIES/ SERVICES",
       "Group": null
     },
     {
@@ -783,7 +783,7 @@
         "CenterX": 0.36092404,
         "CenterY": 0.67020583
       },
-      "Label": "SCHEDULE OF SUPPLIES/SERVICES",
+      "Label": "20. SCHEDULE OF SUPPLIES/ SERVICES",
       "Group": null
     },
     {
@@ -797,7 +797,7 @@
         "CenterX": 0.6151813,
         "CenterY": 0.67020583
       },
-      "Label": "QUANTITY",
+      "Label": "21. QUANTITY",
       "Group": null
     },
     {
@@ -811,7 +811,7 @@
         "CenterX": 0.678491,
         "CenterY": 0.67020583
       },
-      "Label": "UNIT",
+      "Label": "22. UNIT",
       "Group": null
     },
     {
@@ -825,7 +825,7 @@
         "CenterX": 0.75310373,
         "CenterY": 0.67020583
       },
-      "Label": "UNIT PRICE",
+      "Label": "23. UNIT PRICE",
       "Group": null
     },
     {
@@ -839,7 +839,7 @@
         "CenterX": 0.8766422,
         "CenterY": 0.67020583
       },
-      "Label": "AMOUNT",
+      "Label": "24. AMOUNT",
       "Group": null
     },
     {
@@ -853,7 +853,7 @@
         "CenterX": 0.09327696,
         "CenterY": 0.6861894
       },
-      "Label": "ITEM NUMBER",
+      "Label": "19. ITEM NUMBER. Line 8 of 8",
       "Group": null
     },
     {
@@ -867,7 +867,7 @@
         "CenterX": 0.36092404,
         "CenterY": 0.6861894
       },
-      "Label": "SCHEDULE OF SUPPLIES/SERVICES",
+      "Label": "20. SCHEDULE OF SUPPLIES/ SERVICES",
       "Group": null
     },
     {
@@ -881,7 +881,7 @@
         "CenterX": 0.6151813,
         "CenterY": 0.6861894
       },
-      "Label": "QUANTITY",
+      "Label": "21. QUANTITY",
       "Group": null
     },
     {
@@ -895,7 +895,7 @@
         "CenterX": 0.678491,
         "CenterY": 0.6861894
       },
-      "Label": "UNIT",
+      "Label": "22. UNIT",
       "Group": null
     },
     {
@@ -909,7 +909,7 @@
         "CenterX": 0.75310373,
         "CenterY": 0.6861894
       },
-      "Label": "UNIT PRICE",
+      "Label": "23. UNIT PRICE",
       "Group": null
     },
     {
@@ -923,7 +923,7 @@
         "CenterX": 0.8766422,
         "CenterY": 0.6861894
       },
-      "Label": "AMOUNT",
+      "Label": "24. AMOUNT",
       "Group": null
     },
     {
@@ -1105,7 +1105,7 @@
         "CenterX": 0.8702729,
         "CenterY": 0.235173
       },
-      "Label": "WOMEN-OWNED SMALL",
+      "Label": "10. NAICS",
       "Group": null
     },
     {
@@ -1119,7 +1119,7 @@
         "CenterX": 0.8709771,
         "CenterY": 0.26398104
       },
-      "Label": "BUSINESS (EDWOSB)",
+      "Label": "10. SIZE STANDARD",
       "Group": null
     },
     {
@@ -1161,7 +1161,7 @@
         "CenterX": 0.43189135,
         "CenterY": 0.40217486
       },
-      "Label": "FACILITY",
+      "Label": "17a. CONTRACTOR/OFFEROR FACILITY CODE",
       "Group": null
     },
     {
@@ -1175,7 +1175,7 @@
         "CenterX": 0.32815525,
         "CenterY": 0.49211302
       },
-      "Label": "TELEPHONE NUMBER",
+      "Label": "17a. CONTRACTOR/OFFEROR TELEPHONE NUMBER",
       "Group": null
     },
     {
@@ -1301,7 +1301,7 @@
         "CenterX": 0.64830065,
         "CenterY": 0.8061036
       },
-      "Label": "DATED .",
+      "Label": "29. AWARD OF CONTRACT DATE",
       "Group": null
     },
     {
@@ -1343,7 +1343,7 @@
         "CenterX": 0.3123023,
         "CenterY": 0.11074875
       },
-      "Label": "DATE",
+      "Label": "3. AWARD/ EFFECTIVE DATE",
       "Group": null
     },
     {
@@ -1357,7 +1357,7 @@
         "CenterX": 0.874576,
         "CenterY": 0.11167931
       },
-      "Label": "DATE",
+      "Label": "6. SOLICITATION ISSUE DATE",
       "Group": null
     },
     {
@@ -1371,7 +1371,7 @@
         "CenterX": 0.8806691,
         "CenterY": 0.15165025
       },
-      "Label": "INFORMATION CALL:",
+      "Label": "8. OFFER DUE DATE",
       "Group": null
     },
     {
@@ -1385,7 +1385,7 @@
         "CenterX": 0.8806691,
         "CenterY": 0.16617422
       },
-      "Label": "LOCAL TIME",
+      "Label": "8. OFFER LOCAL TIME",
       "Group": null
     },
     {
@@ -1399,7 +1399,7 @@
         "CenterX": 0.43298447,
         "CenterY": 0.34131882
       },
-      "Label": "CODE",
+      "Label": "15. DELIVER TO CODE",
       "Group": null
     },
     {
@@ -1427,7 +1427,7 @@
         "CenterX": 0.90840685,
         "CenterY": 0.40217486
       },
-      "Label": "CODE",
+      "Label": "18a. PAYMENT WILL BE MADE BY CODE",
       "Group": null
     },
     {
@@ -1567,7 +1567,7 @@
         "CenterX": 0.091010615,
         "CenterY": 0.08710669
       },
-      "Label": "ITEM NUMBER",
+      "Label": "19. ITEM NUMBER. Line 1 of 28",
       "Group": null
     },
     {
@@ -1581,7 +1581,7 @@
         "CenterX": 0.35326064,
         "CenterY": 0.087106064
       },
-      "Label": "SCHEDULE OF SUPPLIES/SERVICES",
+      "Label": "20. SCHEDULE OF SUPPLIES/SERVICES",
       "Group": null
     },
     {
@@ -1595,7 +1595,7 @@
         "CenterX": 0.60370183,
         "CenterY": 0.08696528
       },
-      "Label": "QUANTITY",
+      "Label": "21. QUANTITY",
       "Group": null
     },
     {
@@ -1609,7 +1609,7 @@
         "CenterX": 0.6665376,
         "CenterY": 0.087106064
       },
-      "Label": "UNIT",
+      "Label": "22. UNIT",
       "Group": null
     },
     {
@@ -1623,7 +1623,7 @@
         "CenterX": 0.7482361,
         "CenterY": 0.086535364
       },
-      "Label": "UNIT PRICE",
+      "Label": "23. UNIT PRICE",
       "Group": null
     },
     {
@@ -1637,7 +1637,7 @@
         "CenterX": 0.8755163,
         "CenterY": 0.08622094
       },
-      "Label": "AMOUNT",
+      "Label": "24. AMOUNT",
       "Group": null
     },
     {
@@ -1651,7 +1651,7 @@
         "CenterX": 0.091010615,
         "CenterY": 0.10471525
       },
-      "Label": "ITEM NUMBER",
+      "Label": "19. ITEM NUMBER. Line 2 of 28",
       "Group": null
     },
     {
@@ -1665,7 +1665,7 @@
         "CenterX": 0.35326064,
         "CenterY": 0.10471463
       },
-      "Label": "SCHEDULE OF SUPPLIES/SERVICES",
+      "Label": "20. SCHEDULE OF SUPPLIES/SERVICES",
       "Group": null
     },
     {
@@ -1679,7 +1679,7 @@
         "CenterX": 0.60370183,
         "CenterY": 0.104573876
       },
-      "Label": "QUANTITY",
+      "Label": "21. QUANTITY",
       "Group": null
     },
     {
@@ -1693,7 +1693,7 @@
         "CenterX": 0.6665376,
         "CenterY": 0.10471463
       },
-      "Label": "UNIT",
+      "Label": "22. UNIT",
       "Group": null
     },
     {
@@ -1707,7 +1707,7 @@
         "CenterX": 0.7482361,
         "CenterY": 0.10414393
       },
-      "Label": "UNIT PRICE",
+      "Label": "23. UNIT PRICE",
       "Group": null
     },
     {
@@ -1721,7 +1721,7 @@
         "CenterX": 0.8755163,
         "CenterY": 0.10382955
       },
-      "Label": "AMOUNT",
+      "Label": "24. AMOUNT",
       "Group": null
     },
     {
@@ -1735,7 +1735,7 @@
         "CenterX": 0.091010615,
         "CenterY": 0.12232512
       },
-      "Label": "ITEM NUMBER",
+      "Label": "19. ITEM NUMBER. Line 3 of 28",
       "Group": null
     },
     {
@@ -1749,7 +1749,7 @@
         "CenterX": 0.35326064,
         "CenterY": 0.12232828
       },
-      "Label": "SCHEDULE OF SUPPLIES/SERVICES",
+      "Label": "20. SCHEDULE OF SUPPLIES/SERVICES",
       "Group": null
     },
     {
@@ -1763,7 +1763,7 @@
         "CenterX": 0.60370183,
         "CenterY": 0.12218371
       },
-      "Label": "QUANTITY",
+      "Label": "21. QUANTITY",
       "Group": null
     },
     {
@@ -1777,7 +1777,7 @@
         "CenterX": 0.6665376,
         "CenterY": 0.12232828
       },
-      "Label": "UNIT",
+      "Label": "22. UNIT",
       "Group": null
     },
     {
@@ -1791,7 +1791,7 @@
         "CenterX": 0.7482361,
         "CenterY": 0.12175377
       },
-      "Label": "UNIT PRICE",
+      "Label": "23. UNIT PRICE",
       "Group": null
     },
     {
@@ -1805,7 +1805,7 @@
         "CenterX": 0.8755163,
         "CenterY": 0.12143561
       },
-      "Label": "AMOUNT",
+      "Label": "24. AMOUNT",
       "Group": null
     },
     {
@@ -1819,7 +1819,7 @@
         "CenterX": 0.091839045,
         "CenterY": 0.14105113
       },
-      "Label": "ITEM NUMBER",
+      "Label": "19. ITEM NUMBER. Line 4 of 28",
       "Group": null
     },
     {
@@ -1833,7 +1833,7 @@
         "CenterX": 0.35326064,
         "CenterY": 0.13993685
       },
-      "Label": "SCHEDULE OF SUPPLIES/SERVICES",
+      "Label": "20. SCHEDULE OF SUPPLIES/SERVICES",
       "Group": null
     },
     {
@@ -1847,7 +1847,7 @@
         "CenterX": 0.60370183,
         "CenterY": 0.1397961
       },
-      "Label": "QUANTITY",
+      "Label": "21. QUANTITY",
       "Group": null
     },
     {
@@ -1861,7 +1861,7 @@
         "CenterX": 0.6665376,
         "CenterY": 0.13993685
       },
-      "Label": "UNIT",
+      "Label": "22. UNIT",
       "Group": null
     },
     {
@@ -1875,7 +1875,7 @@
         "CenterX": 0.7482361,
         "CenterY": 0.13936615
       },
-      "Label": "UNIT PRICE",
+      "Label": "23. UNIT PRICE",
       "Group": null
     },
     {
@@ -1889,7 +1889,7 @@
         "CenterX": 0.8755163,
         "CenterY": 0.13905177
       },
-      "Label": "AMOUNT",
+      "Label": "24. AMOUNT",
       "Group": null
     },
     {
@@ -1903,7 +1903,7 @@
         "CenterX": 0.091010615,
         "CenterY": 0.15754734
       },
-      "Label": "ITEM NUMBER",
+      "Label": "19. ITEM NUMBER. Line 5 of 28",
       "Group": null
     },
     {
@@ -1917,7 +1917,7 @@
         "CenterX": 0.60370183,
         "CenterY": 0.15740593
       },
-      "Label": "QUANTITY",
+      "Label": "21. QUANTITY",
       "Group": null
     },
     {
@@ -1931,7 +1931,7 @@
         "CenterX": 0.6665368,
         "CenterY": 0.15754734
       },
-      "Label": "UNIT",
+      "Label": "22. UNIT",
       "Group": null
     },
     {
@@ -1945,7 +1945,7 @@
         "CenterX": 0.7482361,
         "CenterY": 0.15697853
       },
-      "Label": "UNIT PRICE",
+      "Label": "23. UNIT PRICE",
       "Group": null
     },
     {
@@ -1959,7 +1959,7 @@
         "CenterX": 0.8755163,
         "CenterY": 0.1566616
       },
-      "Label": "AMOUNT",
+      "Label": "24. AMOUNT",
       "Group": null
     },
     {
@@ -1973,7 +1973,7 @@
         "CenterX": 0.091010615,
         "CenterY": 0.17515591
       },
-      "Label": "ITEM NUMBER",
+      "Label": "19. ITEM NUMBER. Line 6 f 28",
       "Group": null
     },
     {
@@ -1987,7 +1987,7 @@
         "CenterX": 0.35326064,
         "CenterY": 0.15754673
       },
-      "Label": "SCHEDULE OF SUPPLIES/SERVICES",
+      "Label": "20. SCHEDULE OF SUPPLIES/SERVICES",
       "Group": null
     },
     {
@@ -2001,7 +2001,7 @@
         "CenterX": 0.35326064,
         "CenterY": 0.17515528
       },
-      "Label": "SCHEDULE OF SUPPLIES/SERVICES",
+      "Label": "20. SCHEDULE OF SUPPLIES/SERVICES",
       "Group": null
     },
     {
@@ -2015,7 +2015,7 @@
         "CenterX": 0.60370183,
         "CenterY": 0.17501453
       },
-      "Label": "QUANTITY",
+      "Label": "21. QUANTITY",
       "Group": null
     },
     {
@@ -2029,7 +2029,7 @@
         "CenterX": 0.6665368,
         "CenterY": 0.17515591
       },
-      "Label": "UNIT",
+      "Label": "22. UNIT",
       "Group": null
     },
     {
@@ -2043,7 +2043,7 @@
         "CenterX": 0.7482361,
         "CenterY": 0.1745846
       },
-      "Label": "UNIT PRICE",
+      "Label": "23. UNIT PRICE",
       "Group": null
     },
     {
@@ -2057,7 +2057,7 @@
         "CenterX": 0.8755163,
         "CenterY": 0.17426643
       },
-      "Label": "AMOUNT",
+      "Label": "24. AMOUNT",
       "Group": null
     },
     {
@@ -2071,7 +2071,7 @@
         "CenterX": 0.091010615,
         "CenterY": 0.19276579
       },
-      "Label": "ITEM NUMBER",
+      "Label": "19. ITEM NUMBER. Line 7 of 28",
       "Group": null
     },
     {
@@ -2085,7 +2085,7 @@
         "CenterX": 0.35326064,
         "CenterY": 0.19276768
       },
-      "Label": "SCHEDULE OF SUPPLIES/SERVICES",
+      "Label": "20. SCHEDULE OF SUPPLIES/SERVICES",
       "Group": null
     },
     {
@@ -2099,7 +2099,7 @@
         "CenterX": 0.60370183,
         "CenterY": 0.19262311
       },
-      "Label": "QUANTITY",
+      "Label": "21. QUANTITY",
       "Group": null
     },
     {
@@ -2113,7 +2113,7 @@
         "CenterX": 0.6665368,
         "CenterY": 0.19276579
       },
-      "Label": "UNIT",
+      "Label": "22. UNIT",
       "Group": null
     },
     {
@@ -2127,7 +2127,7 @@
         "CenterX": 0.7482361,
         "CenterY": 0.19219443
       },
-      "Label": "UNIT PRICE",
+      "Label": "23. UNIT PRICE",
       "Group": null
     },
     {
@@ -2141,7 +2141,7 @@
         "CenterX": 0.8755163,
         "CenterY": 0.19187877
       },
-      "Label": "AMOUNT",
+      "Label": "24. AMOUNT",
       "Group": null
     },
     {
@@ -2155,7 +2155,7 @@
         "CenterX": 0.35326064,
         "CenterY": 0.21037373
       },
-      "Label": "SCHEDULE OF SUPPLIES/SERVICES",
+      "Label": "20. SCHEDULE OF SUPPLIES/SERVICES",
       "Group": null
     },
     {
@@ -2169,7 +2169,7 @@
         "CenterX": 0.60370183,
         "CenterY": 0.21022916
       },
-      "Label": "QUANTITY",
+      "Label": "21. QUANTITY",
       "Group": null
     },
     {
@@ -2183,7 +2183,7 @@
         "CenterX": 0.6665368,
         "CenterY": 0.21037436
       },
-      "Label": "UNIT",
+      "Label": "22. UNIT",
       "Group": null
     },
     {
@@ -2197,7 +2197,7 @@
         "CenterX": 0.8755163,
         "CenterY": 0.20948866
       },
-      "Label": "AMOUNT",
+      "Label": "24. AMOUNT",
       "Group": null
     },
     {
@@ -2211,7 +2211,7 @@
         "CenterX": 0.091010615,
         "CenterY": 0.21037436
       },
-      "Label": "ITEM NUMBER",
+      "Label": "19. ITEM NUMBER. Line 8 of 28",
       "Group": null
     },
     {
@@ -2225,7 +2225,7 @@
         "CenterX": 0.091010615,
         "CenterY": 0.22798677
       },
-      "Label": "ITEM NUMBER",
+      "Label": "19. ITEM NUMBER. Line 9 of 28",
       "Group": null
     },
     {
@@ -2239,7 +2239,7 @@
         "CenterX": 0.35326064,
         "CenterY": 0.22798611
       },
-      "Label": "SCHEDULE OF SUPPLIES/SERVICES",
+      "Label": "20. SCHEDULE OF SUPPLIES/SERVICES",
       "Group": null
     },
     {
@@ -2253,7 +2253,7 @@
         "CenterX": 0.60370183,
         "CenterY": 0.22784531
       },
-      "Label": "QUANTITY",
+      "Label": "21. QUANTITY",
       "Group": null
     },
     {
@@ -2267,7 +2267,7 @@
         "CenterX": 0.6665368,
         "CenterY": 0.22798677
       },
-      "Label": "UNIT",
+      "Label": "22. UNIT",
       "Group": null
     },
     {
@@ -2281,7 +2281,7 @@
         "CenterX": 0.7482361,
         "CenterY": 0.20980304
       },
-      "Label": "UNIT PRICE",
+      "Label": "23. UNIT PRICE",
       "Group": null
     },
     {
@@ -2295,7 +2295,7 @@
         "CenterX": 0.7482361,
         "CenterY": 0.22741541
       },
-      "Label": "UNIT PRICE",
+      "Label": "23. UNIT PRICE",
       "Group": null
     },
     {
@@ -2309,7 +2309,7 @@
         "CenterX": 0.8755163,
         "CenterY": 0.22710103
       },
-      "Label": "AMOUNT",
+      "Label": "24. AMOUNT",
       "Group": null
     },
     {
@@ -2323,7 +2323,7 @@
         "CenterX": 0.091066174,
         "CenterY": 0.24584657
       },
-      "Label": "ITEM NUMBER",
+      "Label": "19. ITEM NUMBER. Line 10 of 28",
       "Group": null
     },
     {
@@ -2337,7 +2337,7 @@
         "CenterX": 0.35326064,
         "CenterY": 0.24559973
       },
-      "Label": "SCHEDULE OF SUPPLIES/SERVICES",
+      "Label": "20. SCHEDULE OF SUPPLIES/SERVICES",
       "Group": null
     },
     {
@@ -2351,7 +2351,7 @@
         "CenterX": 0.60370183,
         "CenterY": 0.2454552
       },
-      "Label": "QUANTITY",
+      "Label": "21. QUANTITY",
       "Group": null
     },
     {
@@ -2365,7 +2365,7 @@
         "CenterX": 0.6665368,
         "CenterY": 0.24559656
       },
-      "Label": "UNIT",
+      "Label": "22. UNIT",
       "Group": null
     },
     {
@@ -2379,7 +2379,7 @@
         "CenterX": 0.7482361,
         "CenterY": 0.24502903
       },
-      "Label": "UNIT PRICE",
+      "Label": "23. UNIT PRICE",
       "Group": null
     },
     {
@@ -2393,7 +2393,7 @@
         "CenterX": 0.8755163,
         "CenterY": 0.24471086
       },
-      "Label": "AMOUNT",
+      "Label": "24. AMOUNT",
       "Group": null
     },
     {
@@ -2407,7 +2407,7 @@
         "CenterX": 0.091010615,
         "CenterY": 0.2632052
       },
-      "Label": "ITEM NUMBER",
+      "Label": "19. ITEM NUMBER. Line 11 of 28",
       "Group": null
     },
     {
@@ -2421,7 +2421,7 @@
         "CenterX": 0.35326064,
         "CenterY": 0.26320454
       },
-      "Label": "SCHEDULE OF SUPPLIES/SERVICES",
+      "Label": "20. SCHEDULE OF SUPPLIES/SERVICES",
       "Group": null
     },
     {
@@ -2435,7 +2435,7 @@
         "CenterX": 0.60370183,
         "CenterY": 0.26306376
       },
-      "Label": "QUANTITY",
+      "Label": "21. QUANTITY",
       "Group": null
     },
     {
@@ -2449,7 +2449,7 @@
         "CenterX": 0.6665368,
         "CenterY": 0.2632052
       },
-      "Label": "UNIT",
+      "Label": "22. UNIT",
       "Group": null
     },
     {
@@ -2463,7 +2463,7 @@
         "CenterX": 0.7482361,
         "CenterY": 0.26263386
       },
-      "Label": "UNIT PRICE",
+      "Label": "23. UNIT PRICE",
       "Group": null
     },
     {
@@ -2477,7 +2477,7 @@
         "CenterX": 0.8755163,
         "CenterY": 0.26231945
       },
-      "Label": "AMOUNT",
+      "Label": "24. AMOUNT",
       "Group": null
     },
     {
@@ -2491,7 +2491,7 @@
         "CenterX": 0.091010615,
         "CenterY": 0.28081757
       },
-      "Label": "ITEM NUMBER",
+      "Label": "19. ITEM NUMBER. Line 12 of 28",
       "Group": null
     },
     {
@@ -2505,7 +2505,7 @@
         "CenterX": 0.35326064,
         "CenterY": 0.2808169
       },
-      "Label": "SCHEDULE OF SUPPLIES/SERVICES",
+      "Label": "20. SCHEDULE OF SUPPLIES/SERVICES",
       "Group": null
     },
     {
@@ -2519,7 +2519,7 @@
         "CenterX": 0.60370183,
         "CenterY": 0.28067362
       },
-      "Label": "QUANTITY",
+      "Label": "21. QUANTITY",
       "Group": null
     },
     {
@@ -2533,7 +2533,7 @@
         "CenterX": 0.6665368,
         "CenterY": 0.28081757
       },
-      "Label": "UNIT",
+      "Label": "22. UNIT",
       "Group": null
     },
     {
@@ -2547,7 +2547,7 @@
         "CenterX": 0.7482361,
         "CenterY": 0.2802462
       },
-      "Label": "UNIT PRICE",
+      "Label": "23. UNIT PRICE",
       "Group": null
     },
     {
@@ -2561,7 +2561,7 @@
         "CenterX": 0.8755163,
         "CenterY": 0.2799293
       },
-      "Label": "AMOUNT",
+      "Label": "24. AMOUNT",
       "Group": null
     },
     {
@@ -2575,7 +2575,7 @@
         "CenterX": 0.091010615,
         "CenterY": 0.29842743
       },
-      "Label": "ITEM NUMBER",
+      "Label": "19. ITEM NUMBER. Line 13 of 28",
       "Group": null
     },
     {
@@ -2589,7 +2589,7 @@
         "CenterX": 0.35326064,
         "CenterY": 0.29842678
       },
-      "Label": "SCHEDULE OF SUPPLIES/SERVICES",
+      "Label": "20. SCHEDULE OF SUPPLIES/SERVICES",
       "Group": null
     },
     {
@@ -2603,7 +2603,7 @@
         "CenterX": 0.60370183,
         "CenterY": 0.29828596
       },
-      "Label": "QUANTITY",
+      "Label": "21. QUANTITY",
       "Group": null
     },
     {
@@ -2617,7 +2617,7 @@
         "CenterX": 0.6665368,
         "CenterY": 0.29842743
       },
-      "Label": "UNIT",
+      "Label": "22. UNIT",
       "Group": null
     },
     {
@@ -2631,7 +2631,7 @@
         "CenterX": 0.7482361,
         "CenterY": 0.2978561
       },
-      "Label": "UNIT PRICE",
+      "Label": "23. UNIT PRICE",
       "Group": null
     },
     {
@@ -2645,7 +2645,7 @@
         "CenterX": 0.8755163,
         "CenterY": 0.29754168
       },
-      "Label": "AMOUNT",
+      "Label": "24. AMOUNT",
       "Group": null
     },
     {
@@ -2659,7 +2659,7 @@
         "CenterX": 0.091010615,
         "CenterY": 0.316036
       },
-      "Label": "ITEM NUMBER",
+      "Label": "19. ITEM NUMBER. Line14 of 28",
       "Group": null
     },
     {
@@ -2673,7 +2673,7 @@
         "CenterX": 0.35326064,
         "CenterY": 0.31603533
       },
-      "Label": "SCHEDULE OF SUPPLIES/SERVICES",
+      "Label": "20. SCHEDULE OF SUPPLIES/SERVICES",
       "Group": null
     },
     {
@@ -2687,7 +2687,7 @@
         "CenterX": 0.60370183,
         "CenterY": 0.31589076
       },
-      "Label": "QUANTITY",
+      "Label": "21. QUANTITY",
       "Group": null
     },
     {
@@ -2701,7 +2701,7 @@
         "CenterX": 0.6665368,
         "CenterY": 0.316036
       },
-      "Label": "UNIT",
+      "Label": "22. UNIT",
       "Group": null
     },
     {
@@ -2715,7 +2715,7 @@
         "CenterX": 0.7482361,
         "CenterY": 0.31546462
       },
-      "Label": "UNIT PRICE",
+      "Label": "23. UNIT PRICE",
       "Group": null
     },
     {
@@ -2729,7 +2729,7 @@
         "CenterX": 0.8755163,
         "CenterY": 0.31514648
       },
-      "Label": "AMOUNT",
+      "Label": "24. AMOUNT",
       "Group": null
     },
     {
@@ -2743,7 +2743,7 @@
         "CenterX": 0.091010615,
         "CenterY": 0.33364582
       },
-      "Label": "ITEM NUMBER",
+      "Label": "19. ITEM NUMBER. Line 15 of 28",
       "Group": null
     },
     {
@@ -2757,7 +2757,7 @@
         "CenterX": 0.35326064,
         "CenterY": 0.33364898
       },
-      "Label": "SCHEDULE OF SUPPLIES/SERVICES",
+      "Label": "20. SCHEDULE OF SUPPLIES/SERVICES",
       "Group": null
     },
     {
@@ -2771,7 +2771,7 @@
         "CenterX": 0.60370183,
         "CenterY": 0.33350444
       },
-      "Label": "QUANTITY",
+      "Label": "21. QUANTITY",
       "Group": null
     },
     {
@@ -2785,7 +2785,7 @@
         "CenterX": 0.6665368,
         "CenterY": 0.33364582
       },
-      "Label": "UNIT",
+      "Label": "22. UNIT",
       "Group": null
     },
     {
@@ -2799,7 +2799,7 @@
         "CenterX": 0.7482361,
         "CenterY": 0.3330745
       },
-      "Label": "UNIT PRICE",
+      "Label": "23. UNIT PRICE",
       "Group": null
     },
     {
@@ -2813,7 +2813,7 @@
         "CenterX": 0.87538564,
         "CenterY": 0.3328927
       },
-      "Label": "AMOUNT",
+      "Label": "24. AMOUNT",
       "Group": null
     },
     {
@@ -2827,7 +2827,7 @@
         "CenterX": 0.091010615,
         "CenterY": 0.35125443
       },
-      "Label": "ITEM NUMBER",
+      "Label": "19. ITEM NUMBER. Line 16 of 28",
       "Group": null
     },
     {
@@ -2841,7 +2841,7 @@
         "CenterX": 0.35326064,
         "CenterY": 0.3512538
       },
-      "Label": "SCHEDULE OF SUPPLIES/SERVICES",
+      "Label": "20. SCHEDULE OF SUPPLIES/SERVICES",
       "Group": null
     },
     {
@@ -2855,7 +2855,7 @@
         "CenterX": 0.60370183,
         "CenterY": 0.351113
       },
-      "Label": "QUANTITY",
+      "Label": "21. QUANTITY",
       "Group": null
     },
     {
@@ -2869,7 +2869,7 @@
         "CenterX": 0.6665368,
         "CenterY": 0.35125443
       },
-      "Label": "UNIT",
+      "Label": "22. UNIT",
       "Group": null
     },
     {
@@ -2883,7 +2883,7 @@
         "CenterX": 0.7482361,
         "CenterY": 0.3506831
       },
-      "Label": "UNIT PRICE",
+      "Label": "23. UNIT PRICE",
       "Group": null
     },
     {
@@ -2897,7 +2897,7 @@
         "CenterX": 0.8755163,
         "CenterY": 0.35036492
       },
-      "Label": "AMOUNT",
+      "Label": "24. AMOUNT",
       "Group": null
     },
     {
@@ -2911,7 +2911,7 @@
         "CenterX": 0.091010615,
         "CenterY": 0.36886427
       },
-      "Label": "ITEM NUMBER",
+      "Label": "19. ITEM NUMBER. Line 17 of 28",
       "Group": null
     },
     {
@@ -2925,7 +2925,7 @@
         "CenterX": 0.35326064,
         "CenterY": 0.36886364
       },
-      "Label": "SCHEDULE OF SUPPLIES/SERVICES",
+      "Label": "20. SCHEDULE OF SUPPLIES/SERVICES",
       "Group": null
     },
     {
@@ -2939,7 +2939,7 @@
         "CenterX": 0.60370183,
         "CenterY": 0.36872286
       },
-      "Label": "QUANTITY",
+      "Label": "21. QUANTITY",
       "Group": null
     },
     {
@@ -2953,7 +2953,7 @@
         "CenterX": 0.6665368,
         "CenterY": 0.36926264
       },
-      "Label": "UNIT",
+      "Label": "22. UNIT",
       "Group": null
     },
     {
@@ -2967,7 +2967,7 @@
         "CenterX": 0.7482361,
         "CenterY": 0.3682967
       },
-      "Label": "UNIT PRICE",
+      "Label": "23. UNIT PRICE",
       "Group": null
     },
     {
@@ -2981,7 +2981,7 @@
         "CenterX": 0.8755163,
         "CenterY": 0.36797857
       },
-      "Label": "AMOUNT",
+      "Label": "24. AMOUNT",
       "Group": null
     },
     {
@@ -2995,7 +2995,7 @@
         "CenterX": 0.091010615,
         "CenterY": 0.38647288
       },
-      "Label": "ITEM NUMBER",
+      "Label": "19. ITEM NUMBER. Line 18 of 28",
       "Group": null
     },
     {
@@ -3009,7 +3009,7 @@
         "CenterX": 0.35326064,
         "CenterY": 0.38647223
       },
-      "Label": "SCHEDULE OF SUPPLIES/SERVICES",
+      "Label": "20. SCHEDULE OF SUPPLIES/SERVICES",
       "Group": null
     },
     {
@@ -3023,7 +3023,7 @@
         "CenterX": 0.60370183,
         "CenterY": 0.38633144
       },
-      "Label": "QUANTITY",
+      "Label": "21. QUANTITY",
       "Group": null
     },
     {
@@ -3037,7 +3037,7 @@
         "CenterX": 0.6665368,
         "CenterY": 0.38687122
       },
-      "Label": "UNIT",
+      "Label": "22. UNIT",
       "Group": null
     },
     {
@@ -3051,7 +3051,7 @@
         "CenterX": 0.7482361,
         "CenterY": 0.3859015
       },
-      "Label": "UNIT PRICE",
+      "Label": "23. UNIT PRICE",
       "Group": null
     },
     {
@@ -3065,7 +3065,7 @@
         "CenterX": 0.8755163,
         "CenterY": 0.3855871
       },
-      "Label": "AMOUNT",
+      "Label": "24. AMOUNT",
       "Group": null
     },
     {
@@ -3079,7 +3079,7 @@
         "CenterX": 0.091010615,
         "CenterY": 0.4040865
       },
-      "Label": "ITEM NUMBER",
+      "Label": "19. ITEM NUMBER. Line 19 of 28",
       "Group": null
     },
     {
@@ -3093,7 +3093,7 @@
         "CenterX": 0.35326064,
         "CenterY": 0.40408838
       },
-      "Label": "SCHEDULE OF SUPPLIES/SERVICES",
+      "Label": "20. SCHEDULE OF SUPPLIES/SERVICES",
       "Group": null
     },
     {
@@ -3107,7 +3107,7 @@
         "CenterX": 0.60370183,
         "CenterY": 0.40394384
       },
-      "Label": "QUANTITY",
+      "Label": "21. QUANTITY",
       "Group": null
     },
     {
@@ -3121,7 +3121,7 @@
         "CenterX": 0.6665368,
         "CenterY": 0.40448484
       },
-      "Label": "UNIT",
+      "Label": "22. UNIT",
       "Group": null
     },
     {
@@ -3135,7 +3135,7 @@
         "CenterX": 0.7482361,
         "CenterY": 0.40351516
       },
-      "Label": "UNIT PRICE",
+      "Label": "23. UNIT PRICE",
       "Group": null
     },
     {
@@ -3149,7 +3149,7 @@
         "CenterX": 0.8755163,
         "CenterY": 0.4031995
       },
-      "Label": "AMOUNT",
+      "Label": "24. AMOUNT",
       "Group": null
     },
     {
@@ -3163,7 +3163,7 @@
         "CenterX": 0.091066174,
         "CenterY": 0.42193878
       },
-      "Label": "ITEM NUMBER",
+      "Label": "19. ITEM NUMBER. Line 20 of 28",
       "Group": null
     },
     {
@@ -3177,7 +3177,7 @@
         "CenterX": 0.35326064,
         "CenterY": 0.42169446
       },
-      "Label": "SCHEDULE OF SUPPLIES/SERVICES",
+      "Label": "20. SCHEDULE OF SUPPLIES/SERVICES",
       "Group": null
     },
     {
@@ -3191,7 +3191,7 @@
         "CenterX": 0.60370183,
         "CenterY": 0.42155367
       },
-      "Label": "QUANTITY",
+      "Label": "21. QUANTITY",
       "Group": null
     },
     {
@@ -3205,7 +3205,7 @@
         "CenterX": 0.6665368,
         "CenterY": 0.42209345
       },
-      "Label": "UNIT",
+      "Label": "22. UNIT",
       "Group": null
     },
     {
@@ -3219,7 +3219,7 @@
         "CenterX": 0.7482361,
         "CenterY": 0.42112374
       },
-      "Label": "UNIT PRICE",
+      "Label": "23. UNIT PRICE",
       "Group": null
     },
     {
@@ -3233,7 +3233,7 @@
         "CenterX": 0.8755163,
         "CenterY": 0.42080933
       },
-      "Label": "AMOUNT",
+      "Label": "24. AMOUNT",
       "Group": null
     },
     {
@@ -3247,7 +3247,7 @@
         "CenterX": 0.091066174,
         "CenterY": 0.43904608
       },
-      "Label": "ITEM NUMBER",
+      "Label": "19. ITEM NUMBER. Line 21 of 28",
       "Group": null
     },
     {
@@ -3261,7 +3261,7 @@
         "CenterX": 0.35326064,
         "CenterY": 0.43930304
       },
-      "Label": "SCHEDULE OF SUPPLIES/SERVICES",
+      "Label": "20. SCHEDULE OF SUPPLIES/SERVICES",
       "Group": null
     },
     {
@@ -3275,7 +3275,7 @@
         "CenterX": 0.60370183,
         "CenterY": 0.43916225
       },
-      "Label": "QUANTITY",
+      "Label": "21. QUANTITY",
       "Group": null
     },
     {
@@ -3289,7 +3289,7 @@
         "CenterX": 0.6665368,
         "CenterY": 0.4397033
       },
-      "Label": "UNIT",
+      "Label": "22. UNIT",
       "Group": null
     },
     {
@@ -3303,7 +3303,7 @@
         "CenterX": 0.7482361,
         "CenterY": 0.43873233
       },
-      "Label": "UNIT PRICE",
+      "Label": "23. UNIT PRICE",
       "Group": null
     },
     {
@@ -3317,7 +3317,7 @@
         "CenterX": 0.8755163,
         "CenterY": 0.4384179
       },
-      "Label": "AMOUNT",
+      "Label": "24. AMOUNT",
       "Group": null
     },
     {
@@ -3331,7 +3331,7 @@
         "CenterX": 0.091010615,
         "CenterY": 0.4569135
       },
-      "Label": "ITEM NUMBER",
+      "Label": "19. ITEM NUMBER. Line 22 of 28",
       "Group": null
     },
     {
@@ -3345,7 +3345,7 @@
         "CenterX": 0.35326064,
         "CenterY": 0.4569167
       },
-      "Label": "SCHEDULE OF SUPPLIES/SERVICES",
+      "Label": "20. SCHEDULE OF SUPPLIES/SERVICES",
       "Group": null
     },
     {
@@ -3359,7 +3359,7 @@
         "CenterX": 0.60370183,
         "CenterY": 0.4567721
       },
-      "Label": "QUANTITY",
+      "Label": "21. QUANTITY",
       "Group": null
     },
     {
@@ -3373,7 +3373,7 @@
         "CenterX": 0.6665368,
         "CenterY": 0.45731187
       },
-      "Label": "UNIT",
+      "Label": "22. UNIT",
       "Group": null
     },
     {
@@ -3387,7 +3387,7 @@
         "CenterX": 0.7482361,
         "CenterY": 0.45634598
       },
-      "Label": "UNIT PRICE",
+      "Label": "23. UNIT PRICE",
       "Group": null
     },
     {
@@ -3401,7 +3401,7 @@
         "CenterX": 0.8755163,
         "CenterY": 0.45602775
       },
-      "Label": "AMOUNT",
+      "Label": "24. AMOUNT",
       "Group": null
     },
     {
@@ -3415,7 +3415,7 @@
         "CenterX": 0.091010615,
         "CenterY": 0.4745221
       },
-      "Label": "ITEM NUMBER",
+      "Label": "19. ITEM NUMBER. Line 23 of 28",
       "Group": null
     },
     {
@@ -3429,7 +3429,7 @@
         "CenterX": 0.35326064,
         "CenterY": 0.47452146
       },
-      "Label": "SCHEDULE OF SUPPLIES/SERVICES",
+      "Label": "20. SCHEDULE OF SUPPLIES/SERVICES",
       "Group": null
     },
     {
@@ -3443,7 +3443,7 @@
         "CenterX": 0.60370183,
         "CenterY": 0.47438067
       },
-      "Label": "QUANTITY",
+      "Label": "21. QUANTITY",
       "Group": null
     },
     {
@@ -3457,7 +3457,7 @@
         "CenterX": 0.6665368,
         "CenterY": 0.47492045
       },
-      "Label": "UNIT",
+      "Label": "22. UNIT",
       "Group": null
     },
     {
@@ -3471,7 +3471,7 @@
         "CenterX": 0.7482361,
         "CenterY": 0.47395074
       },
-      "Label": "UNIT PRICE",
+      "Label": "23. UNIT PRICE",
       "Group": null
     },
     {
@@ -3485,7 +3485,7 @@
         "CenterX": 0.8755163,
         "CenterY": 0.4736364
       },
-      "Label": "AMOUNT",
+      "Label": "24. AMOUNT",
       "Group": null
     },
     {
@@ -3499,7 +3499,7 @@
         "CenterX": 0.091010615,
         "CenterY": 0.49213195
       },
-      "Label": "ITEM NUMBER",
+      "Label": "19. ITEM NUMBER. Line 24 of 28",
       "Group": null
     },
     {
@@ -3513,7 +3513,7 @@
         "CenterX": 0.35326064,
         "CenterY": 0.4921313
       },
-      "Label": "SCHEDULE OF SUPPLIES/SERVICES",
+      "Label": "20. SCHEDULE OF SUPPLIES/SERVICES",
       "Group": null
     },
     {
@@ -3527,7 +3527,7 @@
         "CenterX": 0.60370183,
         "CenterY": 0.4927923
       },
-      "Label": "QUANTITY",
+      "Label": "21. QUANTITY",
       "Group": null
     },
     {
@@ -3541,7 +3541,7 @@
         "CenterX": 0.6665368,
         "CenterY": 0.4925341
       },
-      "Label": "UNIT",
+      "Label": "22. UNIT",
       "Group": null
     },
     {
@@ -3555,7 +3555,7 @@
         "CenterX": 0.7482361,
         "CenterY": 0.4915606
       },
-      "Label": "UNIT PRICE",
+      "Label": "23. UNIT PRICE",
       "Group": null
     },
     {
@@ -3569,7 +3569,7 @@
         "CenterX": 0.8755163,
         "CenterY": 0.49124622
       },
-      "Label": "AMOUNT",
+      "Label": "24. AMOUNT",
       "Group": null
     },
     {
@@ -3583,7 +3583,7 @@
         "CenterX": 0.09101389,
         "CenterY": 0.5097443
       },
-      "Label": "ITEM NUMBER",
+      "Label": "19. ITEM NUMBER. Line 25 of 28",
       "Group": null
     },
     {
@@ -3597,7 +3597,7 @@
         "CenterX": 0.35326064,
         "CenterY": 0.5097437
       },
-      "Label": "SCHEDULE OF SUPPLIES/SERVICES",
+      "Label": "20. SCHEDULE OF SUPPLIES/SERVICES",
       "Group": null
     },
     {
@@ -3611,7 +3611,7 @@
         "CenterX": 0.60370183,
         "CenterY": 0.5104009
       },
-      "Label": "QUANTITY",
+      "Label": "21. QUANTITY",
       "Group": null
     },
     {
@@ -3625,7 +3625,7 @@
         "CenterX": 0.6665368,
         "CenterY": 0.5101427
       },
-      "Label": "UNIT",
+      "Label": "22. UNIT",
       "Group": null
     },
     {
@@ -3639,7 +3639,7 @@
         "CenterX": 0.7482361,
         "CenterY": 0.509173
       },
-      "Label": "UNIT PRICE",
+      "Label": "23. UNIT PRICE",
       "Group": null
     },
     {
@@ -3653,7 +3653,7 @@
         "CenterX": 0.8755163,
         "CenterY": 0.50885856
       },
-      "Label": "AMOUNT",
+      "Label": "24. AMOUNT",
       "Group": null
     },
     {
@@ -3667,7 +3667,7 @@
         "CenterX": 0.091010615,
         "CenterY": 0.52768815
       },
-      "Label": "ITEM NUMBER",
+      "Label": "19. ITEM NUMBER. Line 26 of 28",
       "Group": null
     },
     {
@@ -3681,7 +3681,7 @@
         "CenterX": 0.35326064,
         "CenterY": 0.527356
       },
-      "Label": "SCHEDULE OF SUPPLIES/SERVICES",
+      "Label": "20. SCHEDULE OF SUPPLIES/SERVICES",
       "Group": null
     },
     {
@@ -3695,7 +3695,7 @@
         "CenterX": 0.60370183,
         "CenterY": 0.5280132
       },
-      "Label": "QUANTITY",
+      "Label": "21. QUANTITY",
       "Group": null
     },
     {
@@ -3709,7 +3709,7 @@
         "CenterX": 0.6665368,
         "CenterY": 0.52775633
       },
-      "Label": "UNIT",
+      "Label": "22. UNIT",
       "Group": null
     },
     {
@@ -3723,7 +3723,7 @@
         "CenterX": 0.7482361,
         "CenterY": 0.5267854
       },
-      "Label": "UNIT PRICE",
+      "Label": "23. UNIT PRICE",
       "Group": null
     },
     {
@@ -3737,7 +3737,7 @@
         "CenterX": 0.8755163,
         "CenterY": 0.5264672
       },
-      "Label": "AMOUNT",
+      "Label": "24. AMOUNT",
       "Group": null
     },
     {
@@ -3751,7 +3751,7 @@
         "CenterX": 0.091010615,
         "CenterY": 0.54496276
       },
-      "Label": "ITEM NUMBER",
+      "Label": "19. ITEM NUMBER. Line 27 of 28",
       "Group": null
     },
     {
@@ -3765,7 +3765,7 @@
         "CenterX": 0.35326064,
         "CenterY": 0.54496586
       },
-      "Label": "SCHEDULE OF SUPPLIES/SERVICES",
+      "Label": "20. SCHEDULE OF SUPPLIES/SERVICES",
       "Group": null
     },
     {
@@ -3779,7 +3779,7 @@
         "CenterX": 0.60370183,
         "CenterY": 0.5456193
       },
-      "Label": "QUANTITY",
+      "Label": "21. QUANTITY",
       "Group": null
     },
     {
@@ -3793,7 +3793,7 @@
         "CenterX": 0.6665368,
         "CenterY": 0.54536116
       },
-      "Label": "UNIT",
+      "Label": "22. UNIT",
       "Group": null
     },
     {
@@ -3807,7 +3807,7 @@
         "CenterX": 0.7482361,
         "CenterY": 0.5443952
       },
-      "Label": "UNIT PRICE",
+      "Label": "23. UNIT PRICE",
       "Group": null
     },
     {
@@ -3821,7 +3821,7 @@
         "CenterX": 0.8755163,
         "CenterY": 0.54407704
       },
-      "Label": "AMOUNT",
+      "Label": "24. AMOUNT",
       "Group": null
     },
     {
@@ -3835,7 +3835,7 @@
         "CenterX": 0.091010615,
         "CenterY": 0.5625966
       },
-      "Label": "ITEM NUMBER",
+      "Label": "19. ITEM NUMBER. Line 28 of 28",
       "Group": null
     },
     {
@@ -3849,7 +3849,7 @@
         "CenterX": 0.35326064,
         "CenterY": 0.56259596
       },
-      "Label": "SCHEDULE OF SUPPLIES/SERVICES",
+      "Label": "20. SCHEDULE OF SUPPLIES/SERVICES",
       "Group": null
     },
     {
@@ -3863,7 +3863,7 @@
         "CenterX": 0.60370183,
         "CenterY": 0.56325316
       },
-      "Label": "QUANTITY",
+      "Label": "21. QUANTITY",
       "Group": null
     },
     {
@@ -3877,7 +3877,7 @@
         "CenterX": 0.6665368,
         "CenterY": 0.56299496
       },
-      "Label": "UNIT",
+      "Label": "22. UNIT",
       "Group": null
     },
     {
@@ -3891,7 +3891,7 @@
         "CenterX": 0.7482361,
         "CenterY": 0.5620253
       },
-      "Label": "UNIT PRICE",
+      "Label": "23. UNIT PRICE",
       "Group": null
     },
     {
@@ -3905,7 +3905,7 @@
         "CenterX": 0.8755163,
         "CenterY": 0.56171083
       },
-      "Label": "AMOUNT",
+      "Label": "24. AMOUNT",
       "Group": null
     },
     {
@@ -3933,7 +3933,7 @@
         "CenterX": 0.73374265,
         "CenterY": 0.6512184
       },
-      "Label": "REPRESENTATIVE",
+      "Label": "32d. PRINTED NAME OF AUTHORIZED GOVERNMENT REPRESENTATIVE",
       "Group": null
     },
     {
@@ -3947,7 +3947,7 @@
         "CenterX": 0.7337451,
         "CenterY": 0.66862
       },
-      "Label": "REPRESENTATIVE",
+      "Label": "32d. PRINTED TITLE OF AUTHORIZED GOVERNMENT REPRESENTATIVE",
       "Group": null
     },
     {
@@ -4017,7 +4017,7 @@
         "CenterX": 0.2790588,
         "CenterY": 0.78540593
       },
-      "Label": "FINAL",
+      "Label": "34. VOUCHER NUMBER",
       "Group": null
     },
     {
@@ -4031,7 +4031,7 @@
         "CenterX": 0.4360139,
         "CenterY": 0.78540593
       },
-      "Label": "FINAL",
+      "Label": "35. AMOUNT VERIFIED CORRECT FOR",
       "Group": null
     },
     {
@@ -4045,7 +4045,7 @@
         "CenterX": 0.8811691,
         "CenterY": 0.78540593
       },
-      "Label": "FINAL",
+      "Label": "37. CHECK NUMBER",
       "Group": null
     },
     {

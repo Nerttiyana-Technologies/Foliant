@@ -18,6 +18,8 @@
     <ProjectReference Include="..\..\src\Foliant.Forms.Lilt\Foliant.Forms.Lilt.csproj" />
     <!-- Template ingestion: the emit-form-template mode generates a FormLayout draft from a blank form. -->
     <ProjectReference Include="..\..\src\Foliant.Templates\Foliant.Templates.csproj" />
+    <!-- ML super-resolution upscaler: A/B a Real-ESRGAN-class model on low-DPI scans (Gate 8). -->
+    <ProjectReference Include="..\..\src\Foliant.ScanUpscale.SuperResolution\Foliant.ScanUpscale.SuperResolution.csproj" />
     <!-- PdfPig: reads the page text-layer word order (order-aware gate) and the AcroForm field
          map + widget rects for the form-K-V harvester. -->
     <PackageReference Include="PdfPig" Version="0.1.14" />

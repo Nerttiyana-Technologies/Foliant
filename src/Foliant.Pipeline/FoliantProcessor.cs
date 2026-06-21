@@ -46,7 +46,10 @@ public static class FoliantProcessor
         TableBackend tableBackend = TableBackend.TableTransformer,
         ReadingOrderBackend readingOrder = ReadingOrderBackend.XyCutPlusPlus,
         IFormFieldExtractor? formFields = null,
-        IPageTemplateRouter? templateRouter = null)
+        IPageTemplateRouter? templateRouter = null,
+        string? recognitionModelPath = null,
+        string? recognitionDictPath = null,
+        IScanUpscaler? scanUpscaler = null)
     {
         string Require(string fileName)
         {
@@ -58,14 +61,27 @@ public static class FoliantProcessor
             return path;
         }
 
+        // Recognition model is overridable so a stronger (server-grade) rec model can be A/B-tested against
+        // the default mobile rec on low-DPI scans (Gate 8) before it's promoted. Null = catalog default.
+        static string RequireOverride(string? path, string what) =>
+            path is null ? throw new InvalidOperationException()   // unreachable; guarded by caller
+            : File.Exists(path) ? path
+            : throw new FileNotFoundException($"{what} not found: {path}", path);
+        string recPath = recognitionModelPath is null
+            ? Require(ModelCatalog.OcrRecognitionEnglish.FileName)
+            : RequireOverride(recognitionModelPath, "recognition model");
+        string recDict = recognitionDictPath is null
+            ? Require(ModelCatalog.OcrRecognitionEnglishDict.FileName)
+            : RequireOverride(recognitionDictPath, "recognition dict");
+
         string? orientation = Path.Combine(modelsDirectory, OrientationModelFileName) is var o && File.Exists(o)
             ? o : null;
 
         var layout = new DocLayoutNetDetector(Require(ModelCatalog.LayoutDetection.FileName));
         var ocr = new PaddleOcrEngine(
             Require(ModelCatalog.OcrDetection.FileName),
-            Require(ModelCatalog.OcrRecognitionEnglish.FileName),
-            Require(ModelCatalog.OcrRecognitionEnglishDict.FileName),
+            recPath,
+            recDict,
             orientation);
         ITableExtractor tables = tableBackend switch
         {
@@ -86,6 +102,7 @@ public static class FoliantProcessor
             ownsComponents: true,
             preprocessor: new DefaultPagePreprocessor(),
             scanResolution: new PdfImageScanResolutionEstimator(),
+            scanUpscaler: scanUpscaler,   // null by default; an ML super-res backend can be injected and Gate-8 measured
             formFields: formFields ?? new AcroFormFieldExtractor(),
             templateRouter: templateRouter);
         // No IScanUpscaler is wired by default: the Gate 8 ledger measured classical (bicubic)
@@ -105,11 +122,15 @@ public static class FoliantProcessor
         TableBackend tableBackend = TableBackend.TableTransformer,
         ReadingOrderBackend readingOrder = ReadingOrderBackend.XyCutPlusPlus,
         IFormFieldExtractor? formFields = null,
-        IPageTemplateRouter? templateRouter = null)
+        IPageTemplateRouter? templateRouter = null,
+        string? recognitionModelPath = null,
+        string? recognitionDictPath = null,
+        IScanUpscaler? scanUpscaler = null)
     {
         cache ??= new ModelCache();
         await cache.GetPathsAsync(ModelCatalog.DefaultPipeline, downloadProgress, cancellationToken)
             .ConfigureAwait(false);
-        return CreateDefault(cache.CacheDirectory, tableBackend, readingOrder, formFields, templateRouter);
+        return CreateDefault(cache.CacheDirectory, tableBackend, readingOrder, formFields, templateRouter,
+            recognitionModelPath, recognitionDictPath, scanUpscaler);
     }
 }

@@ -112,6 +112,27 @@ public interface IPageTemplateRouter
     PageTemplateMatch? TryRoute(byte[] pdf, int pageNumber);
 }
 
+/// <summary>
+/// Routes a federal form recognized BY ITS PRINTED DESIGNATION (e.g. "STANDARD FORM 30") rather than by
+/// widget signature — for flattened or scanned forms that carry no usable AcroForm widgets. Given the
+/// rendered page + its OCR text, it binds the known template geometry: checkbox state from pixels, text
+/// values from OCR within each known field rect. Separate, optional interface so existing
+/// <see cref="IPageTemplateRouter"/> implementers are not forced to provide it.
+/// </summary>
+public interface IScannedFormRouter
+{
+    /// <param name="designation">The form number from <c>FormIdentifier.Identify</c> (e.g. "30", "1449", "25A").</param>
+    /// <param name="revisionYear">The printed 4-digit GSA revision year from <c>FormIdentifier.IdentifyRevisionYear</c>
+    /// (e.g. "2021"), or null when none is legible. Same form + same revision = same printed layout across agencies,
+    /// so this is the trust key: geometry is applied only on a page of the template's revision.</param>
+    /// <param name="image">The rendered page.</param>
+    /// <param name="lines">The page's recognized OCR text lines.</param>
+    /// <param name="pageNumber">1-based page number.</param>
+    /// <returns>The match when a bundled/customer template matches the designation AND revision and yields fields; else null.</returns>
+    PageTemplateMatch? TryRouteByDesignation(
+        string designation, string? revisionYear, PageImage image, IReadOnlyList<TextLine> lines, int pageNumber);
+}
+
 /// <summary>The embedded text layer of one PDF page, mapped to raster coordinates.</summary>
 /// <param name="Lines">Text lines grouped from the embedded words, in raster coordinates.</param>
 /// <param name="WordCount">Raw word count before line grouping (drives the Auto fast-path decision).</param>
