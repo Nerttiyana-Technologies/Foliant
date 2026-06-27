@@ -19,6 +19,36 @@ using Foliant.Templates;
 using Foliant.ScanUpscale.SuperResolution;
 using Foliant.Verification;
 
+// ADR-0002 milestone 1 — born-digital forms → labeled locator dataset (images + labels.jsonl).
+// Self-contained; short-circuits before the gate-harness arg parsing below.
+if (args.Length > 0 && args[0] == "--emit-form-dataset")
+    return FormDatasetEmitter.Run(args[1..]);
+
+// ADR-0003 G1 — ZeroDep routing census (ZeroDep-only, no Foliant models). Reports the fast-lane page share
+// and routing distribution over a corpus. Short-circuits before the gate-harness arg parsing below.
+if (args.Length > 0 && args[0] == "--route-census")
+    return RouteCensusRunner.Run(args[1..]);
+
+// ADR-0003 — table-probe: sample born-digital TableOrComplexLayout pages, render + run the layout detector,
+// report the real-table hit rate (is the table hint over-firing?). Needs the layout model (--models).
+if (args.Length > 0 && args[0] == "--table-probe")
+    return TableProbeRunner.Run(args[1..]);
+
+// ADR-0003 G1a — reclaim-parity: for low-ruling table pages the knob reclaims, compare fast-lane ZeroDep
+// prose vs Foliant-only word recall (is any text lost?). Needs the full pipeline models (--models).
+if (args.Length > 0 && args[0] == "--reclaim-parity")
+    return TableReclaimParityRunner.Run(args[1..]);
+
+// ADR-0003 G1a diagnostic — dump the fast-lane (ZeroDep) text vs Foliant-only text for ONE page, plus that
+// page's ZeroDep classification/signals, to see WHY a page scored low recall (real garbage vs artifact).
+if (args.Length > 0 && args[0] == "--reclaim-dump")
+    return TableReclaimParityRunner.Dump(args[1..]);
+
+// ADR-0003 G1a — clean text-layer fidelity: fast-lane (ZeroDep) vs pdftotext (poppler text layer), the
+// noise-free reference for born-digital pages. No Foliant models; requires pdftotext on PATH.
+if (args.Length > 0 && args[0] == "--textref-parity")
+    return TableReclaimParityRunner.RunTextRef(args[1..]);
+
 string? pdfDir = null;
 string outDir = "verification-out";
 string modelsDir = "models";
