@@ -1,5 +1,36 @@
 # Changelog
 
+## 1.4.0 — 2026-06-27 (ZeroDep-first orchestration — new `Foliant.Orchestration` package)
+
+Minor, **additive and non-breaking**. Adds a new opt-in package, **`Foliant.Orchestration`**, that puts the
+zero-dependency [ZeroDep](https://www.nuget.org/packages/ZeroDep) structural engine in front of the Foliant
+pipeline as a **plan-then-execute router**: one ZeroDep scan classifies every page, born-digital text/form
+pages are answered directly from ZeroDep (no render, no ML), and only the pages that need pixels escalate to
+the full Foliant pipeline — then the per-page results merge back in original order. The default Foliant
+pipeline is **unchanged**; the fast lane is **off by default** (`UseZeroDepFastLane = false`), so existing
+callers get identical behaviour until they opt in. See `docs/ADR-0003`.
+
+### Added
+- **`Foliant.Orchestration`** package (`DocumentOrchestrator : IDocumentProcessor`). With the fast lane off
+  it delegates verbatim to the wrapped pipeline (drop-in). With it on, it routes **per page** off ZeroDep's
+  per-page classification, batches all escalated pages into a single pipeline call (models load once), and
+  merges in page order.
+  - **Table reclaim knob** (`TableRulingLineThreshold`, default 0 = escalate all tables) — opt-in fast-laning
+    of low-ruling table-class pages as text, validated by ruling-line count.
+  - **Safety guards (default on):** *abstention* — a page that decodes to almost nothing despite claiming
+    text structure escalates instead of emitting empty; *decode-trust* — a page whose ZeroDep
+    `TextDecodeConfidence` is low (plausibly-but-wrongly decoded font) escalates rather than emit wrong text.
+  - **Unified output** — `IUnifiedDocumentProcessor.ProcessUnifiedAsync` returns a `UnifiedDocument`: the
+    `DocumentResult` plus the routing plan and **per-page engine provenance** (fast vs heavy lane). Retrieval
+    `chunks` are reserved (empty) for a future release.
+- Consumes ZeroDep `2.1.1` (per-page classification, text-decode trust, inter-word spacing fidelity).
+
+### Notes
+- Validated on the real corpus: opt-in throughput rose to **~45%** of pages fast-laned overall (**~68%** on a
+  born-digital SF-form workload), with fast-lane text fidelity **~99%** on that workload vs a clean text-layer
+  reference. `Foliant.Core` is untouched; the cardinal rule holds — Foliant references ZeroDep, never the
+  reverse.
+
 ## 1.3.3 — 2026-06-21 (fix: born-digital matched forms keep their clean grid body)
 
 Bug fix. 1.3.x flattened the body of **every** template-matched page to reading-order prose
