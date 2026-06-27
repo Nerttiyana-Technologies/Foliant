@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Description>ZeroDep-first orchestration for Foliant: a plan-then-execute router that classifies every page via the ZeroDep structural fast-lane (consumed as a NuGet.org package) and escalates only the pages that need Foliant's render+ML heavy lane, then merges to one unified result. See docs/ADR-0003.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Foliant.Core\Foliant.Core.csproj" />
+    <ProjectReference Include="..\Foliant.Pipeline\Foliant.Pipeline.csproj" />
+    <ProjectReference Include="..\Foliant.Templates\Foliant.Templates.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- ZeroDep structural fast-lane. Consumed as the PUBLISHED NuGet.org package, version-pinned — never a
+         local project/folder reference. This is the cardinal one-way-dependency rule (Gate G0): Foliant may
+         reference ZeroDep; ZeroDep must never reference Foliant. A package boundary makes the reverse
+         impossible by construction. -->
+    <PackageReference Include="ZeroDep" Version="2.1.1" />
+    <PackageReference Include="ZeroDep.Abstractions" Version="2.1.1" />
+    <PackageReference Update="MinVer" Version="7.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Foliant.Orchestration.Tests" />
+  </ItemGroup>
+
+</Project>
