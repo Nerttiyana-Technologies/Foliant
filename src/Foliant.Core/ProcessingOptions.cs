@@ -48,9 +48,52 @@ public sealed record ProcessingOptions
 
     /// <summary>
     /// Linear scale factor applied when <see cref="UpscaleLowResolutionScans"/> upscales a
-    /// low-resolution page. 2.0 doubles each dimension. Values ≤ 1 disable the upscale.
+    /// low-resolution page — and by the <see cref="RetryLowResolutionPages"/> retry ladder.
+    /// 2.0 doubles each dimension. Values ≤ 1 disable the upscale.
     /// </summary>
     public float LowResolutionUpscaleFactor { get; init; } = 2.0f;
+
+    /// <summary>
+    /// Retry ladder for low-resolution pages whose OCR came back (near-)empty: when an OCR-routed
+    /// page is flagged <see cref="PageResult.LowResolution"/> AND produced fewer than
+    /// <see cref="LowResolutionRetryMinWords"/> words, the pixel stages (preprocess → OCR) are
+    /// re-run on an enlarged raster — first with the wired <see cref="IScanUpscaler"/> ×
+    /// <see cref="LowResolutionUpscaleFactor"/>, then (if still under the threshold) on a
+    /// re-render at up to 600 DPI — keeping whichever attempt extracted the most words. On by
+    /// default: unlike <see cref="UpscaleLowResolutionScans"/> (always-on upscaling, measured
+    /// net-negative on pages OCR could already read), the retry only runs where the baseline
+    /// produced ~nothing, so it can only add words; pages that never trigger are byte-identical.
+    /// Unrecovered pages get <see cref="PageResult.NeedsReview"/> + <see cref="PageResult.Notice"/>.
+    /// </summary>
+    public bool RetryLowResolutionPages { get; init; } = true;
+
+    /// <summary>
+    /// Word-count threshold for the <see cref="RetryLowResolutionPages"/> trigger and for
+    /// <see cref="PageResult.NeedsReview"/>: an OCR-routed page with fewer extracted words than
+    /// this (and no text-layer truth vouching for it) is treated as a failed extraction.
+    /// </summary>
+    public int LowResolutionRetryMinWords { get; init; } = 3;
+
+    /// <summary>
+    /// Mixed pages: a born-digital page (healthy text layer → fast path) that also carries a
+    /// page-covering EMBEDDED IMAGE — e.g. a scanned letter pasted into a proposal. The image's
+    /// text exists only as pixels, so the fast path silently drops it while recall (scored
+    /// against the same image-less text layer) still reports 100%. When on, such pages
+    /// additionally run OCR on the rendered raster and merge in the lines that do not spatially
+    /// overlap any text-layer line: born-digital text stays verbatim from the layer, the image's
+    /// content is recovered, and the page carries an informational <see cref="PageResult.Notice"/>.
+    /// On by default; costs one OCR pass only on pages that actually embed a page-covering image.
+    /// </summary>
+    public bool RecoverEmbeddedImageText { get; init; } = true;
+
+    /// <summary>
+    /// Minimum fraction (0..1) of a fast-path page's area that embedded raster images must cover
+    /// before <see cref="RecoverEmbeddedImageText"/> probes it with OCR. 0.1 catches pasted
+    /// letters AND table screenshots (a price table pasted into a proposal can cover under 20%
+    /// of its page) while still ignoring logos, header rules and signature stamps (each under 1%
+    /// is discounted entirely). Raise it if figure-heavy corpora over-trigger.
+    /// </summary>
+    public float MinEmbeddedImageCoverage { get; init; } = 0.1f;
 
     public TextLayerMode TextLayer { get; init; } = TextLayerMode.Auto;
 

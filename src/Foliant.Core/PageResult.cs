@@ -58,6 +58,17 @@ public sealed record PageVerification(
 /// extraction was not requested (<see cref="ProcessingOptions.ExtractFormFields"/> off) or no
 /// extractor is wired. Empty when extraction ran but found no fields.
 /// </param>
+/// <param name="NeedsReview">
+/// True when this page is a FAILED or SUSPECT extraction, not a quiet success — either an
+/// OCR-routed page that produced fewer than
+/// <see cref="ProcessingOptions.LowResolutionRetryMinWords"/> words with no text-layer truth to
+/// vouch for it (<see cref="PageVerification.RecallPercent"/> is null — invisible to recall
+/// aggregates), or a text-layer page embedding a large image whose content could not be
+/// recovered (<see cref="ProcessingOptions.RecoverEmbeddedImageText"/>) — recall is blind to
+/// pixels-only content, so it reports 100% on such pages. Callers aggregating recall MUST also
+/// surface <see cref="DocumentResult.PagesNeedingReview"/>: a document can no longer report
+/// 100% recall while silently missing content. Accompanied by a <see cref="Notice"/>.
+/// </param>
 public sealed record PageResult(
     int PageNumber,
     int WidthPx,
@@ -73,4 +84,5 @@ public sealed record PageResult(
     int OrientationApplied = 0,
     int? EffectiveDpi = null,
     bool LowResolution = false,
-    IReadOnlyList<FormField>? FormFields = null);
+    IReadOnlyList<FormField>? FormFields = null,
+    bool NeedsReview = false);

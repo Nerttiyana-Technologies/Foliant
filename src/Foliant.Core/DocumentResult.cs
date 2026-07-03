@@ -10,6 +10,16 @@ public sealed record DocumentResult(
     IReadOnlyList<PageResult> Pages,
     string Markdown)
 {
+    /// <summary>
+    /// Page numbers flagged <see cref="PageResult.NeedsReview"/> — pages whose text came from
+    /// pixels, produced ~no words, and have no text-layer truth vouching for them. Such pages are
+    /// invisible to recall aggregates (<see cref="PageVerification.RecallPercent"/> is null), so a
+    /// caller reporting document recall MUST surface this list alongside it: a document cannot
+    /// honestly claim 100% recall while this list is non-empty.
+    /// </summary>
+    public IReadOnlyList<int> PagesNeedingReview =>
+        Pages.Where(p => p.NeedsReview).Select(p => p.PageNumber).ToList();
+
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
