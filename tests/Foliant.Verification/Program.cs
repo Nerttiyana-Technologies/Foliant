@@ -106,6 +106,8 @@ string[]? importTpl = null;           // --import-template <db> <reviewed.json>
 string[]? unregTpl = null;            // --unregister <db> <id>
 bool noRetryLadder = false;           // --no-retry-ladder: disable the ADR-0004 low-res retry (A/B)
 bool noImageRecovery = false;         // --no-image-recovery: disable the ADR-0004 mixed-page merge (A/B)
+int samplePdfs = 0;                   // --sample-pdfs N: seeded random N-PDF subset (0 = all)
+int sampleSeed = 12345;               // --sample-seed S: reproducible subset across runs
 var tableBackend = TableBackend.TableTransformer;
 var readingOrder = ReadingOrderBackend.XyCutPlusPlus;
 
@@ -147,6 +149,8 @@ for (int i = 0; i < args.Length; i++)
     if (args[i] == "--gate8-dump") { gate8Dump = true; continue; }
     if (args[i] == "--no-retry-ladder") { noRetryLadder = true; continue; }
     if (args[i] == "--no-image-recovery") { noImageRecovery = true; continue; }
+    if (args[i] == "--sample-pdfs" && i + 1 < args.Length) { samplePdfs = int.Parse(args[++i]); continue; }
+    if (args[i] == "--sample-seed" && i + 1 < args.Length) { sampleSeed = int.Parse(args[++i]); continue; }
     if (args[i] == "--register" && i + 2 < args.Length) { regBlank = args[++i]; regDb = args[++i]; continue; }
     if (args[i] == "--list-templates" && i + 1 < args.Length) { listTplDb = args[++i]; continue; }
     if (args[i] == "--export-template" && i + 3 < args.Length) { exportTpl = new[] { args[++i], args[++i], args[++i] }; continue; }
@@ -333,8 +337,17 @@ if (pdfDir == null || !Directory.Exists(pdfDir))
     return 2;
 }
 
-var pdfs = Directory.GetFiles(pdfDir, "*.pdf").OrderBy(p => p).ToList();
+var pdfs = Directory.GetFiles(pdfDir, "*.pdf", SearchOption.AllDirectories).OrderBy(p => p).ToList();
 if (pdfs.Count == 0) { Console.Error.WriteLine($"No PDFs in {pdfDir}."); return 2; }
+
+// --sample-pdfs N: seeded random subset for big corpora (same seed → same subset, so a re-run
+// after a fix measures the identical slice). 0 = the whole corpus.
+if (samplePdfs > 0 && samplePdfs < pdfs.Count)
+{
+    var sampleRng = new Random(sampleSeed);
+    pdfs = pdfs.OrderBy(_ => sampleRng.Next()).Take(samplePdfs).OrderBy(p => p).ToList();
+    Console.WriteLine($"Mode: --sample-pdfs {samplePdfs} (seed {sampleSeed}) of the full corpus");
+}
 
 // Synthetic-fill mode (ADR-0001 Lever 2 value signal): fill blank templates in <pdf-dir> with
 // synthetic values → license-clean form-kv records. Renderer-only; short-circuits before models.
