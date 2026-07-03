@@ -1,5 +1,57 @@
 # Changelog
 
+## 1.5.0 — 2026-07-03 (no more silent empty pages — recovery + honest flagging)
+
+Minor, **additive and non-breaking**. Fixes two ways a page's visible content could vanish from the
+output while every quality metric stayed green — reported in production use, where documents
+containing such pages showed **recall 100%** with pages that emitted little or no text.
+
+### Fixed
+- **Mixed pages: embedded-image content recovered** (`RecoverEmbeddedImageText`, default **on**).
+  A born-digital page with a healthy text layer can carry its real content as an embedded raster
+  image — a scanned letter pasted into a proposal, a price table inserted as a screenshot. The
+  fast path silently dropped that content, and recall — scored against the same image-less text
+  layer — still reported 100%. Now, when embedded images cover ≥ `MinEmbeddedImageCoverage`
+  (default 0.1) of a fast-path page, the rendered page is OCR'd once and lines not already covered
+  by the text layer are merged in additively: layer text stays verbatim, image text (including
+  table cell contents, which previously rendered as an empty grid) is recovered, and the page
+  carries an informational `Notice`. If nothing can be recovered from a large embedded image, the
+  page is flagged `NeedsReview` instead — never silent.
+- **Low-resolution scans: retry ladder** (`RetryLowResolutionPages`, default **on**). An OCR-routed
+  page flagged `LowResolution` that produced fewer than `LowResolutionRetryMinWords` (default 3)
+  words is retried on an enlarged raster — first with the wired `IScanUpscaler` ×
+  `LowResolutionUpscaleFactor`, then on a re-render at up to 600 DPI — keeping whichever attempt
+  extracted the most words (ties keep the first pass, so a retry can never lose words). Distinct
+  from the always-on `UpscaleLowResolutionScans` path, which stays off per the Gate 8 verdict:
+  the retry runs only where the baseline produced ~nothing, so healthy pages are byte-identical.
+
+### Added
+- **Honest metrics** (all additive): `PageResult.NeedsReview` — true when a page is a failed or
+  suspect extraction (empty OCR page with no text-layer truth, or unrecoverable embedded-image
+  content); `PageResult.Notice` texts explaining each case, including the recovery notices;
+  `DocumentResult.PagesNeedingReview` — page numbers callers MUST surface next to any recall
+  aggregate. A document can no longer report 100% recall while silently missing content.
+- `ProcessingOptions`: `RetryLowResolutionPages`, `LowResolutionRetryMinWords`,
+  `RecoverEmbeddedImageText`, `MinEmbeddedImageCoverage`.
+- `FoliantProcessor.CreateDefault` now wires `ClassicalScanUpscaler` by default (retry-only role;
+  CPU-cheap, model-free). Hosts with a capable GPU should inject `OnnxSuperResolutionUpscaler`
+  (`Foliant.ScanUpscale.SuperResolution`) instead — see the XML doc one-liner.
+- Verification harness: **Gate 9 — no silent empty OCR page** (any OCR page with ~zero words must
+  carry a Notice; needs-review count prints beside every recall summary), plus A/B switches
+  (`--no-retry-ladder`, `--no-image-recovery`) and ADR-0004 ledger runners (`--lowres-repro`,
+  `--wrap-scans`, `--scan-census`).
+
+### Verification
+- Mixed-page regression (production-shape pages: pasted letter at 45% coverage, table screenshot
+  at 19.5%): letter paragraphs and all table cell values recovered into the output; both pages
+  carry recovery notices; Gates 1/2/9 PASS.
+- Synthetic low-DPI ladder (born-digital corpus degraded to image-only scans): recall degrades
+  95.2% → 67.5% → 29.4% (72/50/40 DPI) with pages still word-bearing (no trigger, byte-identical
+  path); at 30 DPI pages go empty and the machinery engages — every empty page either recovered
+  via retry or flagged `NeedsReview`; zero silent empties.
+- Real scans (categorized document-scan corpus, 300 pages at ~200–320 DPI + all 65 sub-150-DPI
+  pages): zero empty pages, zero false notices — trigger and probe stay cold on healthy input.
+
 ## 1.4.0 — 2026-06-27 (ZeroDep-first orchestration — new `Foliant.Orchestration` package)
 
 Minor, **additive and non-breaking**. Adds a new opt-in package, **`Foliant.Orchestration`**, that puts the
