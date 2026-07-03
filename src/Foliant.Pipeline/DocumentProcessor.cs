@@ -300,7 +300,10 @@ public sealed class DocumentProcessor : IDocumentProcessor, IDisposable
 
             var baseRaster = image;                       // post-orientation, pre-preprocess
             var best = RunPixelStages(baseRaster);
-            int bestWords = CountWords(best.Lines);
+            // Confidence-floored count: hallucinated texture read as garbage words must neither
+            // win keep-better nor mask the honesty flag (LowResolutionRetryMinConfidence).
+            float minConf = options.LowResolutionRetryMinConfidence;
+            int bestWords = CountWords(best.Lines, minConf);
 
             // ── ADR-0004 retry ladder ─────────────────────────────────────────
             // Trigger: flagged low-resolution AND the first pass produced ~nothing. The baseline
@@ -317,7 +320,7 @@ public sealed class DocumentProcessor : IDocumentProcessor, IDisposable
                 {
                     var candidate = RunPixelStages(
                         _upscaler.Upscale(baseRaster, options.LowResolutionUpscaleFactor));
-                    int words = CountWords(candidate.Lines);
+                    int words = CountWords(candidate.Lines, minConf);
                     if (words > bestWords)
                     {
                         (best, bestWords) = (candidate, words);
@@ -337,11 +340,16 @@ public sealed class DocumentProcessor : IDocumentProcessor, IDisposable
                         rerendered = retryTransform.Transform(rerendered);
                     if (orientationApplied != 0)
                         rerendered = ScanDegrader.Rotate(orientationApplied).Transform(rerendered);
-                    if (_upscaler is not null && options.LowResolutionUpscaleFactor > 1f)
+                    // Upscale ONLY when the 600-DPI cap kept the re-render below the intended 2×
+                    // (options.Dpi > 300). An uncapped re-render already doubled the pixel budget;
+                    // stacking another upscale on top of it buys nothing and — with a 4×-native SR
+                    // backend — explodes the intermediate buffer past the array limit.
+                    if (retryDpi < 2 * options.Dpi
+                        && _upscaler is not null && options.LowResolutionUpscaleFactor > 1f)
                         rerendered = _upscaler.Upscale(rerendered, options.LowResolutionUpscaleFactor);
 
                     var candidate = RunPixelStages(rerendered);
-                    int words = CountWords(candidate.Lines);
+                    int words = CountWords(candidate.Lines, minConf);
                     if (words > bestWords)
                     {
                         (best, bestWords) = (candidate, words);
@@ -443,7 +451,7 @@ public sealed class DocumentProcessor : IDocumentProcessor, IDisposable
         // A page whose text came from pixels and produced ~nothing, with no text-layer truth to
         // vouch for it (truthWords == 0 → RecallPercent null → invisible to recall aggregates),
         // is a FAILED extraction and must be impossible to miss — not a quiet success.
-        int pageWords = CountWords(lines);
+        int pageWords = CountWords(lines, options.LowResolutionRetryMinConfidence);
         bool needsReview = !useLayer && truthWords == 0 && pageWords < options.LowResolutionRetryMinWords;
         string? pageNotice = null;
         if (!useLayer)
@@ -490,8 +498,9 @@ public sealed class DocumentProcessor : IDocumentProcessor, IDisposable
             NeedsReview: needsReview);
     }
 
-    private static int CountWords(IReadOnlyList<TextLine> lines) =>
-        lines.Sum(l => l.Text.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries).Length);
+    private static int CountWords(IReadOnlyList<TextLine> lines, float minConfidence = 0f) =>
+        lines.Where(l => l.Confidence >= minConfidence)
+             .Sum(l => l.Text.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries).Length);
 
     // An OCR line already covered by the text layer: ≥30% of its box intersects a layer line's
     // box. Layer text re-read by OCR lands on top of its source and is dropped; embedded-image
