@@ -98,6 +98,7 @@ string? recModel = null;              // --rec-model <path>: override the OCR re
 string? recDict = null;               // --rec-dict <path>: dict for --rec-model (default = catalog English dict)
 string? superResModel = null;         // --super-res <path>: ML super-resolution ONNX for low-DPI scans (A/B on Gate 8)
 int superResTile = 256;               // --super-res-tile N: tile edge (px) for super-res inference
+bool superResCuda = false;            // --super-res-cuda: CUDA execution provider (host needs Microsoft.ML.OnnxRuntime.Gpu)
 bool gate8Dump = false;               // --gate8-dump: save each arm's OCR-input image (degraded / upscaled) as PNG
 string? regBlank = null, regDb = null;        // --register <blank.pdf> <db>: register a customer template
 string? listTplDb = null;             // --list-templates <db>
@@ -146,6 +147,7 @@ for (int i = 0; i < args.Length; i++)
     if (args[i] == "--rec-dict" && i + 1 < args.Length) { recDict = args[++i]; continue; }
     if (args[i] == "--super-res" && i + 1 < args.Length) { superResModel = args[++i]; continue; }
     if (args[i] == "--super-res-tile" && i + 1 < args.Length) { superResTile = int.Parse(args[++i]); continue; }
+    if (args[i] == "--super-res-cuda") { superResCuda = true; continue; }
     if (args[i] == "--gate8-dump") { gate8Dump = true; continue; }
     if (args[i] == "--no-retry-ladder") { noRetryLadder = true; continue; }
     if (args[i] == "--no-image-recovery") { noImageRecovery = true; continue; }
@@ -378,7 +380,8 @@ IPageTemplateRouter? pipelineRouter = withTemplates
     ? new TemplateRouter(new TemplateRegistry(routeDb != null ? new TemplateStore(routeDb) : null))
     : null;
 IScanUpscaler? superResUpscaler = superResModel != null
-    ? new OnnxSuperResolutionUpscaler(superResModel, superResTile)
+    ? new OnnxSuperResolutionUpscaler(superResModel, new SuperResolutionOptions
+        { UseCuda = superResCuda, FallbackTile = superResTile })
     : null;
 using var processor = FoliantProcessor.CreateDefault(modelsDir, tableBackend, readingOrder, formExtractor, pipelineRouter,
     recognitionModelPath: recModel, recognitionDictPath: recDict, scanUpscaler: superResUpscaler);

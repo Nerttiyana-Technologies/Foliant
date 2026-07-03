@@ -49,12 +49,18 @@ internal static class LowResReproRunner
         string outDir = "verification-out";
         string modelsDir = "models";
         int scanDpi = 72, pagesPerPdf = 2, minTruthWords = 50, maxPages = 40;
-        bool noRetry = false;   // --no-retry: 1.4.0-equivalent behavior, the Gate 9a A/B baseline
+        bool noRetry = false;         // --no-retry: 1.4.0-equivalent behavior, the Gate 9a A/B baseline
+        string? superResModel = null; // --super-res <path>: SR upscaler in the RETRY role (vs classical)
+        int superResTile = 128;
+        bool superResCuda = false;    // --super-res-cuda: CUDA EP (host needs Microsoft.ML.OnnxRuntime.Gpu)
         for (int i = 1; i < args.Length; i++)
         {
             switch (args[i])
             {
                 case "--no-retry": noRetry = true; break;
+                case "--super-res" when i + 1 < args.Length: superResModel = args[++i]; break;
+                case "--super-res-tile" when i + 1 < args.Length: superResTile = int.Parse(args[++i], CultureInfo.InvariantCulture); break;
+                case "--super-res-cuda": superResCuda = true; break;
                 case "--models" when i + 1 < args.Length: modelsDir = args[++i]; break;
                 case "--scan-dpi" when i + 1 < args.Length: scanDpi = int.Parse(args[++i], CultureInfo.InvariantCulture); break;
                 case "--pages-per-pdf" when i + 1 < args.Length: pagesPerPdf = int.Parse(args[++i], CultureInfo.InvariantCulture); break;
@@ -69,8 +75,18 @@ internal static class LowResReproRunner
         string pdfOutDir = Path.Combine(outDir, "lowres-pdfs");
         Directory.CreateDirectory(pdfOutDir);
 
-        using var processor = FoliantProcessor.CreateDefault(modelsDir);
+        // Default = shipped wiring (ClassicalScanUpscaler in the retry role); --super-res swaps in
+        // the ML upscaler so the SAME corpus and trigger A/B the two backends' recovery rates.
+        IScanUpscaler? upscaler = superResModel is not null
+            ? new Foliant.ScanUpscale.SuperResolution.OnnxSuperResolutionUpscaler(superResModel,
+                new Foliant.ScanUpscale.SuperResolution.SuperResolutionOptions
+                    { UseCuda = superResCuda, FallbackTile = superResTile })
+            : null;
+        using var processor = FoliantProcessor.CreateDefault(modelsDir, scanUpscaler: upscaler);
         var renderer = new PdfPageRenderer();
+        if (superResModel is not null)
+            Console.WriteLine($"Mode: --super-res '{superResModel}' in the RETRY role " +
+                              $"(tile {superResTile}{(superResCuda ? ", CUDA" : ", CPU")})");
 
         var pdfs = Directory.GetFiles(pdfDir, "*.pdf", SearchOption.AllDirectories).OrderBy(p => p).ToList();
         if (pdfs.Count == 0) { Console.Error.WriteLine($"lowres-repro: no PDFs in {pdfDir}"); return 2; }
@@ -180,7 +196,8 @@ internal static class LowResReproRunner
             }
         }
 
-        string csvPath = Path.Combine(outDir, $"lowres-repro-{scanDpi}dpi{(noRetry ? "-noretry" : "")}.csv");
+        string csvPath = Path.Combine(outDir,
+            $"lowres-repro-{scanDpi}dpi{(noRetry ? "-noretry" : "")}{(superResModel is not null ? "-sr" : "")}.csv");
         await File.WriteAllTextAsync(csvPath, csv.ToString());
 
         Console.WriteLine($"\n──── SUMMARY ({scored} synthetic {scanDpi}-DPI scan pages) ────");
