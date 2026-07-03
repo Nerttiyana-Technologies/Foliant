@@ -41,6 +41,19 @@ public static class FoliantProcessor
     /// Creates the default pipeline from a directory of pre-downloaded models
     /// (see scripts/download-models.sh for file names).
     /// </summary>
+    /// <param name="scanUpscaler">
+    /// Upscaler used by the low-resolution RETRY ladder
+    /// (<see cref="ProcessingOptions.RetryLowResolutionPages"/>, on by default) and by the
+    /// always-on <see cref="ProcessingOptions.UpscaleLowResolutionScans"/> path (off by default).
+    /// Null wires the model-free <see cref="ClassicalScanUpscaler"/> (Catmull-Rom), which is
+    /// universal and CPU-cheap in the retry-only role. Hosts with a capable GPU should inject the
+    /// ML super-resolution backend instead — it recovers detail the classical filter cannot:
+    /// <code>
+    /// FoliantProcessor.CreateDefault(dir,
+    ///     scanUpscaler: new OnnxSuperResolutionUpscaler(pathToRealEsrganOnnx));
+    /// </code>
+    /// (package <c>Foliant.ScanUpscale.SuperResolution</c>).
+    /// </param>
     public static DocumentProcessor CreateDefault(
         string modelsDirectory,
         TableBackend tableBackend = TableBackend.TableTransformer,
@@ -102,13 +115,15 @@ public static class FoliantProcessor
             ownsComponents: true,
             preprocessor: new DefaultPagePreprocessor(),
             scanResolution: new PdfImageScanResolutionEstimator(),
-            scanUpscaler: scanUpscaler,   // null by default; an ML super-res backend can be injected and Gate-8 measured
+            scanUpscaler: scanUpscaler ?? new ClassicalScanUpscaler(),
             formFields: formFields ?? new AcroFormFieldExtractor(),
             templateRouter: templateRouter);
-        // No IScanUpscaler is wired by default: the Gate 8 ledger measured classical (bicubic)
-        // upscaling as net-negative for OCR recall on low-DPI scans (it enlarges artifacts it
-        // cannot add detail to). The IScanUpscaler seam stays for a future ML super-resolution
-        // backend; inject one here once a Gate 8 run proves it gains recall.
+        // The default ClassicalScanUpscaler serves the RETRY-ONLY role (ADR-0004): it runs solely
+        // on low-resolution pages whose first OCR pass produced ~nothing, where the baseline is an
+        // empty page and keep-better makes the retry monotone. The Gate 8 verdict (classical
+        // upscaling is net-negative when applied to EVERY low-DPI page) still stands — which is
+        // why ProcessingOptions.UpscaleLowResolutionScans (the always-on path) remains off.
+        // GPU hosts: inject the OnnxSuperResolutionUpscaler (see XML doc above) for better recovery.
     }
 
     /// <summary>
