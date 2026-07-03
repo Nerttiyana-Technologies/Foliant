@@ -99,7 +99,7 @@ internal static class LowResReproRunner
         var csv = new StringBuilder(
             "pdf,page,scanDpi,words,reportedRecall,effectiveDpi,lowResolution,notice,truthWords,honestRecall,syntheticPdf\n");
 
-        int scored = 0, silentlyEmpty = 0, noticed = 0;
+        int scored = 0, silentlyEmpty = 0, noticed = 0, errored = 0;
         var reportedRecalls = new List<double>();   // what a caller aggregating RecallPercent sees
         var honestRecalls = new List<double>();     // recall vs the ORIGINAL page's text layer
 
@@ -156,6 +156,7 @@ internal static class LowResReproRunner
                 }
                 catch (Exception ex)
                 {
+                    errored++;
                     Console.WriteLine($"{name} p{pageNum}: ERROR {ex.Message}");
                     continue;
                 }
@@ -200,7 +201,10 @@ internal static class LowResReproRunner
             $"lowres-repro-{scanDpi}dpi{(noRetry ? "-noretry" : "")}{(superResModel is not null ? "-sr" : "")}.csv");
         await File.WriteAllTextAsync(csvPath, csv.ToString());
 
-        Console.WriteLine($"\n──── SUMMARY ({scored} synthetic {scanDpi}-DPI scan pages) ────");
+        Console.WriteLine($"\n──── SUMMARY ({scored} synthetic {scanDpi}-DPI scan pages" +
+                          $"{(errored > 0 ? $"; {errored} pages ERRORED and are NOT counted below" : "")}) ────");
+        if (errored > 0)
+            Console.WriteLine($"⚠ {errored} page(s) crashed during processing — fix those before trusting this summary.");
         Console.WriteLine($"silently empty pages (<3 words):   {silentlyEmpty} / {scored}");
         Console.WriteLine($"pages carrying a Notice:           {noticed} / {scored}");
         Console.WriteLine(reportedRecalls.Count == 0

@@ -112,6 +112,12 @@ public sealed class OnnxSuperResolutionUpscaler : IScanUpscaler, IDisposable
     /// <summary>True when the loaded model supports tile batching (dynamic batch dimension).</summary>
     public bool SupportsBatching => _dynamicBatch;
 
+    // Largest native-scale intermediate we will materialize (bytes). A 4×-native model applied to
+    // an already-large raster (e.g. a 600-DPI re-render) would need a >2GB buffer — past the CLR
+    // array limit. Above this, super-resolution cannot help anyway (the raster is not
+    // detail-starved), so fall back to a classical Catmull-Rom resize instead of throwing.
+    private const long MaxNativeBufferBytes = 1L << 30;   // 1 GiB
+
     public PageImage Upscale(PageImage image, float factor)
     {
         ArgumentNullException.ThrowIfNull(image);
@@ -119,6 +125,8 @@ public sealed class OnnxSuperResolutionUpscaler : IScanUpscaler, IDisposable
 
         // 1) Super-resolve to the model's native scale (tiled at the model's fixed input size).
         int sw = image.Width * _scale, sh = image.Height * _scale;
+        if ((long)sw * sh * 4 > MaxNativeBufferBytes)
+            return ClassicalResize(image, factor);
         var srBgra = new byte[(long)sw * sh * 4];
         RunTiled(image, srBgra, sw);
 
@@ -202,6 +210,17 @@ public sealed class OnnxSuperResolutionUpscaler : IScanUpscaler, IDisposable
                 outBgra[o + 3] = 255;
             }
         }
+    }
+
+    // Oversized-raster fallback: plain high-quality resample, no model.
+    private static PageImage ClassicalResize(PageImage image, float factor)
+    {
+        int targetW = (int)Math.Round(image.Width * (double)factor);
+        int targetH = (int)Math.Round(image.Height * (double)factor);
+        using var bmp = SkiaInterop.ToBitmap(image);
+        using var dst = bmp.Resize(new SKImageInfo(targetW, targetH, SKColorType.Bgra8888, SKAlphaType.Opaque), Cubic)
+            ?? throw new InvalidOperationException("Fallback resize failed.");
+        return SkiaInterop.ToPageImage(dst, image.Dpi);
     }
 
     // Dry run at the model's fixed input size to learn its intrinsic scale (output edge / input edge).
