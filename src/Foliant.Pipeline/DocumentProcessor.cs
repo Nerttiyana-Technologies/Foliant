@@ -236,7 +236,36 @@ public sealed class DocumentProcessor : IDocumentProcessor, IDisposable
         int orientationApplied = 0;
         int? effectiveDpi = null;
         bool lowResolution = false;
-        if (!useLayer)
+        int renderDpi = options.Dpi;      // actual render DPI of the raster the page ends up using
+        bool retried = false;             // the ADR-0004 retry ladder ran on this page
+        string? recoveredVia = null;      // set when a retry rung's result was kept
+        IReadOnlyList<TextLine> lines;
+        int imageLinesRecovered = 0;        // mixed page: OCR lines merged from embedded image content
+        bool imageContentSuspected = false; // mixed-page probe fired on this fast-path page
+        if (useLayer)
+        {
+            lines = layer!.Lines;
+
+            // ── Mixed pages (ADR-0004 addendum): born-digital text PLUS a large embedded image —
+            //    a scanned letter pasted into a proposal, a price table inserted as a screenshot.
+            //    The image's text exists only as pixels, so the fast path would silently drop it
+            //    while recall (scored against the same image-less text layer) still reports 100%.
+            //    Probe for significant embedded images and OCR-merge the lines the layer does not
+            //    already cover: layer text stays verbatim, image text is recovered additively. ──
+            if (options.RecoverEmbeddedImageText
+                && EmbeddedImageProbe.Coverage(pdf, pageNumber) >= options.MinEmbeddedImageCoverage)
+            {
+                imageContentSuspected = true;
+                var ocrLines = _ocr.Recognize(image);
+                var added = ocrLines.Where(o => !OverlapsAnyLine(o, lines)).ToList();
+                if (added.Count > 0)
+                {
+                    lines = lines.Concat(added).ToList();
+                    imageLinesRecovered = added.Count;
+                }
+            }
+        }
+        else
         {
             // Effective source DPI from the embedded scan image (not the fixed render DPI).
             // Computed from the original PDF bytes, independent of the in-memory raster transforms.
@@ -249,6 +278,7 @@ public sealed class DocumentProcessor : IDocumentProcessor, IDisposable
             // Super-res seam: enlarge flagged low-resolution pages before orientation, preprocessing,
             // layout and OCR all run, so every downstream stage sees the upscaled raster. Advisory
             // EffectiveDpi/LowResolution still describe the original source scan, not the upscale.
+            // (Always-on path, off by default per the Gate 8 verdict — distinct from the retry below.)
             if (lowResolution && options.UpscaleLowResolutionScans
                 && _upscaler is not null && options.LowResolutionUpscaleFactor > 1f)
             {
@@ -257,11 +287,73 @@ public sealed class DocumentProcessor : IDocumentProcessor, IDisposable
 
             if (options.DetectOrientation)
                 (image, orientationApplied) = _orientation.Correct(image, _ocr);
-            if (options.PreprocessScans && _preprocessor != null)
-                image = _preprocessor.Process(image).Image;
-        }
 
-        var lines = useLayer ? layer!.Lines : _ocr.Recognize(image);
+            // Pixel stages, re-runnable for the ADR-0004 retry ladder. Orientation is intentionally
+            // NOT re-run in retries (it already ran; re-running quadruples thumbnail OCR cost for
+            // no signal).
+            (PageImage Image, IReadOnlyList<TextLine> Lines) RunPixelStages(PageImage raster)
+            {
+                if (options.PreprocessScans && _preprocessor != null)
+                    raster = _preprocessor.Process(raster).Image;
+                return (raster, _ocr.Recognize(raster));
+            }
+
+            var baseRaster = image;                       // post-orientation, pre-preprocess
+            var best = RunPixelStages(baseRaster);
+            int bestWords = CountWords(best.Lines);
+
+            // ── ADR-0004 retry ladder ─────────────────────────────────────────
+            // Trigger: flagged low-resolution AND the first pass produced ~nothing. The baseline
+            // is an empty page, so a retry can only add words (keep-better guarantees
+            // monotonicity); pages that never trigger take exactly the single-pass path — which
+            // is how this escapes the Gate 8 always-on-upscale net-negative verdict.
+            if (options.RetryLowResolutionPages && lowResolution
+                && bestWords < options.LowResolutionRetryMinWords)
+            {
+                retried = true;
+
+                // Rung 1: upscale the raster we already have with the wired IScanUpscaler.
+                if (_upscaler is not null && options.LowResolutionUpscaleFactor > 1f)
+                {
+                    var candidate = RunPixelStages(
+                        _upscaler.Upscale(baseRaster, options.LowResolutionUpscaleFactor));
+                    int words = CountWords(candidate.Lines);
+                    if (words > bestWords)
+                    {
+                        (best, bestWords) = (candidate, words);
+                        recoveredVia = $"{options.LowResolutionUpscaleFactor:0.#}× upscale retry";
+                    }
+                }
+
+                // Rung 2: re-render the page at elevated DPI (capped at 600), only if still under
+                // the threshold. The caller/test ImageTransform and any orientation correction are
+                // re-applied so the re-render faces the same conditions as the first pass
+                // (Gate 7/8 degradations live in the transform!).
+                int retryDpi = Math.Min(2 * options.Dpi, 600);
+                if (bestWords < options.LowResolutionRetryMinWords && retryDpi > options.Dpi)
+                {
+                    var rerendered = _renderer.Render(pdf, pageNumber, retryDpi);
+                    if (options.ImageTransform is { } retryTransform)
+                        rerendered = retryTransform.Transform(rerendered);
+                    if (orientationApplied != 0)
+                        rerendered = ScanDegrader.Rotate(orientationApplied).Transform(rerendered);
+                    if (_upscaler is not null && options.LowResolutionUpscaleFactor > 1f)
+                        rerendered = _upscaler.Upscale(rerendered, options.LowResolutionUpscaleFactor);
+
+                    var candidate = RunPixelStages(rerendered);
+                    int words = CountWords(candidate.Lines);
+                    if (words > bestWords)
+                    {
+                        (best, bestWords) = (candidate, words);
+                        renderDpi = retryDpi;   // line/region geometry lives in this raster's space
+                        recoveredVia = $"re-render at {retryDpi} DPI retry";
+                    }
+                }
+            }
+
+            image = best.Image;
+            lines = best.Lines;
+        }
 
         // ── AcroForm/XFA field VALUES live in the field widgets, not the content-stream text the
         //    fast path reads — so on the text-layer path they were silently dropped (and recall,
@@ -347,17 +439,73 @@ public sealed class DocumentProcessor : IDocumentProcessor, IDisposable
             markdown += "\n" + TemplateFieldSection.Render(t);
         }
 
+        // ── Honest metrics (ADR-0004) ────────────────────────────────────────
+        // A page whose text came from pixels and produced ~nothing, with no text-layer truth to
+        // vouch for it (truthWords == 0 → RecallPercent null → invisible to recall aggregates),
+        // is a FAILED extraction and must be impossible to miss — not a quiet success.
+        int pageWords = CountWords(lines);
+        bool needsReview = !useLayer && truthWords == 0 && pageWords < options.LowResolutionRetryMinWords;
+        string? pageNotice = null;
+        if (!useLayer)
+        {
+            if (needsReview)
+                pageNotice = lowResolution && effectiveDpi is int srcDpi
+                    ? $"Low-resolution scan (~{srcDpi} DPI): no text could be recovered" +
+                      (retried ? " after retry" : "") + " — page needs manual review."
+                    : "Scanned page produced no extractable text — page needs manual review.";
+            else if (recoveredVia is not null)
+                pageNotice = $"Low-resolution scan (~{effectiveDpi} DPI): recovered via {recoveredVia}.";
+        }
+        else if (imageContentSuspected)
+        {
+            // Mixed page verdict. Either the image's text was recovered (informational — reviewers
+            // can see what was added), or nothing could be read out of a large embedded image and
+            // the page must be flagged: its visible content may be missing from the output while
+            // recall — blind to pixels-only content — reports 100%.
+            if (imageLinesRecovered > 0)
+            {
+                pageNotice = $"Mixed page: {imageLinesRecovered} line(s) recovered via OCR from " +
+                             "embedded image content absent from the text layer.";
+            }
+            else
+            {
+                needsReview = true;
+                pageNotice = "Page embeds a large image but no additional text could be recovered " +
+                             "from it — visible content may be missing; page needs manual review.";
+            }
+        }
+
         sw.Stop();
         return new PageResult(
-            pageNumber, image.Width, image.Height, options.Dpi,
+            pageNumber, image.Width, image.Height, renderDpi,
             composed.Regions, lines, composed.PageFurniture,
             useLayer ? TextSource.TextLayer : TextSource.Ocr,
             markdown,
             new PageVerification(lost, truthWords, truthFound, sw.Elapsed.TotalSeconds),
+            Notice: pageNotice,
             OrientationApplied: orientationApplied,
             EffectiveDpi: effectiveDpi,
             LowResolution: lowResolution,
-            FormFields: formFields);
+            FormFields: formFields,
+            NeedsReview: needsReview);
+    }
+
+    private static int CountWords(IReadOnlyList<TextLine> lines) =>
+        lines.Sum(l => l.Text.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries).Length);
+
+    // An OCR line already covered by the text layer: ≥30% of its box intersects a layer line's
+    // box. Layer text re-read by OCR lands on top of its source and is dropped; embedded-image
+    // content has no layer lines beneath it and survives the merge.
+    private static bool OverlapsAnyLine(TextLine candidate, IReadOnlyList<TextLine> existing)
+    {
+        float area = Math.Max(1f, candidate.Bounds.Width * candidate.Bounds.Height);
+        foreach (var line in existing)
+        {
+            float ix = Math.Min(candidate.Bounds.X2, line.Bounds.X2) - Math.Max(candidate.Bounds.X1, line.Bounds.X1);
+            float iy = Math.Min(candidate.Bounds.Y2, line.Bounds.Y2) - Math.Max(candidate.Bounds.Y1, line.Bounds.Y1);
+            if (ix > 0 && iy > 0 && ix * iy / area > 0.3f) return true;
+        }
+        return false;
     }
 
     public void Dispose()
