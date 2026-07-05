@@ -59,6 +59,10 @@ if (args.Length > 0 && args[0] == "--lowres-repro")
 // natural effective DPI, and census how the shipped pipeline does on them (Gate 9a-real baseline).
 if (args.Length > 0 && args[0] == "--wrap-scans")
     return await RealScanRunner.WrapScansAsync(args[1..]);
+
+// Paired-corpus harvester: scan ↔ digital-twin truth pairs (local-only; license-tagged).
+if (args.Length > 0 && args[0] == "--emit-scan-pairs")
+    return ScanPairsEmitter.Run(args[1..]);
 if (args.Length > 0 && args[0] == "--scan-census")
     return await RealScanRunner.CensusAsync(args[1..]);
 
@@ -447,14 +451,21 @@ var rows = new List<Row>();
 int emitted = 0;   // ADR-0001 reading-order records harvested (when --emit-reading-order is set)
 int kvEmitted = 0; // ADR-0001 Lever 2 form-K-V records harvested (when --emit-form-kv is set)
 int needsReviewPages = 0;                 // ADR-0004: pages flagged NeedsReview across the corpus
+int sensitivityPages = 0;                 // pages carrying CUI/legacy/classification banner markings
 var gate9Violations = new List<string>(); // ADR-0004 Gate 9: OCR page, ~zero words, NO notice — must be empty
 var total = System.Diagnostics.Stopwatch.StartNew();
 
+int pdfIndex = 0;
 foreach (var pdf in pdfs)
 {
+    pdfIndex++;
     var name = Path.GetFileName(pdf);
     var stem = Path.GetFileNameWithoutExtension(pdf);
-    Console.WriteLine($"\n{name}");
+    // Progress + ETA from the running average — long corpus runs should always say where they are.
+    string eta = pdfIndex > 1
+        ? $", ~{total.Elapsed.TotalMinutes / (pdfIndex - 1) * (pdfs.Count - pdfIndex + 1):0} min left"
+        : "";
+    Console.WriteLine($"\n[{pdfIndex}/{pdfs.Count}] {name}  ({total.Elapsed.TotalMinutes:0} min elapsed{eta})");
 
     DocumentResult result;
     byte[] pdfBytes;
@@ -480,7 +491,16 @@ foreach (var pdf in pdfs)
         var (flagged, reason) = Flag(v, orderPct, page.Notice);
         rows.Add(new Row(name, page.PageNumber, page.Lines.Count, page.Regions.Count,
                          v.Seconds, v.LinesLost, v.TruthWords, v.TruthWordsFound,
-                         v.RecallPercent, orderAnchors, orderInSeq, flagged, reason));
+                         v.RecallPercent, orderAnchors, orderInSeq, flagged, reason,
+                         page.SensitivityMarking ?? ""));
+
+        // ── Sensitivity markings (advisory): warn loudly so controlled content never flows
+        //    into downstream systems unnoticed. ──────────────────────────────────────────────
+        if (page.SensitivityMarking is { } marking)
+        {
+            sensitivityPages++;
+            Console.WriteLine($"  ⚠ p{page.PageNumber:D3}  SENSITIVITY MARKING: {marking}");
+        }
 
         // ── ADR-0004 Gate 9: no silent empty OCR page ─────────────────────────────────────
         // A page whose text came from pixels, produced ~nothing, AND has no text-layer truth
@@ -531,10 +551,10 @@ var csvPath = Path.Combine(outDir, "scorecard.csv");
 await using (var csv = new StreamWriter(csvPath))
 {
     await csv.WriteLineAsync(
-        "pdf,page,lines,regions,seconds,coverage_missing,truth_words,truth_found,recall_pct,order_anchors,order_pct,flagged,reason");
+        "pdf,page,lines,regions,seconds,coverage_missing,truth_words,truth_found,recall_pct,order_anchors,order_pct,flagged,reason,sensitivity");
     foreach (var s in rows)
         await csv.WriteLineAsync(string.Create(CultureInfo.InvariantCulture,
-            $"\"{s.Pdf}\",{s.Page},{s.Lines},{s.Regions},{s.Seconds:0.0},{s.Lost},{s.TruthWords},{s.TruthFound},{(s.Recall.HasValue ? s.Recall.Value.ToString("0.0", CultureInfo.InvariantCulture) : "")},{s.OrderAnchors},{(s.OrderPct.HasValue ? s.OrderPct.Value.ToString("0.0", CultureInfo.InvariantCulture) : "")},{s.Flagged},\"{s.Reason}\""));
+            $"\"{s.Pdf}\",{s.Page},{s.Lines},{s.Regions},{s.Seconds:0.0},{s.Lost},{s.TruthWords},{s.TruthFound},{(s.Recall.HasValue ? s.Recall.Value.ToString("0.0", CultureInfo.InvariantCulture) : "")},{s.OrderAnchors},{(s.OrderPct.HasValue ? s.OrderPct.Value.ToString("0.0", CultureInfo.InvariantCulture) : "")},{s.Flagged},\"{s.Reason}\",\"{s.Sensitivity.Replace("\"", "\"\"")}\""));
 }
 
 // ── Summary + gates ──────────────────────────────────────────────────────────
@@ -556,6 +576,9 @@ if (orderedRows.Count > 0)
                       $"min {orderedRows.Min(s => s.OrderPct!.Value):0.0}%   " +
                       $"pages ≥{OrderScore.FlagThreshold:0}%: " +
                       $"{orderedRows.Count(s => s.OrderPct >= OrderScore.FlagThreshold)}/{orderedRows.Count}");
+if (sensitivityPages > 0)
+    Console.WriteLine($"⚠ SENSITIVITY MARKINGS (CUI/legacy/classification): {sensitivityPages} pages — " +
+                      "this corpus contains CONTROLLED content; apply your data-handling policy.");
 Console.WriteLine($"flagged for review: {flaggedRows.Count}/{rows.Count}");
 foreach (var f in flaggedRows.Take(30))
     Console.WriteLine($"  {f.Pdf} p{f.Page}: {f.Reason}");
@@ -567,11 +590,15 @@ if (emitFormKvDir != null)
     Console.WriteLine($"form-K-V records harvested (local-only, license={kvLicense}): {kvEmitted} → " +
                       $"{Path.Combine(emitFormKvDir, "form-kv.jsonl")}");
 
-bool gate1 = avgRecall >= 98.0 && pct95 >= 98.0;
+// Gate 1 is vacuous on corpora with NO text-layer truth anywhere (e.g. 100%-scan corpora):
+// there is nothing to score recall against, so it can neither pass nor fail on merit.
+bool gate1 = scored.Count == 0 || (avgRecall >= 98.0 && pct95 >= 98.0);
 bool gate2 = totalLost == 0;
 bool gate9 = gate9Violations.Count == 0;
 Console.WriteLine("\n════ GATES (RESULTS.md) ════");
-Console.WriteLine($"Gate 1 corpus recall   : {(gate1 ? "PASS" : "FAIL")}  (avg {avgRecall:0.0}% / ≥95% on {pct95:0.0}% of pages)");
+Console.WriteLine(scored.Count == 0
+    ? "Gate 1 corpus recall   : N/A   (no text-layer truth in this corpus — recall is unscoreable; rely on Gate 9 honesty)"
+    : $"Gate 1 corpus recall   : {(gate1 ? "PASS" : "FAIL")}  (avg {avgRecall:0.0}% / ≥95% on {pct95:0.0}% of pages)");
 Console.WriteLine($"Gate 2 zero text loss  : {(gate2 ? "PASS" : "FAIL")}  ({totalLost} lines lost)");
 // Gate 9 (ADR-0004): recall lines must never print without the review count next to them.
 Console.WriteLine($"Gate 9 no silent empty : {(gate9 ? "PASS" : "FAIL")}  " +
@@ -594,7 +621,8 @@ static (bool Flagged, string Reason) Flag(PageVerification v, double? orderPct, 
 internal sealed record Row(
     string Pdf, int Page, int Lines, int Regions, double Seconds,
     int Lost, int TruthWords, int TruthFound, double? Recall,
-    int OrderAnchors, int OrderInSeq, bool Flagged, string Reason)
+    int OrderAnchors, int OrderInSeq, bool Flagged, string Reason,
+    string Sensitivity = "")
 {
     /// <summary>Reading-order fidelity; null when too few anchor words to judge (sparse/tabular page).</summary>
     public double? OrderPct => OrderAnchors >= 8 ? 100.0 * OrderInSeq / OrderAnchors : null;

@@ -69,6 +69,13 @@ public sealed record PageVerification(
 /// surface <see cref="DocumentResult.PagesNeedingReview"/>: a document can no longer report
 /// 100% recall while silently missing content. Accompanied by a <see cref="Notice"/>.
 /// </param>
+/// <param name="SensitivityMarking">
+/// The most severe sensitivity banner marking detected on this page (e.g. <c>CUI//SP-PRVCY</c>,
+/// <c>FOR OFFICIAL USE ONLY</c>, <c>SECRET//NOFORN</c>), or null when the page carries none or
+/// detection is off (<see cref="ProcessingOptions.DetectSensitivityMarkings"/>). ADVISORY: the
+/// page's content is still extracted; callers handling controlled information are responsible
+/// for acting on the flag (warn, segregate, restrict downstream flow).
+/// </param>
 public sealed record PageResult(
     int PageNumber,
     int WidthPx,
@@ -85,4 +92,5 @@ public sealed record PageResult(
     int? EffectiveDpi = null,
     bool LowResolution = false,
     IReadOnlyList<FormField>? FormFields = null,
-    bool NeedsReview = false);
+    bool NeedsReview = false,
+    string? SensitivityMarking = null);

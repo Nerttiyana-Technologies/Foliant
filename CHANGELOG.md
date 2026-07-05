@@ -1,5 +1,56 @@
 # Changelog
 
+## 1.6.0 — 2026-07-05 (sensitivity-marking detection + retry hardening)
+
+Minor, **additive and non-breaking**.
+
+### Added
+- **CUI / sensitivity-marking detection** (`DetectSensitivityMarkings`, default **on**; advisory).
+  Pages carrying CUI banner markings per 32 CFR 2002 (control banner, `CUI//category` strings,
+  designation-indicator blocks, `REL TO` markings), legacy dissemination controls
+  (FOUO / SBU / Law Enforcement Sensitive), DoDI 5230.24 distribution statements B–F, or
+  national-security classification banners now report `PageResult.SensitivityMarking` (the
+  matched banner text) and surface in `DocumentResult.SensitivityMarkedPages` — so controlled
+  content never flows into downstream systems unnoticed. Detection is banner-position-aware
+  (top/bottom bands + page furniture, uppercase-verbatim rules), so ordinary prose containing
+  “confidential” does not flag. Extraction is never suppressed.
+  **Measured** (synthetic marked corpus, ground truth): born-digital **100% of documents and
+  pages** detected; physically-degraded scans at 72–120 DPI **99% of documents / 96% of pages**
+  (banner text recovered through OCR); **zero false positives** across an 813-page unmarked-
+  corpus sweep and precision-focused unit tests.
+- Verification harness: per-page `sensitivity` scorecard column and corpus-level ⚠ warning;
+  `--sample-pdfs N`/`--sample-seed` (seeded corpus subsets); recursive PDF discovery;
+  `[i/N] + elapsed/ETA` progress on long runs; per-run error counts that make crashed pages
+  impossible to miss; Gate 1 reports **N/A** (instead of a misleading FAIL) on corpora with no
+  text-layer truth to score.
+
+### Fixed
+- **Low-resolution retry hardening.** The retry trigger, keep-better comparison, and
+  `NeedsReview` now count only words at or above `LowResolutionRetryMinConfidence` (new option,
+  default 0.5) — hallucinated texture read as confident-looking junk can no longer pose as a
+  recovery or mask the honesty flag. Rung 2 no longer stacks the upscaler onto a re-render that
+  already doubled the pixel budget (removes an overflow on large pages). Regression-verified:
+  healthy corpora and real sub-150-DPI scans show zero new flags; the reference-corpus
+  needs-review count is unchanged.
+- In production-shape verification (a 1,000-document synthetic procurement corpus, 31,700
+  pages), the 1.5.0 retry ladder recorded its first real recoveries: genuinely degraded
+  110–120 DPI scan pages recovered via the 2× upscale and 600-DPI re-render rungs, with
+  unrecoverable pages honestly flagged (56) rather than silent.
+
+### Research note (measure-first)
+- ML super-resolution (Real-ESRGAN-class, CUDA-validated) was evaluated for low-resolution
+  recovery and measured **net-negative for document OCR** (word-recall Δ vs no upscale: +0.4 at
+  150 DPI, −2.0 at 100 DPI, −12.3 at 72 DPI — photo-realism models hallucinate stroke texture
+  that OCR misreads). It ships nowhere; the classical retry-only default stands. The experimental
+  backend and its A/B harness remain in-tree for evaluating document-restoration models, which
+  must beat the no-upscale baseline on the same ledger before earning a default.
+
+### Verification
+- Cumulative ledger now **3,704 documents / 98,652 pages / 21 corpora**, zero text loss
+  (README carries the per-category table and measured throughput, including the corpus run
+  above: 16.9 h single-core, 1.9 s/page, recall 100.0% average AND minimum on 26,952
+  truth-bearing pages).
+
 ## 1.5.0 — 2026-07-03 (no more silent empty pages — recovery + honest flagging)
 
 Minor, **additive and non-breaking**. Fixes two ways a page's visible content could vanish from the

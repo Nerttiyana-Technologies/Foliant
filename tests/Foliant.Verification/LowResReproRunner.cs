@@ -103,10 +103,13 @@ internal static class LowResReproRunner
         var reportedRecalls = new List<double>();   // what a caller aggregating RecallPercent sees
         var honestRecalls = new List<double>();     // recall vs the ORIGINAL page's text layer
 
+        int pdfIndex = 0;
         foreach (string pdfPath in pdfs)
         {
+            pdfIndex++;
             if (scored >= maxPages) break;
-            string name = Path.GetFileName(pdfPath);
+            string name = Path.GetFileName(pdfPath);              // CSV identity — keep clean
+            string label = $"[{pdfIndex}/{pdfs.Count}] {name}";   // console progress prefix
             byte[] original;
             int pageCount;
             var pageSizes = new List<(int Page, double W, double H, int Words)>();
@@ -124,7 +127,7 @@ internal static class LowResReproRunner
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"{name}: unreadable ({ex.Message}) — skipped");
+                Console.WriteLine($"{label}: unreadable ({ex.Message}) — skipped");
                 continue;
             }
 
@@ -157,7 +160,7 @@ internal static class LowResReproRunner
                 catch (Exception ex)
                 {
                     errored++;
-                    Console.WriteLine($"{name} p{pageNum}: ERROR {ex.Message}");
+                    Console.WriteLine($"{label} p{pageNum}: ERROR {ex.Message}");
                     continue;
                 }
 
@@ -181,7 +184,7 @@ internal static class LowResReproRunner
                 scored++; collected++;
 
                 Console.WriteLine(
-                    $"{name} p{pageNum}: words={words,4}  reported-recall={(reported is double rr ? rr.ToString("F1", CultureInfo.InvariantCulture) + "%" : "—"),-6}  " +
+                    $"{label} p{pageNum}: words={words,4}  reported-recall={(reported is double rr ? rr.ToString("F1", CultureInfo.InvariantCulture) + "%" : "—"),-6}  " +
                     $"effDpi={result.EffectiveDpi,4}  lowRes={result.LowResolution,-5}  notice={(result.Notice is null ? "none" : "SET"),-4}  " +
                     $"honest-recall={honest.ToString("F1", CultureInfo.InvariantCulture)}% ({truthFound}/{truthWords})" +
                     (empty ? "   ← SILENTLY EMPTY" : ""));
