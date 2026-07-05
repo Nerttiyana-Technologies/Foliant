@@ -88,6 +88,12 @@ public static class ModelCatalog
         TableStructure, TextlineOrientation,
     ];
 
+    // NOTE (2026-07-04): Real-ESRGAN x4plus super-resolution entries were drafted here and
+    // REMOVED before release: Gate 8 measured photo-realism SR as net-negative for document OCR
+    // (recall Δ −2.0 at 100 DPI, −12.3 at 72 DPI vs no upscale — hallucinated stroke texture).
+    // A DOCUMENT-restoration model may earn a catalog slot by beating the no-upscale baseline
+    // on the same ledger (tests/Foliant.Verification --gate8 --super-res).
+
     /// <summary>Every cataloged asset.</summary>
     public static IReadOnlyList<ModelAsset> All { get; } =
     [

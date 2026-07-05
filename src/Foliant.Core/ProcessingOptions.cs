@@ -75,6 +75,16 @@ public sealed record ProcessingOptions
     public int LowResolutionRetryMinWords { get; init; } = 3;
 
     /// <summary>
+    /// Minimum OCR line confidence for a word to COUNT toward the retry trigger, the keep-better
+    /// comparison, and <see cref="PageResult.NeedsReview"/>. On pathologically degraded scans an
+    /// upscaler can hallucinate texture that OCR reads as garbage words — without this floor,
+    /// those junk words would both win keep-better and mask the NeedsReview flag. Text-layer
+    /// lines carry confidence 1.0 and are unaffected. Extraction output is NOT filtered — only
+    /// the retry/honesty arithmetic is.
+    /// </summary>
+    public float LowResolutionRetryMinConfidence { get; init; } = 0.5f;
+
+    /// <summary>
     /// Mixed pages: a born-digital page (healthy text layer → fast path) that also carries a
     /// page-covering EMBEDDED IMAGE — e.g. a scanned letter pasted into a proposal. The image's
     /// text exists only as pixels, so the fast path silently drops it while recall (scored
@@ -94,6 +104,19 @@ public sealed record ProcessingOptions
     /// is discounted entirely). Raise it if figure-heavy corpora over-trigger.
     /// </summary>
     public float MinEmbeddedImageCoverage { get; init; } = 0.1f;
+
+    /// <summary>
+    /// Scan banner-position lines for sensitivity markings — CUI per 32 CFR 2002 (control
+    /// banner, CUI//category strings, "Controlled by:" designation indicator), legacy
+    /// dissemination controls (FOUO / SBU / Law Enforcement Sensitive), and national-security
+    /// classification banners (TOP SECRET / SECRET / CONFIDENTIAL). Detection is ADVISORY:
+    /// extraction is never suppressed; marked pages report
+    /// <see cref="PageResult.SensitivityMarking"/> and surface in
+    /// <see cref="DocumentResult.SensitivityMarkedPages"/>, so a caller can warn its user or
+    /// segregate controlled content before it flows into downstream systems. On by default
+    /// (a cheap pattern scan over already-extracted lines).
+    /// </summary>
+    public bool DetectSensitivityMarkings { get; init; } = true;
 
     public TextLayerMode TextLayer { get; init; } = TextLayerMode.Auto;
 

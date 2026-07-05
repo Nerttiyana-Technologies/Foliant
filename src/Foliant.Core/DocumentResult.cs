@@ -20,6 +20,15 @@ public sealed record DocumentResult(
     public IReadOnlyList<int> PagesNeedingReview =>
         Pages.Where(p => p.NeedsReview).Select(p => p.PageNumber).ToList();
 
+    /// <summary>
+    /// Page numbers carrying a detected sensitivity marking (CUI / legacy / classification
+    /// banner — see <see cref="PageResult.SensitivityMarking"/>). Non-empty means this document
+    /// contains CONTROLLED content: callers should warn their user and apply their
+    /// data-handling policy before the extracted text flows further.
+    /// </summary>
+    public IReadOnlyList<int> SensitivityMarkedPages =>
+        Pages.Where(p => p.SensitivityMarking is not null).Select(p => p.PageNumber).ToList();
+
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
