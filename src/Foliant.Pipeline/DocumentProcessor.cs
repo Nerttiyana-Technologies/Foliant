@@ -483,6 +483,11 @@ public sealed class DocumentProcessor : IDocumentProcessor, IDisposable
             }
         }
 
+        // ── Sensitivity markings (advisory; CUI / legacy / classification banners) ──
+        string? sensitivityMarking = options.DetectSensitivityMarkings
+            ? SensitivityMarkingDetector.Detect(lines, composed.PageFurniture, image.Height)
+            : null;
+
         sw.Stop();
         return new PageResult(
             pageNumber, image.Width, image.Height, renderDpi,
@@ -495,7 +500,8 @@ public sealed class DocumentProcessor : IDocumentProcessor, IDisposable
             EffectiveDpi: effectiveDpi,
             LowResolution: lowResolution,
             FormFields: formFields,
-            NeedsReview: needsReview);
+            NeedsReview: needsReview,
+            SensitivityMarking: sensitivityMarking);
     }
 
     private static int CountWords(IReadOnlyList<TextLine> lines, float minConfidence = 0f) =>

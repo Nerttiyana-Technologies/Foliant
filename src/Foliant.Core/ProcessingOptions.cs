@@ -105,6 +105,19 @@ public sealed record ProcessingOptions
     /// </summary>
     public float MinEmbeddedImageCoverage { get; init; } = 0.1f;
 
+    /// <summary>
+    /// Scan banner-position lines for sensitivity markings — CUI per 32 CFR 2002 (control
+    /// banner, CUI//category strings, "Controlled by:" designation indicator), legacy
+    /// dissemination controls (FOUO / SBU / Law Enforcement Sensitive), and national-security
+    /// classification banners (TOP SECRET / SECRET / CONFIDENTIAL). Detection is ADVISORY:
+    /// extraction is never suppressed; marked pages report
+    /// <see cref="PageResult.SensitivityMarking"/> and surface in
+    /// <see cref="DocumentResult.SensitivityMarkedPages"/>, so a caller can warn its user or
+    /// segregate controlled content before it flows into downstream systems. On by default
+    /// (a cheap pattern scan over already-extracted lines).
+    /// </summary>
+    public bool DetectSensitivityMarkings { get; init; } = true;
+
     public TextLayerMode TextLayer { get; init; } = TextLayerMode.Auto;
 
     /// <summary>

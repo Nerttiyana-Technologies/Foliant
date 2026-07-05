@@ -31,6 +31,10 @@ internal static class ReadingOrderEmitter
             width_px = page.WidthPx,
             height_px = page.HeightPx,
             dpi = page.Dpi,
+            // Provenance tag (same convention as form-kv/scan-pairs): the HF build script's
+            // license guard rejects untagged records, so harvests self-tag. Default local-only;
+            // a permissive tag is a per-run, deliberate choice via FOLIANT_RO_LICENSE.
+            license = Environment.GetEnvironmentVariable("FOLIANT_RO_LICENSE") ?? "local-only",
             regions,
             gold_order = gold,
         };
