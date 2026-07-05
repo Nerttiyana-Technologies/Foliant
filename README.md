@@ -7,7 +7,7 @@
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 
 > **Why this isn’t another PDF parser**
-> - **Zero text loss across 2,754 documents / 68,540 verified pages** — enforced by a per-page
+> - **Zero text loss across 3,704 documents / 98,652 verified pages** — enforced by a per-page
 >   coverage invariant and release gates, not promised ([evidence](#test-coverage--evidence))
 > - **Median 0.4 s/page on a laptop CPU**, fully local — no cloud, no API, no data leaving the
 >   host ([measured](#performance))
@@ -136,7 +136,7 @@ PDF volume), and the tail is scanned pages where OCR, not parsing, is the work. 
 scales linearly with cores; a GPU is optional and only accelerates the ML super-resolution
 retry backend.
 
-At those measured rates, one full sweep of the **68,540-page verification suite** corresponds to
+At those measured rates, one full sweep of the **98,652-page verification suite** corresponds to
 roughly **11–45 CPU-hours** on the same laptop-class hardware (the spread reflects each corpus's
 scanned-page share) — and the suite has been swept repeatedly, because the release gates re-run
 it before every version ships. That is the difference between this and “another PDF parser”:
