@@ -1,9 +1,10 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <Description>ML super-resolution IScanUpscaler backend for Foliant (ONNX, runs fully local via ONNX Runtime). Sharpens low-DPI scanned pages before OCR with a Real-ESRGAN-class model, tiled to bound memory. Off by default; wired only when ProcessingOptions.UpscaleLowResolutionScans is on and a model is supplied. Gate 8 measures it before it ships as a default.</Description>
-    <!-- Experimental research backend (Gate 8 measured it net-negative — see CHANGELOG). Kept in the
-         solution + Gate-8 harness, but NOT published to NuGet until/unless it proves out. -->
+    <Description>ML super-resolution IScanUpscaler backend for Foliant (ONNX, runs fully local via ONNX Runtime; opt-in CUDA). Experimental research backend — NOT published. Gate 8 ledger (2026-07-04, Real-ESRGAN x4plus, CUDA): recall Δ +0.4 at 150 DPI, −2.0 at 100 DPI, −12.3 at 72 DPI vs no upscale — photo-realism SR hallucinates stroke texture that OCR misreads. Retained (with CUDA EP support and tile batching) as the measurement harness for DOCUMENT-specific restoration models, which are the evidence-backed next step.</Description>
+    <!-- Measure-first (constraint #7): Gate 8 measured Real-ESRGAN as net-negative for document
+         OCR at every DPI level that matters. Stays unpublished until a document-restoration
+         model beats the no-upscale baseline on the same ledger. -->
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 
