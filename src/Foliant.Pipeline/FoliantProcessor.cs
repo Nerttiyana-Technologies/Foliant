@@ -46,13 +46,11 @@ public static class FoliantProcessor
     /// (<see cref="ProcessingOptions.RetryLowResolutionPages"/>, on by default) and by the
     /// always-on <see cref="ProcessingOptions.UpscaleLowResolutionScans"/> path (off by default).
     /// Null wires the model-free <see cref="ClassicalScanUpscaler"/> (Catmull-Rom), which is
-    /// universal and CPU-cheap in the retry-only role. Hosts with a capable GPU should inject the
-    /// ML super-resolution backend instead — it recovers detail the classical filter cannot:
-    /// <code>
-    /// FoliantProcessor.CreateDefault(dir,
-    ///     scanUpscaler: new OnnxSuperResolutionUpscaler(pathToRealEsrganOnnx));
-    /// </code>
-    /// (package <c>Foliant.ScanUpscale.SuperResolution</c>).
+    /// universal, CPU-cheap, and — per the Gate 8 ledger — the best measured choice: photo-realism
+    /// ML super-resolution (Real-ESRGAN class) was measured NET-NEGATIVE for document OCR
+    /// (recall Δ −2.0 at 100 DPI, −12.3 at 72 DPI vs no upscale; it hallucinates stroke texture
+    /// that OCR misreads). Inject a custom <see cref="IScanUpscaler"/> only after it beats the
+    /// no-upscale baseline on the same ledger (<c>tests/Foliant.Verification --gate8 --super-res</c>).
     /// </param>
     public static DocumentProcessor CreateDefault(
         string modelsDirectory,
@@ -120,10 +118,11 @@ public static class FoliantProcessor
             templateRouter: templateRouter);
         // The default ClassicalScanUpscaler serves the RETRY-ONLY role (ADR-0004): it runs solely
         // on low-resolution pages whose first OCR pass produced ~nothing, where the baseline is an
-        // empty page and keep-better makes the retry monotone. The Gate 8 verdict (classical
-        // upscaling is net-negative when applied to EVERY low-DPI page) still stands — which is
-        // why ProcessingOptions.UpscaleLowResolutionScans (the always-on path) remains off.
-        // GPU hosts: inject the OnnxSuperResolutionUpscaler (see XML doc above) for better recovery.
+        // empty page and keep-better makes the retry monotone. The Gate 8 verdicts stand: always-on
+        // classical upscaling is net-negative (UpscaleLowResolutionScans stays off), and
+        // photo-realism ML super-resolution measured WORSE than classical at every level
+        // (−12.3 recall at 72 DPI) — see the scanUpscaler XML doc. A document-restoration model
+        // is the open research lane; nothing replaces the classical default without a ledger win.
     }
 
     /// <summary>

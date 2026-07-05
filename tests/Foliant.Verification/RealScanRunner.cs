@@ -157,12 +157,18 @@ internal static class RealScanRunner
         string outDir = "verification-out";
         string modelsDir = "models";
         int maxPages = int.MaxValue;
+        string? superResModel = null;   // --super-res <path>: SR upscaler in the retry role
+        int superResTile = 128;
+        bool superResCuda = false;      // --super-res-cuda: CUDA EP (host needs Microsoft.ML.OnnxRuntime.Gpu)
         for (int i = 1; i < args.Length; i++)
         {
             switch (args[i])
             {
                 case "--models" when i + 1 < args.Length: modelsDir = args[++i]; break;
                 case "--max-pages" when i + 1 < args.Length: maxPages = int.Parse(args[++i], CultureInfo.InvariantCulture); break;
+                case "--super-res" when i + 1 < args.Length: superResModel = args[++i]; break;
+                case "--super-res-tile" when i + 1 < args.Length: superResTile = int.Parse(args[++i], CultureInfo.InvariantCulture); break;
+                case "--super-res-cuda": superResCuda = true; break;
                 default:
                     if (!args[i].StartsWith("--", StringComparison.Ordinal)) outDir = args[i];
                     break;
@@ -173,7 +179,15 @@ internal static class RealScanRunner
         var pdfs = Directory.GetFiles(pdfDir, "*.pdf", SearchOption.AllDirectories).OrderBy(p => p).ToList();
         if (pdfs.Count == 0) { Console.Error.WriteLine($"scan-census: no PDFs in {pdfDir}"); return 2; }
 
-        using var processor = FoliantProcessor.CreateDefault(modelsDir);
+        IScanUpscaler? upscaler = superResModel is not null
+            ? new Foliant.ScanUpscale.SuperResolution.OnnxSuperResolutionUpscaler(superResModel,
+                new Foliant.ScanUpscale.SuperResolution.SuperResolutionOptions
+                    { UseCuda = superResCuda, FallbackTile = superResTile })
+            : null;
+        using var processor = FoliantProcessor.CreateDefault(modelsDir, scanUpscaler: upscaler);
+        if (superResModel is not null)
+            Console.WriteLine($"Mode: --super-res '{superResModel}' in the RETRY role " +
+                              $"(tile {superResTile}{(superResCuda ? ", CUDA" : ", CPU")})");
 
         int total = Math.Min(pdfs.Count, maxPages);
         Console.WriteLine($"\n════ SCAN CENSUS — {total} real-scan pages, shipped defaults ════");
@@ -224,7 +238,7 @@ internal static class RealScanRunner
                 p.LowResolution, Csv(p.Notice ?? ""))).Append('\n');
         }
 
-        string csvPath = Path.Combine(outDir, "scan-census.csv");
+        string csvPath = Path.Combine(outDir, $"scan-census{(superResModel is not null ? "-sr" : "")}.csv");
         await File.WriteAllTextAsync(csvPath, csv.ToString());
 
         Console.WriteLine($"\n──── SUMMARY ({scored} pages, {errors} errors, " +
