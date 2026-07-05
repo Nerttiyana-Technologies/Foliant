@@ -1,16 +1,15 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <Description>ML super-resolution IScanUpscaler backend for Foliant (ONNX, runs fully local via ONNX Runtime; opt-in CUDA). Recovers text from low-resolution scanned pages in the retry role (ProcessingOptions.RetryLowResolutionPages): pages whose first OCR pass produced ~nothing are re-OCR'd on a Real-ESRGAN-upscaled raster. One-line setup via SuperResolutionScanUpscale.CreateDefaultAsync() — the BSD-3-Clause model downloads into the local cache with SHA-256 verification. GPU hosts additionally reference Microsoft.ML.OnnxRuntime.Gpu and set SuperResolutionOptions.UseCuda.</Description>
-    <!-- Promoted from research backend in 1.6.0: the ADR-0004 retry-only role escapes the Gate 8
-         always-on verdict (baseline is an empty page; keep-better makes recovery monotone).
-         Gate ledger before release: SR-vs-classical on the 30-DPI retry corpus + Gate 8 + census. -->
-    <IsPackable>true</IsPackable>
+    <Description>ML super-resolution IScanUpscaler backend for Foliant (ONNX, runs fully local via ONNX Runtime; opt-in CUDA). Experimental research backend — NOT published. Gate 8 ledger (2026-07-04, Real-ESRGAN x4plus, CUDA): recall Δ +0.4 at 150 DPI, −2.0 at 100 DPI, −12.3 at 72 DPI vs no upscale — photo-realism SR hallucinates stroke texture that OCR misreads. Retained (with CUDA EP support and tile batching) as the measurement harness for DOCUMENT-specific restoration models, which are the evidence-backed next step.</Description>
+    <!-- Measure-first (constraint #7): Gate 8 measured Real-ESRGAN as net-negative for document
+         OCR at every DPI level that matters. Stays unpublished until a document-restoration
+         model beats the no-upscale baseline on the same ledger. -->
+    <IsPackable>false</IsPackable>
   </PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Foliant.Core\Foliant.Core.csproj" />
-    <ProjectReference Include="..\Foliant.Models\Foliant.Models.csproj" />
   </ItemGroup>
 
   <ItemGroup>

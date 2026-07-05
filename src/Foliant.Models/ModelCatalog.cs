@@ -88,36 +88,16 @@ public static class ModelCatalog
         TableStructure, TextlineOrientation,
     ];
 
-    /// <summary>
-    /// Real-ESRGAN x4plus super-resolution, ONNX graph (BSD-3-Clause; upstream
-    /// https://github.com/xinntao/Real-ESRGAN, license confirmed on the export's model card).
-    /// Used by Foliant.ScanUpscale.SuperResolution in the low-resolution RETRY role
-    /// (ProcessingOptions.RetryLowResolutionPages) on hosts that opt in — CPU-capable, but a
-    /// CUDA GPU is the intended production home. This export stores its weights in the companion
-    /// <see cref="SuperResolutionData"/> file, which MUST sit next to the graph under its exact
-    /// file name (the graph references it by name). Fixed input 128×128, batch 1 (tile batching
-    /// unavailable with this export).
-    /// </summary>
-    public static ModelAsset SuperResolution { get; } = new(
-        "sr-real-esrgan-x4plus",
-        "real_esrgan_x4plus.onnx",
-        "https://huggingface.co/Nerttiyana-Technologies/real-esrgan-x4plus-onnx/resolve/main/real_esrgan_x4plus.onnx",
-        "36b217f0ef1c4a88c7bb493c188c15314724dec19f46ae5393f27c4fa7cfc5b4",
-        446_757);
-
-    /// <summary>External weights for <see cref="SuperResolution"/> (same license; see there).</summary>
-    public static ModelAsset SuperResolutionData { get; } = new(
-        "sr-real-esrgan-x4plus-data",
-        "real_esrgan_x4plus.data",
-        "https://huggingface.co/Nerttiyana-Technologies/real-esrgan-x4plus-onnx/resolve/main/real_esrgan_x4plus.data",
-        "1bcfa110ca9d9c59594630d73a679d2582b947b9103b10de6743c762f6d006f6",
-        66_737_664);
+    // NOTE (2026-07-04): Real-ESRGAN x4plus super-resolution entries were drafted here and
+    // REMOVED before release: Gate 8 measured photo-realism SR as net-negative for document OCR
+    // (recall Δ −2.0 at 100 DPI, −12.3 at 72 DPI vs no upscale — hallucinated stroke texture).
+    // A DOCUMENT-restoration model may earn a catalog slot by beating the no-upscale baseline
+    // on the same ledger (tests/Foliant.Verification --gate8 --super-res).
 
     /// <summary>Every cataloged asset.</summary>
     public static IReadOnlyList<ModelAsset> All { get; } =
     [
         LayoutDetection, OcrDetection, OcrRecognitionEnglish, OcrRecognitionEnglishDict,
         TableStructure, TableDetection, TextlineOrientation, TableStructureSlanetPlus,
-        SuperResolution, SuperResolutionData,
     ];
 }
