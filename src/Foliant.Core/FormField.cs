@@ -18,6 +18,12 @@ public enum FormFieldSource
 
     /// <summary>Geometric label→value association over a flattened/scanned form's recognized text.</summary>
     Geometry,
+
+    /// <summary>
+    /// A learned model (LiLT form-KV token classifier) over the page's recognized text. Confidence
+    /// reflects the model's softmax score; low-confidence predictions are abstained, never guessed.
+    /// </summary>
+    Learned,
 }
 
 /// <summary>

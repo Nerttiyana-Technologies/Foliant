@@ -33,6 +33,13 @@ tests, and packs **without** tagging or publishing.
   published**. Land the correct `## X.Y.Z` entry on `main`, then run the workflow again.
 - **Already published a bad version** (immutable on NuGet): bump to the next version, land its CHANGELOG
   entry on `main`, release that, and **unlist** the bad one on nuget.org (package → Manage → Listing).
+- **Verify the GitHub Release is PUBLISHED, not draft** — the workflow's `gh release create` step runs
+  last; if it fails or never runs (seen on 1.6.0: NuGet live, GH release stuck as draft), publish it:
+  ```bash
+  gh release list --repo Nerttiyana-Technologies/Foliant          # any "Draft" rows?
+  gh release edit vX.Y.Z --draft=false --repo Nerttiyana-Technologies/Foliant
+  ```
+  Before publishing, confirm the draft's tag is on `main` (not a feature branch).
 - **Verify what actually shipped:** download the package and inspect the assembly —
   ```bash
   V=1.4.0
