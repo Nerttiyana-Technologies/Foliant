@@ -40,6 +40,28 @@ public sealed class LiltFormFieldExtractor : IFormFieldExtractor
     /// <summary>Max key→value pairing distance in page-width fractions. Default 0.35.</summary>
     public float MaxPairDistance { get; init; } = 0.35f;
 
+    /// <summary>
+    /// Drop predicted values with no real content: zero alphanumeric characters, or nothing
+    /// but tick-glyph/punctuation marks (x, ×, dots, colons, brackets — what OCR reads off
+    /// checkbox marks and specks). Evidence (TD-41 spurious dump, 2026-07-06, 325 rows):
+    /// 119 of 325 spurious predictions were this class, emitted at up to 0.99 confidence
+    /// ("×" as a Delivery/Quantity value on checkbox grids), while ZERO of the corpus's
+    /// 1,161 truth values match the pattern — no measured collateral. Default on.
+    /// </summary>
+    public bool FilterTickValues { get; init; } = true;
+
+    /// <summary>
+    /// Set <see cref="FormField.PossiblyTruncated"/> on values whose ink runs flush into a
+    /// vertical ruling (cell-border clipping in the source image — see
+    /// <see cref="ValueTruncationProbe"/>). DEFAULT OFF: the probe needs ink-accurate value
+    /// geometry, and none available in production measures up (Gate 3 + bench, 2026-07-06:
+    /// truth rects 0.58 recall / 0.18 false-flag, but SplitWords value boxes 0.16/0.26 and
+    /// det line boxes 0.27/0.25). Enable only for measurement, or once the extractor carries
+    /// real word-level boxes — that box-fidelity work unlocks the 0.58/0.18 operating point.
+    /// The Gate 3 TRUNCATED-SOURCE column remains the honesty mechanism meanwhile.
+    /// </summary>
+    public bool FlagPossiblyTruncated { get; init; }
+
     public IReadOnlyList<FormField> Extract(
         byte[] pdf, int pageNumber, PageImage image, IReadOnlyList<TextLine> lines)
     {
@@ -68,6 +90,7 @@ public sealed class LiltFormFieldExtractor : IFormFieldExtractor
             var vBox = Union(v, boxes);
             string value = Text(v, words);
             if (value.Length == 0) continue;
+            if (FilterTickValues && IsTickOrPunctuation(value)) continue;   // checkbox mark, not a text value
 
             (string Text, float Confidence)? key = null;
             float best = float.MaxValue;
@@ -85,10 +108,30 @@ public sealed class LiltFormFieldExtractor : IFormFieldExtractor
 
             if (key is null && !EmitUnpairedValues) continue;   // abstain: a value we can't name is a guess
             float confidence = key is null ? v.Confidence : Math.Min(v.Confidence, key.Value.Confidence);
+            // Honesty flag, never suppression: a value whose ink runs flush into a vertical
+            // ruling is likely CLIPPED IN THE SOURCE (cell-border truncation at flatten/scan
+            // time — ~7% of TD-41 holdout fields, class confirmed in production scans).
+            // The transcription is faithful to the page; the page may not hold the full value.
+            bool truncated = FlagPossiblyTruncated
+                             && ValueTruncationProbe.IsFlushAgainstRuling(image, vBox);
             fields.Add(new FormField(
-                key?.Text ?? string.Empty, value, FieldKind.Text, vBox, confidence, FormFieldSource.Learned));
+                key?.Text ?? string.Empty, value, FieldKind.Text, vBox, confidence,
+                FormFieldSource.Learned, truncated));
         }
         return fields;
+    }
+
+    /// <summary>
+    /// True when the value carries no real content: every character is punctuation, whitespace,
+    /// or a tick glyph (x/X/× — what OCR reads off checkbox marks). Any other letter or digit
+    /// makes the value substantive. See <see cref="FilterTickValues"/> for the evidence.
+    /// </summary>
+    internal static bool IsTickOrPunctuation(string value)
+    {
+        foreach (char c in value)
+            if (char.IsLetterOrDigit(c) && c is not ('x' or 'X'))
+                return false;
+        return true;
     }
 
     /// <summary>

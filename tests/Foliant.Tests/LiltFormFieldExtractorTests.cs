@@ -11,6 +11,26 @@ namespace Foliant.Tests;
 /// </summary>
 public class LiltFormFieldExtractorTests
 {
+    // Tick/punctuation value filter (2026-07-06): 119/325 TD-41 spurious predictions were
+    // checkbox marks or specks emitted as text values ("×" at 0.99 conf); zero of 1,161
+    // truth values match the pattern. These pin the classifier's contract.
+    [Theory]
+    [InlineData("×", true)]
+    [InlineData("x", true)]
+    [InlineData("X", true)]
+    [InlineData("x.", true)]
+    [InlineData("× .", true)]
+    [InlineData(":", true)]
+    [InlineData(").", true)]
+    [InlineData("--", true)]
+    [InlineData("0", false)]                    // lone digit is a real value (Balance Due "0")
+    [InlineData("x 5", false)]                  // digit makes it substantive
+    [InlineData("Xerox", false)]                // letters beyond tick glyphs
+    [InlineData("$31,911.00", false)]
+    [InlineData("Denver, CO 80202", false)]
+    public void IsTickOrPunctuation_Classifies(string value, bool expected) =>
+        Assert.Equal(expected, LiltFormFieldExtractor.IsTickOrPunctuation(value));
+
     [Fact]
     public void SplitWords_ProportionalSlices_CoverLineAndStayOrdered()
     {

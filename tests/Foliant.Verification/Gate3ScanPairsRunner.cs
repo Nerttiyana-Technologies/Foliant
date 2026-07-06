@@ -23,6 +23,7 @@
 //   dotnet run ... -- data/Test-Data-41/scanned out-dir --gate3-scanpairs data/Test-Data-41 \
 //       --lilt-model models/form-kv-lilt --lilt-conf 0.5 --lilt-emit-unpaired
 
+using System.Globalization;
 using System.Text.RegularExpressions;
 using Foliant;
 using Foliant.Pipeline;
@@ -42,7 +43,9 @@ internal static class Gate3ScanPairsRunner
         string ScanPdf, int Page, string Name, string Value,
         float X1, float Y1, float X2, float Y2, float PageWpt, float PageHpt);
 
-    public static async Task<bool> RunAsync(DocumentProcessor processor, string td41Dir, ProcessingOptions options)
+    public static async Task<bool> RunAsync(
+        DocumentProcessor processor, string td41Dir, ProcessingOptions options,
+        string? dumpSpuriousPath = null)
     {
         string digitalDir = Path.Combine(td41Dir, "digital");
         string scannedDir = Path.Combine(td41Dir, "scanned");
@@ -111,29 +114,44 @@ internal static class Gate3ScanPairsRunner
                 : (page.FormFields ?? (IReadOnlyList<FormField>)Array.Empty<FormField>(), page.WidthPx, page.HeightPx);
         }
 
-        Score(truths, pages, floor: 0f, verbose: true);
+        // --gate3-dump-spurious: every spurious prediction at the extractor floor, one CSV row,
+        // with its nearest truth rect — the raw material for designing spurious filters
+        // (value-shape sanity, KEY-adjacency, garbage detection) from evidence, not guesses.
+        List<string>? spuriousDump = dumpSpuriousPath is null ? null : new List<string>
+            { "doc,page,confidence,name,value,x1,y1,x2,y2,nearest_truth_name,nearest_dist_px,value_matches_some_truth" };
+
+        Score(truths, pages, floor: 0f, verbose: true, spuriousDump);
+        if (dumpSpuriousPath is not null && spuriousDump is not null)
+        {
+            await File.WriteAllLinesAsync(dumpSpuriousPath, spuriousDump);
+            Console.WriteLine($"\nspurious dump: {spuriousDump.Count - 1} rows → {dumpSpuriousPath}");
+        }
         Console.WriteLine("\n──── CONFIDENCE-FLOOR SWEEP ────");
-        Console.WriteLine($"{"floor",6} {"correct",8} {"cross-fld",9} {"garbled",8} {"wrong-oth",9} {"elsewhere",9} {"missing",8} {"spurious",9}");
+        Console.WriteLine($"{"floor",6} {"correct",8} {"cross-fld",9} {"trunc-src",9} {"garbled",8} {"wrong-oth",9} {"elsewhere",9} {"missing",8} {"spurious",9}");
         for (float floor = 0.50f; floor <= 0.951f; floor += 0.05f)
         {
             var s = Score(truths, pages, floor, verbose: false);
-            Console.WriteLine($"{floor,6:0.00} {s.Correct,8} {s.CrossField,9} {s.Garbled,8} {s.WrongOther,9} {s.Elsewhere,9} {s.Missing,8} {s.Spurious,9}");
+            Console.WriteLine($"{floor,6:0.00} {s.Correct,8} {s.CrossField,9} {s.TruncatedSource,9} {s.Garbled,8} {s.WrongOther,9} {s.Elsewhere,9} {s.Missing,8} {s.Spurious,9}");
         }
         Console.WriteLine("\nCROSS-FIELD is the fabrication number (another field's value claimed in this rect) —");
         Console.WriteLine("promotion bar ~0 at the shipped floor. GARBLED = right field, OCR-mangled transcription");
-        Console.WriteLine("(honest failure; the OCR-noise training arm targets it). Informational — no build fail.");
+        Console.WriteLine("(honest failure; the OCR-noise training arm targets it). TRUNCATED-SOURCE = the scan");
+        Console.WriteLine("image itself ends mid-value (cell-border clipping in the source; ~7% of TD-41 fields,");
+        Console.WriteLine("class confirmed in production scans) — unwinnable by extraction, target of the");
+        Console.WriteLine("PossiblyTruncated honesty flag. Informational — no build fail.");
         return true;
     }
 
-    private sealed record Tally(int Correct, int CrossField, int Garbled, int WrongOther, int Elsewhere, int Missing, int Spurious);
+    private sealed record Tally(int Correct, int CrossField, int TruncatedSource, int Garbled, int WrongOther, int Elsewhere, int Missing, int Spurious);
 
     private static Tally Score(
         List<TruthField> truths,
         Dictionary<(string, int), (IReadOnlyList<FormField> Fields, int Wpx, int Hpx)> pages,
-        float floor, bool verbose)
+        float floor, bool verbose, List<string>? spuriousDump = null)
     {
-        int correct = 0, crossField = 0, garbled = 0, wrongOther = 0, elsewhere = 0, missing = 0, spurious = 0;
+        int correct = 0, crossField = 0, truncatedSource = 0, garbled = 0, wrongOther = 0, elsewhere = 0, missing = 0, spurious = 0;
         int namedOk = 0, namedAny = 0, crossStraddle = 0, crossSolid = 0;
+        int flagged = 0, truncFlagged = 0, correctFlagged = 0;   // PossiblyTruncated probe cross-tab
 
         foreach (var group in truths.GroupBy(t => (t.ScanPdf, t.Page)))
         {
@@ -173,8 +191,37 @@ internal static class Gate3ScanPairsRunner
                     var p = preds[assign[ti]];
                     if (ValueMatches(p.Value, t.Value))
                     {
-                        correct++; verdict = "OK";
-                        if (p.Name.Length > 0) { namedAny++; if (NameMatches(p.Name, t.Name)) namedOk++; }
+                        // The lenient containment match is directional in what it forgives:
+                        // got ⊇ want (label text swept in around a complete value) is a real
+                        // CORRECT; but got = strict PREFIX of want is the truncated-source
+                        // signature — the scan image itself ends mid-value (flattener clipped
+                        // the appearance at the cell border; verified visually on TD-41
+                        // 2026-07-06: ink runs flush into the next vertical ruling and stops;
+                        // ~7% of holdout fields; same class confirmed in production customer
+                        // scans). "$26,320.00" read as "26,320.0" is a WRONG AMOUNT, not a
+                        // correct extraction — scoring it CORRECT hid the class. No OCR/model
+                        // lever can recover unprinted pixels; the product lever is a
+                        // PossiblyTruncated honesty flag. NOTE: this cannibalizes CORRECT vs
+                        // pre-2026-07-06 ledgers (reference correct 787 ≈ new correct +
+                        // truncated-source). Non-prefix strict substrings (mid/tail) remain
+                        // CORRECT for row comparability — revisit if the tail class grows.
+                        string gotN = GateCommon.Norm(p.Value);
+                        string wantN = GateCommon.Norm(t.Value);
+                        if (gotN.Length >= 3 && gotN.Length < wantN.Length
+                            && wantN.StartsWith(gotN, StringComparison.Ordinal))
+                        {
+                            truncatedSource++;
+                            if (p.PossiblyTruncated) truncFlagged++;
+                            verdict = $"TRUNCATED-SOURCE (got \"{Trim(p.Value)}\", want \"{Trim(t.Value)}\")"
+                                      + (p.PossiblyTruncated ? " [flagged]" : " [unflagged]");
+                        }
+                        else
+                        {
+                            correct++; verdict = "OK";
+                            if (p.PossiblyTruncated) correctFlagged++;
+                            if (p.Name.Length > 0) { namedAny++; if (NameMatches(p.Name, t.Name)) namedOk++; }
+                        }
+                        if (p.PossiblyTruncated) flagged++;
                     }
                     else
                     {
@@ -186,6 +233,8 @@ internal static class Gate3ScanPairsRunner
                         //   2. own-similarity ≥ 0.5 → GARBLED (right field, mangled transcription)
                         //   3. containment match to another field → CROSS-FIELD
                         //   4. else WRONG-OTHER
+                        // (TRUNCATED-SOURCE never reaches this ladder: a normalized prefix always
+                        // satisfies the containment ValueMatches and is intercepted in the branch above.)
                         float simOwn = Similarity(p.Value, t.Value);
                         string gotN = GateCommon.Norm(p.Value);
                         var others = Enumerable.Range(0, truthList.Count).Where(k => k != ti).ToList();
@@ -218,6 +267,37 @@ internal static class Gate3ScanPairsRunner
             int extra = used.Count(u => !u);
             spurious += extra;
             if (verbose && extra > 0) Console.WriteLine($"  (+{extra} spurious prediction(s) in no truth rect)");
+            if (spuriousDump is not null)
+            {
+                for (int j = 0; j < preds.Count; j++)
+                {
+                    if (used[j]) continue;
+                    var p = preds[j];
+                    var pb = p.Bounds!.Value;
+                    float pcx = (pb.X1 + pb.X2) / 2f, pcy = (pb.Y1 + pb.Y2) / 2f;
+                    int nearest = -1; float nearestDist = float.MaxValue;
+                    for (int ti = 0; ti < truthList.Count; ti++)
+                    {
+                        float tcx = (rects[ti].X1 + rects[ti].X2) / 2f, tcy = (rects[ti].Y1 + rects[ti].Y2) / 2f;
+                        float d = MathF.Sqrt((pcx - tcx) * (pcx - tcx) + (pcy - tcy) * (pcy - tcy));
+                        if (d < nearestDist) { nearestDist = d; nearest = ti; }
+                    }
+                    // A spurious prediction whose value matches SOME truth on the page is a
+                    // duplicate/mislocated read; one matching nothing is fabricated junk.
+                    bool valueMatchesSome = truthList.Any(t2 => ValueMatches(p.Value, t2.Value));
+                    spuriousDump.Add(string.Join(",",
+                        Csv(group.Key.ScanPdf), group.Key.Page.ToString(CultureInfo.InvariantCulture),
+                        p.Confidence.ToString("0.000", CultureInfo.InvariantCulture),
+                        Csv(p.Name), Csv(p.Value),
+                        ((int)pb.X1).ToString(CultureInfo.InvariantCulture),
+                        ((int)pb.Y1).ToString(CultureInfo.InvariantCulture),
+                        ((int)pb.X2).ToString(CultureInfo.InvariantCulture),
+                        ((int)pb.Y2).ToString(CultureInfo.InvariantCulture),
+                        Csv(nearest >= 0 ? truthList[nearest].Name : ""),
+                        ((int)nearestDist).ToString(CultureInfo.InvariantCulture),
+                        valueMatchesSome ? "1" : "0"));
+                }
+            }
         }
 
         if (verbose)
@@ -225,12 +305,17 @@ internal static class Gate3ScanPairsRunner
             int total = truths.Count;
             Console.WriteLine($"\n──── GATE 3 SCANNED-HOLDOUT LEDGER (rect identity, extractor floor) ────");
             Console.WriteLine($"correct {correct}/{total} ({100.0 * correct / total:0.0}%)   " +
-                              $"CROSS-FIELD {crossField}   garbled {garbled}   wrong-other {wrongOther}   " +
+                              $"CROSS-FIELD {crossField}   truncated-source {truncatedSource}   " +
+                              $"garbled {garbled}   wrong-other {wrongOther}   " +
                               $"value-elsewhere {elsewhere}   missing {missing}   spurious {spurious}");
+            Console.WriteLine($"(truncated-source was scored CORRECT before 2026-07-06: pre-change correct ≈ correct + truncated-source)");
             Console.WriteLine($"name quality on corrects (informational): {namedAny} named, {namedOk} fuzzy-match /T");
             Console.WriteLine($"CROSS-FIELD geometry: {crossStraddle} straddle a boundary (box-fidelity fixable), {crossSolid} solidly misplaced");
+            Console.WriteLine($"PossiblyTruncated probe: {flagged} assigned predictions flagged; " +
+                              $"{truncFlagged}/{truncatedSource} truncated-source caught (probe recall), " +
+                              $"{correctFlagged} flagged among corrects (over-flagging)");
         }
-        return new Tally(correct, crossField, garbled, wrongOther, elsewhere, missing, spurious);
+        return new Tally(correct, crossField, truncatedSource, garbled, wrongOther, elsewhere, missing, spurious);
     }
 
     /// <summary>CROSS-FIELD verdict + geometry instrumentation (straddle vs solidly misplaced).</summary>
@@ -329,4 +414,8 @@ internal static class Gate3ScanPairsRunner
     }
 
     private static string Trim(string s) => s.Length <= 36 ? s : s[..36] + "…";
+
+    /// <summary>CSV field: quote and escape; newlines flattened so one prediction = one row.</summary>
+    private static string Csv(string s) =>
+        "\"" + s.Replace("\r", " ").Replace("\n", " ").Replace("\"", "\"\"") + "\"";
 }
