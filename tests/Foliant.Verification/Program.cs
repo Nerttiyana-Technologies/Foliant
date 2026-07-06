@@ -98,6 +98,9 @@ float liltConf = 0.65f;               // --lilt-conf: learned-arm confidence flo
 bool liltEmitUnpaired = false;        // --lilt-emit-unpaired: emit VALUE spans with no KEY (empty Name) — diagnostic
 string? gate3ScanPairsDir = null;     // --gate3-scanpairs <TD-41 dir>: scanned-holdout Gate 3 vs AcroForm truth
 string? gate3DumpSpurious = null;     // --gate3-dump-spurious <csv>: dump spurious predictions (filter design)
+string? gate3DumpCrossField = null;   // --gate3-dump-crossfield <csv>: dump CROSS-FIELD cases w/ straddle geometry
+bool refineWordBoxes = false;         // --refine-word-boxes: ink-trim emitted value boxes (box-fidelity rig;
+                                      // OUTPUT geometry only, model input unchanged; default OFF, measured on Gate 3)
 bool dumpWidgetFields = false;        // wire WidgetFormFieldExtractor + dump per-page FormFields (quality check)
 string? emitFormTemplate = null;      // --emit-form-template <blank.pdf>: emit a draft FormLayout JSON for review
 string? matchExtractPdf = null;       // --match-extract <filled.pdf>: validate template-aware extraction
@@ -157,6 +160,8 @@ for (int i = 0; i < args.Length; i++)
     if (args[i] == "--lilt-emit-unpaired") { liltEmitUnpaired = true; continue; }
     if (args[i] == "--gate3-scanpairs" && i + 1 < args.Length) { gate3ScanPairsDir = args[++i]; liltExtract = true; liltOnly = true; continue; }
     if (args[i] == "--gate3-dump-spurious" && i + 1 < args.Length) { gate3DumpSpurious = args[++i]; continue; }
+    if (args[i] == "--gate3-dump-crossfield" && i + 1 < args.Length) { gate3DumpCrossField = args[++i]; continue; }
+    if (args[i] == "--refine-word-boxes") { refineWordBoxes = true; continue; }
     if (args[i] == "--widget-form-fields") { dumpWidgetFields = true; continue; }
     if (args[i] == "--emit-form-template" && i + 1 < args.Length) { emitFormTemplate = args[++i]; continue; }
     if (args[i] == "--match-extract" && i + 2 < args.Length) { matchExtractPdf = args[++i]; matchExtractTemplate = args[++i]; continue; }
@@ -344,7 +349,7 @@ if (pdfDir == null || !Directory.Exists(pdfDir))
 {
     Console.Error.WriteLine(
         "Usage: Foliant.Verification <pdf-dir> [out-dir] [--models <dir>] [--ocr-only] " +
-        "[--gate3 <truth.csv>] [--gate3-extract <truth.csv>] [--gate3-scanpairs <td41-dir>] [--lilt-extract] [--lilt-only] [--lilt-conf <f>] [--gate5 <truth-dir>] [--gate6 <truth-dir>] " +
+        "[--gate3 <truth.csv>] [--gate3-extract <truth.csv>] [--gate3-scanpairs <td41-dir>] [--gate3-dump-crossfield <csv>] [--refine-word-boxes] [--lilt-extract] [--lilt-only] [--lilt-conf <f>] [--gate5 <truth-dir>] [--gate6 <truth-dir>] " +
         "[--gate7 <born-digital-dir> [--gate7-pages N]] " +
         "[--gate8 <born-digital-dir> [--gate8-pages N]] " +
         "[--orient-check [--orient-pages N]] [--no-orientation] [--enumerator-order] " +
@@ -395,7 +400,7 @@ using LiltFormKvModel? liltKvModel = liltExtract
     : null;
 IFormFieldExtractor? formExtractor =
     dumpWidgetFields ? new WidgetFormFieldExtractor()
-    : liltOnly ? new LiltFormFieldExtractor(liltKvModel!) { MinConfidence = liltConf, EmitUnpairedValues = liltEmitUnpaired }
+    : liltOnly ? new LiltFormFieldExtractor(liltKvModel!) { MinConfidence = liltConf, EmitUnpairedValues = liltEmitUnpaired, RefineWordBoxes = refineWordBoxes }
     : gate3ExtractCsv != null
         ? new CompositeFormFieldExtractor(
             new IFormFieldExtractor[]
@@ -404,10 +409,10 @@ IFormFieldExtractor? formExtractor =
                     new GeometricFormFieldExtractor(new[] { SampleProfiles.Sf33Solicitation }),
                 }
                 .Concat(liltKvModel is not null
-                    ? new IFormFieldExtractor[] { new LiltFormFieldExtractor(liltKvModel) { MinConfidence = liltConf, EmitUnpairedValues = liltEmitUnpaired } }
+                    ? new IFormFieldExtractor[] { new LiltFormFieldExtractor(liltKvModel) { MinConfidence = liltConf, EmitUnpairedValues = liltEmitUnpaired, RefineWordBoxes = refineWordBoxes } }
                     : Array.Empty<IFormFieldExtractor>())
                 .ToArray())
-        : liltKvModel is not null ? new LiltFormFieldExtractor(liltKvModel) { MinConfidence = liltConf, EmitUnpairedValues = liltEmitUnpaired } : null;
+        : liltKvModel is not null ? new LiltFormFieldExtractor(liltKvModel) { MinConfidence = liltConf, EmitUnpairedValues = liltEmitUnpaired, RefineWordBoxes = refineWordBoxes } : null;
 if (liltExtract) Console.WriteLine($"Mode: --lilt-{(liltOnly ? "only" : "extract")} (learned form-KV arm; model: {liltModelDir})");
 // --with-templates wires the per-page router over the bundled federal templates into the full pipeline,
 // so matched pages get deterministic, label-bound fields + an appended template-field Markdown section.
@@ -445,13 +450,14 @@ var options = new ProcessingOptions
 // Scanned-holdout Gate 3: short-circuits the corpus sweep — pairs are enumerated from the TD-41
 // dir itself (digital twins = truth, scanned twins = input through the learned arm wired above).
 if (gate3ScanPairsDir != null)
-    return await Gate3ScanPairsRunner.RunAsync(processor, gate3ScanPairsDir, options, gate3DumpSpurious) ? 0 : 1;
+    return await Gate3ScanPairsRunner.RunAsync(processor, gate3ScanPairsDir, options, gate3DumpSpurious, gate3DumpCrossField) ? 0 : 1;
 
 if (enumeratorOrder) Console.WriteLine("Mode: --enumerator-order (numbered-mosaic reading-order post-pass on)");
 if (ocrOnly) Console.WriteLine("Mode: --ocr-only (text layer disabled for extraction; still used as recall truth)");
 if (noRetryLadder) Console.WriteLine("Mode: --no-retry-ladder (ADR-0004 low-res retry OFF — 1.4.0-equivalent A/B arm)");
 if (noImageRecovery) Console.WriteLine("Mode: --no-image-recovery (ADR-0004 mixed-page OCR merge OFF — 1.4.0-equivalent A/B arm)");
 if (rowSplit) Console.WriteLine("Mode: --row-split (merged-row OCR det-box splitting ON — measured net-negative Gate 3 2026-07-06; experiment arm)");
+if (refineWordBoxes) Console.WriteLine("Mode: --refine-word-boxes (ink-trim emitted value boxes — box-fidelity rig; OUTPUT geometry only, model input unchanged)");
 if (noOrientation) Console.WriteLine("Mode: --no-orientation (page-orientation detection disabled; faster, recall on upright corpora unchanged)");
 
 // Inspect mode: dump one page's geometry for debugging — layout overlay PNG,
