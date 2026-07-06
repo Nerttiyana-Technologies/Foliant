@@ -131,30 +131,102 @@ internal static class SyntheticFormFiller
         return records > 0;
     }
 
-    // ---- synthetic value generation (keyword-driven, with small pools for variant diversity) ----
-    private static readonly string[] Names = { "Jane A. Smith", "Robert Lee", "Maria Gomez", "D. Patel" };
-    private static readonly string[] Dates = { "03/14/2026", "11/02/2025", "07/21/2024", "01/09/2026" };
-    private static readonly string[] Cities = { "Washington", "Austin", "Albany", "Reno" };
-    private static readonly string[] Codes = { "541512", "334111", "236220", "517311" };
-    private static readonly string[] Amounts = { "$12,500.00", "$3,200.50", "$98,750.00", "$640.00" };
+    // ---- synthetic value generation (keyword-driven, PROCEDURAL) ----
+    // v1 used 4-entry fixed pools; the LiLT Gate-3 scanned-holdout run (2026-07-05) showed the
+    // model memorized value TEXT instead of layout (repeated sentences everywhere, novel values
+    // missed). v2 composes values from a seeded RNG over word/part pools: effectively unbounded
+    // diversity, still deterministic per (field, seed) for reproducible corpora. All identifiers
+    // are fabricated (555 phone exchange, 9xx SSN area, example.* emails); nothing real.
+
+    private static readonly string[] FirstNames = { "Jane", "Robert", "Maria", "Devi", "Carlos", "Aisha", "Thomas", "Elena", "Marcus", "Priya", "Samuel", "Nadia", "George", "Linh", "Walter", "Rosa", "Henry", "Amara", "Frank", "Yuki", "Clara", "Omar", "Ruth", "Felix" };
+    private static readonly string[] LastNames = { "Smith", "Lee", "Gomez", "Patel", "Okafor", "Novak", "Reyes", "Chen", "Dubois", "Larsen", "Moreau", "Kim", "Alvarez", "Brandt", "Costa", "Egan", "Fontaine", "Grieve", "Hoang", "Ibarra", "Jensen", "Kovacs", "Lindqvist", "Mbeki" };
+    private static readonly string[] StreetNames = { "Cedar", "Franklin", "Meridian", "Willow", "Harbor", "Summit", "Prairie", "Juniper", "Colonial", "Granite", "Lakeview", "Sycamore", "Bramble", "Foxglove", "Hickory", "Palmetto" };
+    private static readonly string[] StreetSuffixes = { "St", "Ave", "Blvd", "Dr", "Ln", "Way", "Ct", "Pkwy" };
+    private static readonly (string City, string State, string Zip)[] Places = {
+        ("Washington", "DC", "20500"), ("Austin", "TX", "78701"), ("Albany", "NY", "12207"),
+        ("Reno", "NV", "89501"), ("Columbus", "OH", "43215"), ("Portland", "OR", "97204"),
+        ("Raleigh", "NC", "27601"), ("Boise", "ID", "83702"), ("Madison", "WI", "53703"),
+        ("Trenton", "NJ", "08608"), ("Helena", "MT", "59601"), ("Dover", "DE", "19901"),
+        ("Mesa", "AZ", "85201"), ("Tulsa", "OK", "74103"), ("Erie", "PA", "16501"), ("Salem", "OR", "97301") };
+    private static readonly string[] Titles = { "Contracting Officer", "Program Analyst", "HR Specialist", "Budget Officer", "Records Manager", "Payroll Supervisor", "Administrative Officer", "Benefits Counselor", "Personnel Clerk", "Division Chief" };
+    private static readonly string[] RemarkSubjects = { "Applicant", "Employee", "Claimant", "The undersigned", "Requesting office", "Servicing agency" };
+    private static readonly string[] RemarkVerbs = { "claims", "certifies", "submits", "requests", "confirms", "provides", "attaches", "disputes" };
+    private static readonly string[] RemarkObjects = {
+        "documentation supporting the application for benefits",
+        "verification of prior federal civilian service",
+        "a corrected service history for the period shown",
+        "proof of military service for retirement credit",
+        "an updated designation of beneficiary",
+        "records of non-creditable time for review",
+        "a certified copy of the appointment action",
+        "supporting statements from the servicing payroll office" };
+    private static readonly string[] RemarkTails = { "", "; see attached service history", "; originals to follow by mail", " for the period indicated", " as required by the instructions", "; no further action requested" };
+
+    /// <summary>Stable FNV-1a — string.GetHashCode / HashCode.Combine are per-process randomized.</summary>
+    private static int StableHash(string s)
+    {
+        unchecked
+        {
+            int h = (int)2166136261;
+            foreach (char c in s) h = (h ^ c) * 16777619;
+            return h;
+        }
+    }
 
     private static string SynthValue(string field, int seed)
     {
         string n = field.ToLowerInvariant();
-        string Pick(string[] p) => p[Math.Abs(seed) % p.Length];
-        if (n.Contains("date")) return Pick(Dates);
-        if (n.Contains("phone") || n.Contains("fax") || n.Contains("tel")) return "(202) 555-0143";
-        if (n.Contains("email") || n.Contains("mail")) return "[email protected]";
-        if (n.Contains("zip") || n.Contains("postal")) return "20500";
-        if (n.Contains("state")) return "DC";
-        if (n.Contains("city")) return Pick(Cities);
-        if (n.Contains("address") || n.Contains("street")) return "1800 F Street NW";
-        if (n.Contains("name")) return Pick(Names);
-        if (n.Contains("amount") || n.Contains("price") || n.Contains("cost") || n.Contains("total") || n.Contains("fee"))
-            return Pick(Amounts);
-        if (n.Contains("naics") || n.Contains("code") || n.Contains("number") || n.Contains("no") || n.Contains("id"))
-            return Pick(Codes);
-        return "Sample Value";
+        var rng = new Random(StableHash(field) ^ (seed * 486187739));
+        string Pick(string[] p) => p[rng.Next(p.Length)];
+        string Digits(int k) { var c = new char[k]; for (int i = 0; i < k; i++) c[i] = (char)('0' + rng.Next(10)); return new string(c); }
+
+        if (n.Contains("ssn") || n.Contains("social security"))
+            return $"9{rng.Next(10, 100)}-{rng.Next(10, 100)}-{Digits(4)}";
+        if (n.Contains("date") || n.Contains("dob") || n.Contains("signed"))
+        {
+            int y = rng.Next(2018, 2027), mo = rng.Next(1, 13), d = rng.Next(1, 29);
+            return rng.Next(4) == 0 ? $"{new DateTime(y, mo, d):MMMM d, yyyy}" : $"{mo:00}/{d:00}/{y}";
+        }
+        if (n.Contains("phone") || n.Contains("fax") || n.Contains("tel"))
+            return $"({rng.Next(201, 990)}) 555-{Digits(4)}";
+        if (n.Contains("email") || n.Contains("mail"))
+            return $"{Pick(FirstNames).ToLowerInvariant()}.{Pick(LastNames).ToLowerInvariant()}@example.{Pick(new[] { "gov", "com", "org" })}";
+        if (n.Contains("zip") || n.Contains("postal")) return Places[rng.Next(Places.Length)].Zip;
+        if (n.Contains("state")) return Places[rng.Next(Places.Length)].State;
+        if (n.Contains("city")) return Places[rng.Next(Places.Length)].City;
+        if (n.Contains("address") || n.Contains("street"))
+        {
+            var p = Places[rng.Next(Places.Length)];
+            string line1 = $"{rng.Next(100, 9900)} {Pick(StreetNames)} {Pick(StreetSuffixes)}";
+            return rng.Next(3) == 0 ? $"{line1}, {p.City}, {p.State} {p.Zip}" : line1;
+        }
+        if (n.Contains("title")) return Pick(Titles);
+        if (n.Contains("name"))
+        {
+            string first = Pick(FirstNames), last = Pick(LastNames);
+            return rng.Next(3) switch
+            {
+                0 => $"{first} {(char)('A' + rng.Next(26))}. {last}",
+                1 => $"{last}, {first}",
+                _ => $"{first} {last}",
+            };
+        }
+        if (n.Contains("amount") || n.Contains("price") || n.Contains("cost") || n.Contains("total")
+            || n.Contains("fee") || n.Contains("salary") || n.Contains("balance") || n.Contains("due"))
+        {
+            double v = Math.Round(Math.Exp(rng.NextDouble() * 7.5 + 3.0), 2);   // ~$20 .. ~$36k, log-spread
+            return rng.Next(6) == 0 ? "0" : $"${v:N2}";
+        }
+        if (n.Contains("naics")) return Digits(6);
+        if (n.Contains("cage")) return $"{rng.Next(1, 10)}{(char)('A' + rng.Next(26))}{Digits(1)}{(char)('A' + rng.Next(26))}{Digits(1)}";
+        if (n.Contains("code") || n.Contains("number") || n.Contains("no") || n.Contains("id"))
+            return rng.Next(3) == 0
+                ? $"{(char)('A' + rng.Next(26))}{(char)('A' + rng.Next(26))}-{Digits(rng.Next(4, 7))}"
+                : Digits(rng.Next(5, 9));
+        if (n.Contains("remark") || n.Contains("comment") || n.Contains("description") || n.Contains("explain"))
+            return $"{Pick(RemarkSubjects)} {Pick(RemarkVerbs)} {Pick(RemarkObjects)}{Pick(RemarkTails)}.";
+        // default: short plausible free text, never a fixed literal
+        return $"{Pick(RemarkSubjects)} {Pick(RemarkVerbs)} {Pick(RemarkObjects)}.";
     }
 
     // ---- drawing ----

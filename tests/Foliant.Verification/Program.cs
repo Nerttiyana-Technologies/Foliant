@@ -14,6 +14,7 @@ using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Foliant;
+using Foliant.Forms.Lilt;
 using Foliant.Pipeline;
 using Foliant.Templates;
 using Foliant.ScanUpscale.SuperResolution;
@@ -91,6 +92,11 @@ string? synthFormKvDir = null;        // synthetic-fill mode: fill blank templat
 int synthVariants = 1;                // synthetic filled variants generated per template page
 bool formKvEval = false;              // LiLT Gate-3 eval: score value-word predictions on filled AcroForms
 string liltModelDir = "models/form-kv-lilt";   // LiLT model dir (model.onnx + tokenizer files)
+bool liltExtract = false;             // --lilt-extract: add the learned LiLT arm to the Gate-3 extractor chain
+bool liltOnly = false;                // --lilt-only: learned arm ONLY (attribution runs; no AcroForm/profile)
+float liltConf = 0.65f;               // --lilt-conf: learned-arm confidence floor (abstain below)
+bool liltEmitUnpaired = false;        // --lilt-emit-unpaired: emit VALUE spans with no KEY (empty Name) — diagnostic
+string? gate3ScanPairsDir = null;     // --gate3-scanpairs <TD-41 dir>: scanned-holdout Gate 3 vs AcroForm truth
 bool dumpWidgetFields = false;        // wire WidgetFormFieldExtractor + dump per-page FormFields (quality check)
 string? emitFormTemplate = null;      // --emit-form-template <blank.pdf>: emit a draft FormLayout JSON for review
 string? matchExtractPdf = null;       // --match-extract <filled.pdf>: validate template-aware extraction
@@ -141,6 +147,11 @@ for (int i = 0; i < args.Length; i++)
     if (args[i] == "--synth-variants" && i + 1 < args.Length) { synthVariants = int.Parse(args[++i]); continue; }
     if (args[i] == "--form-kv-eval") { formKvEval = true; continue; }
     if (args[i] == "--lilt-model" && i + 1 < args.Length) { liltModelDir = args[++i]; continue; }
+    if (args[i] == "--lilt-extract") { liltExtract = true; continue; }
+    if (args[i] == "--lilt-only") { liltExtract = true; liltOnly = true; continue; }
+    if (args[i] == "--lilt-conf" && i + 1 < args.Length) { liltConf = float.Parse(args[++i], CultureInfo.InvariantCulture); continue; }
+    if (args[i] == "--lilt-emit-unpaired") { liltEmitUnpaired = true; continue; }
+    if (args[i] == "--gate3-scanpairs" && i + 1 < args.Length) { gate3ScanPairsDir = args[++i]; liltExtract = true; liltOnly = true; continue; }
     if (args[i] == "--widget-form-fields") { dumpWidgetFields = true; continue; }
     if (args[i] == "--emit-form-template" && i + 1 < args.Length) { emitFormTemplate = args[++i]; continue; }
     if (args[i] == "--match-extract" && i + 2 < args.Length) { matchExtractPdf = args[++i]; matchExtractTemplate = args[++i]; continue; }
@@ -327,7 +338,7 @@ if (pdfDir == null || !Directory.Exists(pdfDir))
 {
     Console.Error.WriteLine(
         "Usage: Foliant.Verification <pdf-dir> [out-dir] [--models <dir>] [--ocr-only] " +
-        "[--gate3 <truth.csv>] [--gate3-extract <truth.csv>] [--gate5 <truth-dir>] [--gate6 <truth-dir>] " +
+        "[--gate3 <truth.csv>] [--gate3-extract <truth.csv>] [--gate3-scanpairs <td41-dir>] [--lilt-extract] [--lilt-only] [--lilt-conf <f>] [--gate5 <truth-dir>] [--gate6 <truth-dir>] " +
         "[--gate7 <born-digital-dir> [--gate7-pages N]] " +
         "[--gate8 <born-digital-dir> [--gate8-pages N]] " +
         "[--orient-check [--orient-pages N]] [--no-orientation] [--enumerator-order] " +
@@ -370,14 +381,28 @@ if (formKvEval)
 
 Directory.CreateDirectory(outDir);
 // Gate 3 extraction mode wires the composite form-field extractor (AcroForm + the SF-33 geometric
-// profile); every other mode uses the default (AcroForm only).
+// profile); every other mode uses the default (AcroForm only). --lilt-extract appends the learned
+// LiLT arm (last in the chain: exact sources win, the model only sees pages they abstain on);
+// --lilt-only runs the learned arm alone for attribution.
+using LiltFormKvModel? liltKvModel = liltExtract
+    ? new LiltFormKvModel(liltModelDir)
+    : null;
 IFormFieldExtractor? formExtractor =
     dumpWidgetFields ? new WidgetFormFieldExtractor()
+    : liltOnly ? new LiltFormFieldExtractor(liltKvModel!) { MinConfidence = liltConf, EmitUnpairedValues = liltEmitUnpaired }
     : gate3ExtractCsv != null
         ? new CompositeFormFieldExtractor(
-            new AcroFormFieldExtractor(),
-            new GeometricFormFieldExtractor(new[] { SampleProfiles.Sf33Solicitation }))
-        : null;
+            new IFormFieldExtractor[]
+                {
+                    new AcroFormFieldExtractor(),
+                    new GeometricFormFieldExtractor(new[] { SampleProfiles.Sf33Solicitation }),
+                }
+                .Concat(liltKvModel is not null
+                    ? new IFormFieldExtractor[] { new LiltFormFieldExtractor(liltKvModel) { MinConfidence = liltConf, EmitUnpairedValues = liltEmitUnpaired } }
+                    : Array.Empty<IFormFieldExtractor>())
+                .ToArray())
+        : liltKvModel is not null ? new LiltFormFieldExtractor(liltKvModel) { MinConfidence = liltConf, EmitUnpairedValues = liltEmitUnpaired } : null;
+if (liltExtract) Console.WriteLine($"Mode: --lilt-{(liltOnly ? "only" : "extract")} (learned form-KV arm; model: {liltModelDir})");
 // --with-templates wires the per-page router over the bundled federal templates into the full pipeline,
 // so matched pages get deterministic, label-bound fields + an appended template-field Markdown section.
 IPageTemplateRouter? pipelineRouter = withTemplates
@@ -405,11 +430,16 @@ var options = new ProcessingOptions
     TextLayer = ocrOnly ? TextLayerMode.Never : TextLayerMode.Auto,
     DetectOrientation = !noOrientation,
     EnumeratorReadingOrder = enumeratorOrder,
-    ExtractFormFields = gate3ExtractCsv != null || dumpWidgetFields,
+    ExtractFormFields = gate3ExtractCsv != null || dumpWidgetFields || liltExtract,
     UpscaleLowResolutionScans = superResModel != null,   // --super-res turns on the low-DPI upscale path
     RetryLowResolutionPages = !noRetryLadder,            // --no-retry-ladder: ADR-0004 Gate 9b A/B
     RecoverEmbeddedImageText = !noImageRecovery,         // --no-image-recovery: ADR-0004 Gate 9b A/B
 };
+// Scanned-holdout Gate 3: short-circuits the corpus sweep — pairs are enumerated from the TD-41
+// dir itself (digital twins = truth, scanned twins = input through the learned arm wired above).
+if (gate3ScanPairsDir != null)
+    return await Gate3ScanPairsRunner.RunAsync(processor, gate3ScanPairsDir, options) ? 0 : 1;
+
 if (enumeratorOrder) Console.WriteLine("Mode: --enumerator-order (numbered-mosaic reading-order post-pass on)");
 if (ocrOnly) Console.WriteLine("Mode: --ocr-only (text layer disabled for extraction; still used as recall truth)");
 if (noRetryLadder) Console.WriteLine("Mode: --no-retry-ladder (ADR-0004 low-res retry OFF — 1.4.0-equivalent A/B arm)");
