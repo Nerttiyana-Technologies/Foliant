@@ -62,6 +62,24 @@ public sealed class LiltFormFieldExtractor : IFormFieldExtractor
     /// </summary>
     public bool FlagPossiblyTruncated { get; init; }
 
+    /// <summary>
+    /// Sharpen each emitted value's box to its real ink extent (<see cref="ValueBoxRefiner"/>)
+    /// before it leaves the extractor. The model still sees the proportional <c>SplitWords</c>
+    /// boxes (train/inference alignment) and key→value pairing is unchanged — ONLY the output
+    /// geometry (<see cref="FormField.Bounds"/> and the truncation probe) is refined. Targets the
+    /// STRADDLE class of CROSS-FIELD errors (over-wide boxes that spill into the neighbouring cell,
+    /// mis-assigned by the scorer's overlap match) and the truncation probe's box-fidelity gap
+    /// (0.16/0.26 on SplitWords boxes vs 0.58/0.18 on true rects). DEFAULT OFF — a measurement rig.
+    /// STATUS (2026-07-07, PARKED): measured on Gate 3, NO CROSS-FIELD benefit — the 7 "straddle"
+    /// cross-fields were NOT over-wide value boxes but OVERLAPPING PROJECTED TRUTH RECTS (cf dump:
+    /// all 7 had here_ov = home_ov = 1.00; ink-trim shaved a few px but the box stays inside both
+    /// rects, so no reassignment). That was a scorer-side artifact, fixed by the value-aware
+    /// assignment tie-break in Gate3ScanPairsRunner, not by box fidelity. Kept default-OFF as a rig
+    /// because it still produces tighter boxes and MAY aid the truncation probe (0.58/0.18) —
+    /// re-measure the probe on refined boxes before any promotion.
+    /// </summary>
+    public bool RefineWordBoxes { get; init; }
+
     public IReadOnlyList<FormField> Extract(
         byte[] pdf, int pageNumber, PageImage image, IReadOnlyList<TextLine> lines)
     {
@@ -108,14 +126,18 @@ public sealed class LiltFormFieldExtractor : IFormFieldExtractor
 
             if (key is null && !EmitUnpairedValues) continue;   // abstain: a value we can't name is a guess
             float confidence = key is null ? v.Confidence : Math.Min(v.Confidence, key.Value.Confidence);
+            // Box fidelity: sharpen the OUTPUT box to real ink AFTER pairing (which stays on the
+            // proportional geometry the model was trained on). vBox above is untouched for the model
+            // and the key→value distance; only the emitted box and the probe see the tighter one.
+            var outBox = RefineWordBoxes ? ValueBoxRefiner.InkTrim(image, vBox) : vBox;
             // Honesty flag, never suppression: a value whose ink runs flush into a vertical
             // ruling is likely CLIPPED IN THE SOURCE (cell-border truncation at flatten/scan
             // time — ~7% of TD-41 holdout fields, class confirmed in production scans).
             // The transcription is faithful to the page; the page may not hold the full value.
             bool truncated = FlagPossiblyTruncated
-                             && ValueTruncationProbe.IsFlushAgainstRuling(image, vBox);
+                             && ValueTruncationProbe.IsFlushAgainstRuling(image, outBox);
             fields.Add(new FormField(
-                key?.Text ?? string.Empty, value, FieldKind.Text, vBox, confidence,
+                key?.Text ?? string.Empty, value, FieldKind.Text, outBox, confidence,
                 FormFieldSource.Learned, truncated));
         }
         return fields;

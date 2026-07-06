@@ -38,6 +38,13 @@ internal static class Gate3ScanPairsRunner
     /// <summary>Whole-variant holdout (train used 01–12; manifest-corrected split).</summary>
     private static readonly int[] HoldoutVariants = { 13, 14, 15 };
 
+    /// <summary>
+    /// Overlap granularity for the value-aware assignment tie-break: candidate pairs whose
+    /// prediction/rect overlap rounds to the same multiple of this are treated as an overlap tie,
+    /// and a matching value decides between them. Genuinely different overlap still wins on overlap.
+    /// </summary>
+    private const float OverlapTieBucket = 0.05f;
+
     /// <summary>Truth rect is in DIGITAL PDF points (top-left origin, normalized to page size).</summary>
     private sealed record TruthField(
         string ScanPdf, int Page, string Name, string Value,
@@ -45,7 +52,7 @@ internal static class Gate3ScanPairsRunner
 
     public static async Task<bool> RunAsync(
         DocumentProcessor processor, string td41Dir, ProcessingOptions options,
-        string? dumpSpuriousPath = null)
+        string? dumpSpuriousPath = null, string? dumpCrossFieldPath = null)
     {
         string digitalDir = Path.Combine(td41Dir, "digital");
         string scannedDir = Path.Combine(td41Dir, "scanned");
@@ -120,11 +127,22 @@ internal static class Gate3ScanPairsRunner
         List<string>? spuriousDump = dumpSpuriousPath is null ? null : new List<string>
             { "doc,page,confidence,name,value,x1,y1,x2,y2,nearest_truth_name,nearest_dist_px,value_matches_some_truth" };
 
-        Score(truths, pages, floor: 0f, verbose: true, spuriousDump);
+        // --gate3-dump-crossfield: every CROSS-FIELD case at the extractor floor, one CSV row, with
+        // its straddle/solid geometry (here-rect vs home-rect overlap) and the predicted box — the
+        // raw material for measuring how far box fidelity moves the straddle sub-count.
+        List<string>? crossFieldDump = dumpCrossFieldPath is null ? null : new List<string>
+            { "doc,page,confidence,name,got_value,want_value,pred_x1,pred_y1,pred_x2,pred_y2,here_overlap,home_overlap,geometry,home_truth_name" };
+
+        Score(truths, pages, floor: 0f, verbose: true, spuriousDump, crossFieldDump);
         if (dumpSpuriousPath is not null && spuriousDump is not null)
         {
             await File.WriteAllLinesAsync(dumpSpuriousPath, spuriousDump);
             Console.WriteLine($"\nspurious dump: {spuriousDump.Count - 1} rows → {dumpSpuriousPath}");
+        }
+        if (dumpCrossFieldPath is not null && crossFieldDump is not null)
+        {
+            await File.WriteAllLinesAsync(dumpCrossFieldPath, crossFieldDump);
+            Console.WriteLine($"\ncross-field dump: {crossFieldDump.Count - 1} rows → {dumpCrossFieldPath}");
         }
         Console.WriteLine("\n──── CONFIDENCE-FLOOR SWEEP ────");
         Console.WriteLine($"{"floor",6} {"correct",8} {"cross-fld",9} {"trunc-src",9} {"garbled",8} {"wrong-oth",9} {"elsewhere",9} {"missing",8} {"spurious",9}");
@@ -147,7 +165,7 @@ internal static class Gate3ScanPairsRunner
     private static Tally Score(
         List<TruthField> truths,
         Dictionary<(string, int), (IReadOnlyList<FormField> Fields, int Wpx, int Hpx)> pages,
-        float floor, bool verbose, List<string>? spuriousDump = null)
+        float floor, bool verbose, List<string>? spuriousDump = null, List<string>? crossFieldDump = null)
     {
         int correct = 0, crossField = 0, truncatedSource = 0, garbled = 0, wrongOther = 0, elsewhere = 0, missing = 0, spurious = 0;
         int namedOk = 0, namedAny = 0, crossStraddle = 0, crossSolid = 0;
@@ -165,17 +183,29 @@ internal static class Gate3ScanPairsRunner
             // GLOBAL one-to-one assignment by descending overlap. (The first pass assigned per-truth
             // in list order — truth A could steal a prediction that overlaps truth B more, minting
             // artificial CROSS-FIELDs. Sorting all candidate pairs first is near-optimal matching.)
+            // VALUE-AWARE TIE-BREAK (2026-07-07): dense SF-forms + the Project() registration padding
+            // make neighbouring truth rects OVERLAP, so a correctly-placed value sits inside two rects
+            // at equal overlap and pure-overlap assignment credits it to the wrong one — a scorer
+            // false-positive CROSS-FIELD, not a fabrication (Gate-3 cf dump 2026-07-07: all 7 straddle
+            // cases had here_ov = home_ov = 1.00 and the got-value matched the home field's truth).
+            // Among candidates within OverlapTieBucket of each other, prefer the pair whose predicted
+            // VALUE matches the truth value. Guarded: value-match only wins inside the same overlap
+            // bucket, so a coincidental match in a rect the prediction barely (or does not) overlap can
+            // never steal the assignment — the genuinely misplaced "solid" cross-fields stay CROSS-FIELD.
             var rects = new BoundingBox[truthList.Count];
             for (int ti = 0; ti < truthList.Count; ti++) rects[ti] = Project(truthList[ti], wPx, hPx);
-            var candidates = new List<(int Ti, int J, float Ov)>();
+            var candidates = new List<(int Ti, int J, float Ov, bool Vm)>();
             for (int ti = 0; ti < truthList.Count; ti++)
                 for (int j = 0; j < preds.Count; j++)
                 {
                     float ov = Overlap(rects[ti], preds[j].Bounds!.Value);
-                    if (ov > 0f) candidates.Add((ti, j, ov));
+                    if (ov > 0f) candidates.Add((ti, j, ov, ValueMatches(preds[j].Value, truthList[ti].Value)));
                 }
             var truthTaken = new bool[truthList.Count];
-            foreach (var c in candidates.OrderByDescending(c => c.Ov))
+            foreach (var c in candidates
+                         .OrderByDescending(c => (int)MathF.Round(c.Ov / OverlapTieBucket))   // coarse overlap level
+                         .ThenByDescending(c => c.Vm)                                          // value-match breaks near-ties
+                         .ThenByDescending(c => c.Ov))                                         // exact overlap within a bucket
             {
                 if (truthTaken[c.Ti] || used[c.J]) continue;
                 assign[c.Ti] = c.J; truthTaken[c.Ti] = true; used[c.J] = true;
@@ -242,14 +272,16 @@ internal static class Gate3ScanPairsRunner
                         var containHomes = others.Where(k => ValueMatches(p.Value, truthList[k].Value)).ToList();
 
                         if (exactHomes.Count > 0 && simOwn < 0.8f)
-                            verdict = CrossFieldVerdict(p, t, rects, exactHomes, rects[ti], ref crossField, ref crossStraddle, ref crossSolid);
+                            verdict = CrossFieldVerdict(p, t, truthList, rects, exactHomes, rects[ti], ref crossField, ref crossStraddle, ref crossSolid,
+                                                        crossFieldDump, group.Key.ScanPdf, group.Key.Page);
                         else if (simOwn >= 0.5f)
                         {
                             garbled++;
                             verdict = $"GARBLED (got \"{Trim(p.Value)}\", want \"{Trim(t.Value)}\")";
                         }
                         else if (containHomes.Count > 0)
-                            verdict = CrossFieldVerdict(p, t, rects, containHomes, rects[ti], ref crossField, ref crossStraddle, ref crossSolid);
+                            verdict = CrossFieldVerdict(p, t, truthList, rects, containHomes, rects[ti], ref crossField, ref crossStraddle, ref crossSolid,
+                                                        crossFieldDump, group.Key.ScanPdf, group.Key.Page);
                         else
                         {
                             wrongOther++;
@@ -320,16 +352,34 @@ internal static class Gate3ScanPairsRunner
 
     /// <summary>CROSS-FIELD verdict + geometry instrumentation (straddle vs solidly misplaced).</summary>
     private static string CrossFieldVerdict(
-        FormField p, TruthField t, BoundingBox[] rects, List<int> homes, BoundingBox here,
-        ref int crossField, ref int crossStraddle, ref int crossSolid)
+        FormField p, TruthField t, List<TruthField> truthList, BoundingBox[] rects, List<int> homes, BoundingBox here,
+        ref int crossField, ref int crossStraddle, ref int crossSolid,
+        List<string>? crossFieldDump, string doc, int page)
     {
         crossField++;
         var pb = p.Bounds!.Value;
         float hereOv = Overlap(here, pb);
-        float homeOv = homes.Max(k => Overlap(rects[k], pb));
-        string geo;
-        if (homeOv > 0f) { crossStraddle++; geo = $"STRADDLE here {hereOv:0.00}/home {homeOv:0.00}"; }
-        else { crossSolid++; geo = $"SOLID here {hereOv:0.00}/home 0"; }
+        int homeK = homes.OrderByDescending(k => Overlap(rects[k], pb)).First();
+        float homeOv = Overlap(rects[homeK], pb);
+        bool straddle = homeOv > 0f;
+        string geo = straddle
+            ? $"STRADDLE here {hereOv:0.00}/home {homeOv:0.00}"
+            : $"SOLID here {hereOv:0.00}/home 0";
+        if (straddle) crossStraddle++; else crossSolid++;
+
+        crossFieldDump?.Add(string.Join(",",
+            Csv(doc), page.ToString(CultureInfo.InvariantCulture),
+            p.Confidence.ToString("0.000", CultureInfo.InvariantCulture),
+            Csv(p.Name), Csv(p.Value), Csv(t.Value),
+            ((int)pb.X1).ToString(CultureInfo.InvariantCulture),
+            ((int)pb.Y1).ToString(CultureInfo.InvariantCulture),
+            ((int)pb.X2).ToString(CultureInfo.InvariantCulture),
+            ((int)pb.Y2).ToString(CultureInfo.InvariantCulture),
+            hereOv.ToString("0.000", CultureInfo.InvariantCulture),
+            homeOv.ToString("0.000", CultureInfo.InvariantCulture),
+            straddle ? "straddle" : "solid",
+            Csv(truthList[homeK].Name)));
+
         return $"CROSS-FIELD (got \"{Trim(p.Value)}\", want \"{Trim(t.Value)}\") [{geo}; " +
                $"pred ({pb.X1:0},{pb.Y1:0})-({pb.X2:0},{pb.Y2:0})]";
     }
