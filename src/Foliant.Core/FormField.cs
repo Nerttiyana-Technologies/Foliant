@@ -40,10 +40,19 @@ public enum FormFieldSource
 /// </param>
 /// <param name="Confidence">Extraction confidence in [0,1]; 1.0 for exact AcroForm values.</param>
 /// <param name="Source">Whether the field came from the AcroForm dictionary or geometric detection.</param>
+/// <param name="PossiblyTruncated">
+/// True when the value's ink runs flush into a vertical ruling (cell border) with no trailing
+/// gap — the signature of a value that was CLIPPED when the source document was flattened or
+/// scanned (the page shows "26,320.0" where the field once held "$26,320.00"). The visible text
+/// is transcribed faithfully, but it may not be the complete value; treat as needs-review rather
+/// than a confident complete extraction. Never suppresses extraction (honesty flag, ADR-0004
+/// pattern). Only set by raster-aware extractors; AcroForm values are exact and never flagged.
+/// </param>
 public sealed record FormField(
     string Name,
     string Value,
     FieldKind Kind,
     BoundingBox? Bounds = null,
     float Confidence = 1f,
-    FormFieldSource Source = FormFieldSource.AcroForm);
+    FormFieldSource Source = FormFieldSource.AcroForm,
+    bool PossiblyTruncated = false);
