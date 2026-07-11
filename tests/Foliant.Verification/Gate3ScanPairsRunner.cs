@@ -52,7 +52,8 @@ internal static class Gate3ScanPairsRunner
 
     public static async Task<bool> RunAsync(
         DocumentProcessor processor, string td41Dir, ProcessingOptions options,
-        string? dumpSpuriousPath = null, string? dumpCrossFieldPath = null, string? dumpMissingPath = null)
+        string? dumpSpuriousPath = null, string? dumpCrossFieldPath = null, string? dumpMissingPath = null,
+        string? dumpGarbledPath = null)
     {
         string digitalDir = Path.Combine(td41Dir, "digital");
         string scannedDir = Path.Combine(td41Dir, "scanned");
@@ -140,7 +141,13 @@ internal static class Gate3ScanPairsRunner
         List<string>? missingDump = dumpMissingPath is null ? null : new List<string>
             { "doc,page,truth_name,want_value,rect_x1,rect_y1,rect_x2,rect_y2,preds_overlapping_rect,value_extracted_elsewhere,nearest_pred_value,nearest_pred_conf,nearest_pred_dist_px,class" };
 
-        Score(truths, pages, floor: 0f, verbose: true, spuriousDump, crossFieldDump, missingDump);
+        // --gate3-dump-garbled: every GARBLED case (right field, OCR-mangled value) with the signals that
+        // pick the recognition lever — similarity to truth (near-1 = minor char confusion → rec-model;
+        // low = gross failure → super-res / preprocessing), got/want lengths, and box (dense-grid vs body).
+        List<string>? garbledDump = dumpGarbledPath is null ? null : new List<string>
+            { "doc,page,confidence,truth_name,got_value,want_value,similarity,got_len,want_len,pred_x1,pred_y1,pred_x2,pred_y2" };
+
+        Score(truths, pages, floor: 0f, verbose: true, spuriousDump, crossFieldDump, missingDump, garbledDump);
         if (dumpSpuriousPath is not null && spuriousDump is not null)
         {
             await File.WriteAllLinesAsync(dumpSpuriousPath, spuriousDump);
@@ -155,6 +162,11 @@ internal static class Gate3ScanPairsRunner
         {
             await File.WriteAllLinesAsync(dumpMissingPath, missingDump);
             Console.WriteLine($"\nmissing dump: {missingDump.Count - 1} rows → {dumpMissingPath}");
+        }
+        if (dumpGarbledPath is not null && garbledDump is not null)
+        {
+            await File.WriteAllLinesAsync(dumpGarbledPath, garbledDump);
+            Console.WriteLine($"\ngarbled dump: {garbledDump.Count - 1} rows → {dumpGarbledPath}");
         }
         Console.WriteLine("\n──── CONFIDENCE-FLOOR SWEEP ────");
         Console.WriteLine($"{"floor",6} {"correct",8} {"cross-fld",9} {"trunc-src",9} {"garbled",8} {"wrong-oth",9} {"elsewhere",9} {"missing",8} {"spurious",9}");
@@ -178,7 +190,7 @@ internal static class Gate3ScanPairsRunner
         List<TruthField> truths,
         Dictionary<(string, int), (IReadOnlyList<FormField> Fields, int Wpx, int Hpx)> pages,
         float floor, bool verbose, List<string>? spuriousDump = null, List<string>? crossFieldDump = null,
-        List<string>? missingDump = null)
+        List<string>? missingDump = null, List<string>? garbledDump = null)
     {
         int correct = 0, crossField = 0, truncatedSource = 0, garbled = 0, wrongOther = 0, elsewhere = 0, missing = 0, spurious = 0;
         int namedOk = 0, namedAny = 0, crossStraddle = 0, crossSolid = 0;
@@ -291,6 +303,21 @@ internal static class Gate3ScanPairsRunner
                         {
                             garbled++;
                             verdict = $"GARBLED (got \"{Trim(p.Value)}\", want \"{Trim(t.Value)}\")";
+                            if (garbledDump is not null)
+                            {
+                                var gb = p.Bounds!.Value;
+                                garbledDump.Add(string.Join(",",
+                                    Csv(group.Key.ScanPdf), group.Key.Page.ToString(CultureInfo.InvariantCulture),
+                                    p.Confidence.ToString("0.000", CultureInfo.InvariantCulture),
+                                    Csv(t.Name), Csv(p.Value), Csv(t.Value),
+                                    simOwn.ToString("0.000", CultureInfo.InvariantCulture),
+                                    GateCommon.Norm(p.Value).Length.ToString(CultureInfo.InvariantCulture),
+                                    GateCommon.Norm(t.Value).Length.ToString(CultureInfo.InvariantCulture),
+                                    ((int)gb.X1).ToString(CultureInfo.InvariantCulture),
+                                    ((int)gb.Y1).ToString(CultureInfo.InvariantCulture),
+                                    ((int)gb.X2).ToString(CultureInfo.InvariantCulture),
+                                    ((int)gb.Y2).ToString(CultureInfo.InvariantCulture)));
+                            }
                         }
                         else if (containHomes.Count > 0)
                             verdict = CrossFieldVerdict(p, t, truthList, rects, containHomes, rects[ti], ref crossField, ref crossStraddle, ref crossSolid,

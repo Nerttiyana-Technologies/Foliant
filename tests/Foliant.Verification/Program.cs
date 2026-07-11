@@ -100,6 +100,7 @@ string? gate3ScanPairsDir = null;     // --gate3-scanpairs <TD-41 dir>: scanned-
 string? gate3DumpSpurious = null;     // --gate3-dump-spurious <csv>: dump spurious predictions (filter design)
 string? gate3DumpCrossField = null;   // --gate3-dump-crossfield <csv>: dump CROSS-FIELD cases w/ straddle geometry
 string? gate3DumpMissing = null;      // --gate3-dump-missing <csv>: dump MISSING truth fields w/ recall-gap class
+string? gate3DumpGarbled = null;      // --gate3-dump-garbled <csv>: dump GARBLED cases w/ similarity (rec-lever design)
 bool refineWordBoxes = false;         // --refine-word-boxes: ink-trim emitted value boxes (box-fidelity rig;
                                       // OUTPUT geometry only, model input unchanged; default OFF, measured on Gate 3)
 bool dumpWidgetFields = false;        // wire WidgetFormFieldExtractor + dump per-page FormFields (quality check)
@@ -163,6 +164,7 @@ for (int i = 0; i < args.Length; i++)
     if (args[i] == "--gate3-dump-spurious" && i + 1 < args.Length) { gate3DumpSpurious = args[++i]; continue; }
     if (args[i] == "--gate3-dump-crossfield" && i + 1 < args.Length) { gate3DumpCrossField = args[++i]; continue; }
     if (args[i] == "--gate3-dump-missing" && i + 1 < args.Length) { gate3DumpMissing = args[++i]; continue; }
+    if (args[i] == "--gate3-dump-garbled" && i + 1 < args.Length) { gate3DumpGarbled = args[++i]; continue; }
     if (args[i] == "--refine-word-boxes") { refineWordBoxes = true; continue; }
     if (args[i] == "--widget-form-fields") { dumpWidgetFields = true; continue; }
     if (args[i] == "--emit-form-template" && i + 1 < args.Length) { emitFormTemplate = args[++i]; continue; }
@@ -351,7 +353,7 @@ if (pdfDir == null || !Directory.Exists(pdfDir))
 {
     Console.Error.WriteLine(
         "Usage: Foliant.Verification <pdf-dir> [out-dir] [--models <dir>] [--ocr-only] " +
-        "[--gate3 <truth.csv>] [--gate3-extract <truth.csv>] [--gate3-scanpairs <td41-dir>] [--gate3-dump-crossfield <csv>] [--gate3-dump-missing <csv>] [--refine-word-boxes] [--lilt-extract] [--lilt-only] [--lilt-conf <f>] [--gate5 <truth-dir>] [--gate6 <truth-dir>] " +
+        "[--gate3 <truth.csv>] [--gate3-extract <truth.csv>] [--gate3-scanpairs <td41-dir>] [--gate3-dump-crossfield <csv>] [--gate3-dump-missing <csv>] [--gate3-dump-garbled <csv>] [--refine-word-boxes] [--lilt-extract] [--lilt-only] [--lilt-conf <f>] [--gate5 <truth-dir>] [--gate6 <truth-dir>] " +
         "[--gate7 <born-digital-dir> [--gate7-pages N]] " +
         "[--gate8 <born-digital-dir> [--gate8-pages N]] " +
         "[--orient-check [--orient-pages N]] [--no-orientation] [--enumerator-order] " +
@@ -452,7 +454,7 @@ var options = new ProcessingOptions
 // Scanned-holdout Gate 3: short-circuits the corpus sweep — pairs are enumerated from the TD-41
 // dir itself (digital twins = truth, scanned twins = input through the learned arm wired above).
 if (gate3ScanPairsDir != null)
-    return await Gate3ScanPairsRunner.RunAsync(processor, gate3ScanPairsDir, options, gate3DumpSpurious, gate3DumpCrossField, gate3DumpMissing) ? 0 : 1;
+    return await Gate3ScanPairsRunner.RunAsync(processor, gate3ScanPairsDir, options, gate3DumpSpurious, gate3DumpCrossField, gate3DumpMissing, gate3DumpGarbled) ? 0 : 1;
 
 if (enumeratorOrder) Console.WriteLine("Mode: --enumerator-order (numbered-mosaic reading-order post-pass on)");
 if (ocrOnly) Console.WriteLine("Mode: --ocr-only (text layer disabled for extraction; still used as recall truth)");
