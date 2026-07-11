@@ -52,7 +52,7 @@ internal static class Gate3ScanPairsRunner
 
     public static async Task<bool> RunAsync(
         DocumentProcessor processor, string td41Dir, ProcessingOptions options,
-        string? dumpSpuriousPath = null, string? dumpCrossFieldPath = null)
+        string? dumpSpuriousPath = null, string? dumpCrossFieldPath = null, string? dumpMissingPath = null)
     {
         string digitalDir = Path.Combine(td41Dir, "digital");
         string scannedDir = Path.Combine(td41Dir, "scanned");
@@ -133,7 +133,14 @@ internal static class Gate3ScanPairsRunner
         List<string>? crossFieldDump = dumpCrossFieldPath is null ? null : new List<string>
             { "doc,page,confidence,name,got_value,want_value,pred_x1,pred_y1,pred_x2,pred_y2,here_overlap,home_overlap,geometry,home_truth_name" };
 
-        Score(truths, pages, floor: 0f, verbose: true, spuriousDump, crossFieldDump);
+        // --gate3-dump-missing: every MISSING truth field at the extractor floor, one CSV row, with the
+        // signals that decompose WHY it dropped — how many predictions overlap its rect, whether its
+        // value was extracted but credited elsewhere (stolen), the nearest prediction, and a class:
+        // value-stolen (assignment) | overlapped-wrong-value (mis-read) | no-pred-recall-gap (model silent).
+        List<string>? missingDump = dumpMissingPath is null ? null : new List<string>
+            { "doc,page,truth_name,want_value,rect_x1,rect_y1,rect_x2,rect_y2,preds_overlapping_rect,value_extracted_elsewhere,nearest_pred_value,nearest_pred_conf,nearest_pred_dist_px,class" };
+
+        Score(truths, pages, floor: 0f, verbose: true, spuriousDump, crossFieldDump, missingDump);
         if (dumpSpuriousPath is not null && spuriousDump is not null)
         {
             await File.WriteAllLinesAsync(dumpSpuriousPath, spuriousDump);
@@ -143,6 +150,11 @@ internal static class Gate3ScanPairsRunner
         {
             await File.WriteAllLinesAsync(dumpCrossFieldPath, crossFieldDump);
             Console.WriteLine($"\ncross-field dump: {crossFieldDump.Count - 1} rows → {dumpCrossFieldPath}");
+        }
+        if (dumpMissingPath is not null && missingDump is not null)
+        {
+            await File.WriteAllLinesAsync(dumpMissingPath, missingDump);
+            Console.WriteLine($"\nmissing dump: {missingDump.Count - 1} rows → {dumpMissingPath}");
         }
         Console.WriteLine("\n──── CONFIDENCE-FLOOR SWEEP ────");
         Console.WriteLine($"{"floor",6} {"correct",8} {"cross-fld",9} {"trunc-src",9} {"garbled",8} {"wrong-oth",9} {"elsewhere",9} {"missing",8} {"spurious",9}");
@@ -165,7 +177,8 @@ internal static class Gate3ScanPairsRunner
     private static Tally Score(
         List<TruthField> truths,
         Dictionary<(string, int), (IReadOnlyList<FormField> Fields, int Wpx, int Hpx)> pages,
-        float floor, bool verbose, List<string>? spuriousDump = null, List<string>? crossFieldDump = null)
+        float floor, bool verbose, List<string>? spuriousDump = null, List<string>? crossFieldDump = null,
+        List<string>? missingDump = null)
     {
         int correct = 0, crossField = 0, truncatedSource = 0, garbled = 0, wrongOther = 0, elsewhere = 0, missing = 0, spurious = 0;
         int namedOk = 0, namedAny = 0, crossStraddle = 0, crossSolid = 0;
@@ -293,7 +306,45 @@ internal static class Gate3ScanPairsRunner
                 {
                     elsewhere++; verdict = "VALUE-ELSEWHERE";
                 }
-                else { missing++; verdict = "MISSING"; }
+                else
+                {
+                    missing++; verdict = "MISSING";
+                    if (missingDump is not null)
+                    {
+                        var rect = rects[ti];
+                        float rcx = (rect.X1 + rect.X2) / 2f, rcy = (rect.Y1 + rect.Y2) / 2f;
+                        int overlapping = preds.Count(pp => Overlap(rect, pp.Bounds!.Value) > 0f);
+                        // A used prediction carrying this value = the value WAS extracted but the
+                        // one-to-one match credited it to a neighbouring rect (stolen). No overlap
+                        // and no such value anywhere = the model never fired here (true recall gap).
+                        // Overlap but wrong value = fired on the field, mis-read it.
+                        bool valueUsedElsewhere = preds.Any(pp => ValueMatches(pp.Value, t.Value));
+                        int nearest = -1; float nearestDist = float.MaxValue;
+                        for (int j = 0; j < preds.Count; j++)
+                        {
+                            var pbb = preds[j].Bounds!.Value;
+                            float pcx = (pbb.X1 + pbb.X2) / 2f, pcy = (pbb.Y1 + pbb.Y2) / 2f;
+                            float d = MathF.Sqrt((pcx - rcx) * (pcx - rcx) + (pcy - rcy) * (pcy - rcy));
+                            if (d < nearestDist) { nearestDist = d; nearest = j; }
+                        }
+                        string cls = valueUsedElsewhere ? "value-stolen"
+                            : overlapping > 0 ? "overlapped-wrong-value"
+                            : "no-pred-recall-gap";
+                        missingDump.Add(string.Join(",",
+                            Csv(group.Key.ScanPdf), group.Key.Page.ToString(CultureInfo.InvariantCulture),
+                            Csv(t.Name), Csv(t.Value),
+                            ((int)rect.X1).ToString(CultureInfo.InvariantCulture),
+                            ((int)rect.Y1).ToString(CultureInfo.InvariantCulture),
+                            ((int)rect.X2).ToString(CultureInfo.InvariantCulture),
+                            ((int)rect.Y2).ToString(CultureInfo.InvariantCulture),
+                            overlapping.ToString(CultureInfo.InvariantCulture),
+                            valueUsedElsewhere ? "1" : "0",
+                            Csv(nearest >= 0 ? preds[nearest].Value : ""),
+                            nearest >= 0 ? preds[nearest].Confidence.ToString("0.000", CultureInfo.InvariantCulture) : "",
+                            ((int)nearestDist).ToString(CultureInfo.InvariantCulture),
+                            cls));
+                    }
+                }
                 if (verbose) Console.WriteLine($"  {Trim(t.Name),-30} {verdict}");
             }
             int extra = used.Count(u => !u);
