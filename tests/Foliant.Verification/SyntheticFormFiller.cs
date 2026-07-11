@@ -201,6 +201,14 @@ internal static class SyntheticFormFiller
             return rng.Next(3) == 0 ? $"{line1}, {p.City}, {p.State} {p.Zip}" : line1;
         }
         if (n.Contains("title")) return Pick(Titles);
+        // Offeror/contractor cells are COMPANY + address in real award grids (SF1409/SF1449/SF1447),
+        // not person names — must precede the generic "name" branch (NameOfOfferor contains "name").
+        if (n.Contains("offeror") || n.Contains("contractor") || n.Contains("vendor") || n.Contains("bidder"))
+        {
+            var pl = Places[rng.Next(Places.Length)];
+            string co = $"{Pick(StreetNames)} {Pick(new[] { "Industries", "Logistics", "Systems", "Supply Co", "Partners", "Solutions", "Rugged Devices LLC", "Federal LLC", "Group", "Technologies" })}";
+            return $"{co} {pl.City}, {pl.State} {pl.Zip}";
+        }
         if (n.Contains("name"))
         {
             string first = Pick(FirstNames), last = Pick(LastNames);
@@ -211,7 +219,18 @@ internal static class SyntheticFormFiller
                 _ => $"{first} {last}",
             };
         }
-        if (n.Contains("amount") || n.Contains("price") || n.Contains("cost") || n.Contains("total")
+        // Line-item grid columns carry TYPED values in the real holdout — teaching the model the
+        // per-column type is what stops the qty<->unit<->cost mis-registration (value-stolen class).
+        if (n.Contains("quantity") || n.Contains("qty"))
+            return rng.Next(7) == 0 ? "0" : $"{rng.Next(1, 21) * 25}";              // small integers: 25..500
+        if (n.Contains("fobpoint") || n.Contains("fob"))
+            return Pick(new[] { "Origin", "Destination" });
+        if (n.StartsWith("page") || n.Contains("pageof") || n.Contains("pages"))
+            return $"{rng.Next(1, 6)}";                                             // page numbers: 1..5
+        if (n.Contains("item"))                                                     // ItemNumber/ITEMNO/ITEMNUM -> CLIN-like
+            return rng.Next(2) == 0 ? Digits(4) : $"{(char)('A' + rng.Next(26))}{(char)('A' + rng.Next(26))}-{Digits(4)}";
+        // "unit" (unit total / extended cost) reads as MONEY in the SF1447/SF1449 holdout; "unitprice" also.
+        if (n.Contains("amount") || n.Contains("price") || n.Contains("cost") || n.Contains("unit") || n.Contains("total")
             || n.Contains("fee") || n.Contains("salary") || n.Contains("balance") || n.Contains("due"))
         {
             double v = Math.Round(Math.Exp(rng.NextDouble() * 7.5 + 3.0), 2);   // ~$20 .. ~$36k, log-spread
