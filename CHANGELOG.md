@@ -1,5 +1,32 @@
 # Changelog
 
+## 1.7.0 — 2026-07-11 (opt-in learned form key-value extraction)
+
+Minor, **additive and non-breaking**. The default pipeline is unchanged; the learned arm is opt-in.
+
+### Added
+- **Learned form key-value extractor** (`Foliant.Forms.Lilt`, opt-in) — a LiLT token-classification
+  arm (ADR-0001 Lever 2) for flattened/scanned federal forms where AcroForm/profile sources are
+  absent. It runs behind the `IFormFieldExtractor` seam and **abstains rather than guesses** (spans
+  below `MinConfidence` (0.65) are dropped; unpaired values surface only with `EmitUnpairedValues`).
+  Enable it by composing after the exact-source extractors, which win wherever widget/profile values
+  exist:
+  ```csharp
+  using var lilt = LiltFormFieldExtractor.Load("path/to/kv-model");   // bring your own weights
+  var processor = FoliantProcessor.CreateDefault(
+      formFields: new CompositeFormFieldExtractor(new AcroFormFieldExtractor(), lilt));
+  ```
+  **Measured** (TD-41 scanned holdout, rect-identity Gate 3): **70.1%** exact-value correct with
+  cross-field fabrication **4/1,091**; the coverage invariants are unchanged on the 922-page promotion
+  corpus (Gate 1 recall 100%, Gate 2 zero text loss, Gate 9 zero silent-empty).
+- `LiltFormFieldExtractor.Load(modelDir, minConfidence)` — one-call construction returning an
+  `IDisposable` extractor that owns its ONNX session.
+
+### Notes
+- **Weights are not bundled.** The learned arm is bring-your-own-weights in this release — point
+  `Load` at a directory containing `model.onnx`, the tokenizer, and `config.json`. A published,
+  fetchable model-catalog entry will follow in a later release.
+
 ## 1.6.0 — 2026-07-05 (sensitivity-marking detection + retry hardening)
 
 Minor, **additive and non-breaking**.

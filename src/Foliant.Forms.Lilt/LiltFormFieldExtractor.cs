@@ -12,14 +12,39 @@ namespace Foliant.Forms.Lilt;
 /// Intended for flattened/scanned forms; compose AFTER AcroForm/profile extractors
 /// (<c>CompositeFormFieldExtractor</c>), which win on pages where exact sources exist.
 /// </summary>
-public sealed class LiltFormFieldExtractor : IFormFieldExtractor
+public sealed class LiltFormFieldExtractor : IFormFieldExtractor, IDisposable
 {
     private readonly LiltFormKvModel _model;
+    private readonly bool _ownsModel;
 
-    public LiltFormFieldExtractor(LiltFormKvModel model)
+    /// <summary>Wrap a caller-owned model. The caller keeps responsibility for disposing it.</summary>
+    public LiltFormFieldExtractor(LiltFormKvModel model) : this(model, ownsModel: false) { }
+
+    private LiltFormFieldExtractor(LiltFormKvModel model, bool ownsModel)
     {
         ArgumentNullException.ThrowIfNull(model);
         _model = model;
+        _ownsModel = ownsModel;
+    }
+
+    /// <summary>
+    /// One-call opt-in: load a trained LiLT form-KV model from <paramref name="modelDir"/> (a directory
+    /// holding <c>model.onnx</c> + tokenizer + <c>config.json</c>) and return an extractor that OWNS it.
+    /// Bring your own weights. Compose AFTER the exact-source extractors so the learned arm only fills
+    /// flattened/scanned forms, then dispose when done:
+    /// <code>
+    /// using var lilt = LiltFormFieldExtractor.Load("path/to/kv-model");
+    /// var processor = FoliantProcessor.CreateDefault(
+    ///     formFields: new CompositeFormFieldExtractor(new AcroFormFieldExtractor(), lilt));
+    /// </code>
+    /// </summary>
+    public static LiltFormFieldExtractor Load(string modelDir, float minConfidence = 0.65f)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(modelDir);
+        return new LiltFormFieldExtractor(new LiltFormKvModel(modelDir), ownsModel: true)
+        {
+            MinConfidence = minConfidence,
+        };
     }
 
     /// <summary>Minimum span confidence; predictions below this are abstained. Default 0.65.</summary>
@@ -276,4 +301,11 @@ public sealed class LiltFormFieldExtractor : IFormFieldExtractor
 
     private static string Text(LiltSpan s, IReadOnlyList<string> words) =>
         string.Join(' ', s.WordIndices.Select(wi => words[wi])).Trim();
+
+    /// <summary>Disposes the underlying model ONLY when this extractor created it (via <see cref="Load"/>).
+    /// Extractors built from a caller-supplied model leave that model's lifetime to the caller.</summary>
+    public void Dispose()
+    {
+        if (_ownsModel) _model.Dispose();
+    }
 }
