@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.7.1 — 2026-07-11 (ship the Foliant.Forms.Lilt package)
+
+Patch. Corrects 1.7.0, which announced the opt-in learned form key-value extractor but did not publish
+its assembly — `Foliant.Forms.Lilt` was marked non-packable, so it shipped in no NuGet package.
+
+### Fixed
+- **`Foliant.Forms.Lilt` is now published.** The opt-in `LiltFormFieldExtractor.Load` from 1.7.0 is now
+  consumable — `dotnet add package Foliant.Forms.Lilt` (depends on `Foliant.Core` and `Microsoft.ML.OnnxRuntime`).
+  Default pipeline unchanged; weights remain bring-your-own.
+
 ## 1.7.0 — 2026-07-11 (opt-in learned form key-value extraction)
 
 Minor, **additive and non-breaking**. The default pipeline is unchanged; the learned arm is opt-in.
