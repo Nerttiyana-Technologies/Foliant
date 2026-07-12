@@ -2,9 +2,8 @@
 
   <PropertyGroup>
     <Description>LiLT form key-value backend for Foliant (ONNX, runs fully local via ONNX Runtime). Token-classification head over RoBERTa + layout: flags filled form-field VALUE tokens; paired with labels for key-value extraction.</Description>
-    <!-- Experimental: not referenced by any shipping pipeline (harness/eval only). Kept out of the
-         NuGet release until validated — the shipping form path is WidgetFormFieldExtractor + Foliant.Templates. -->
-    <IsPackable>false</IsPackable>
+    <!-- Opt-in learned form-KV arm, published since 1.7.1; not wired into the default pipeline. -->
+        <IsPackable>true</IsPackable>
   </PropertyGroup>
 
   <ItemGroup>
