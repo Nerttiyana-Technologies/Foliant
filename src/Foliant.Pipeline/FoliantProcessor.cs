@@ -60,7 +60,8 @@ public static class FoliantProcessor
         IPageTemplateRouter? templateRouter = null,
         string? recognitionModelPath = null,
         string? recognitionDictPath = null,
-        IScanUpscaler? scanUpscaler = null)
+        IScanUpscaler? scanUpscaler = null,
+        bool splitMergedOcrRows = false)
     {
         string Require(string fileName)
         {
@@ -93,7 +94,8 @@ public static class FoliantProcessor
             Require(ModelCatalog.OcrDetection.FileName),
             recPath,
             recDict,
-            orientation);
+            orientation,
+            splitMergedOcrRows);
         ITableExtractor tables = tableBackend switch
         {
             TableBackend.PaddleStructure =>
@@ -139,12 +141,13 @@ public static class FoliantProcessor
         IPageTemplateRouter? templateRouter = null,
         string? recognitionModelPath = null,
         string? recognitionDictPath = null,
-        IScanUpscaler? scanUpscaler = null)
+        IScanUpscaler? scanUpscaler = null,
+        bool splitMergedOcrRows = false)
     {
         cache ??= new ModelCache();
         await cache.GetPathsAsync(ModelCatalog.DefaultPipeline, downloadProgress, cancellationToken)
             .ConfigureAwait(false);
         return CreateDefault(cache.CacheDirectory, tableBackend, readingOrder, formFields, templateRouter,
-            recognitionModelPath, recognitionDictPath, scanUpscaler);
+            recognitionModelPath, recognitionDictPath, scanUpscaler, splitMergedOcrRows);
     }
 }

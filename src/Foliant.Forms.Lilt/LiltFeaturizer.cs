@@ -41,13 +41,16 @@ public sealed class LiltFeaturizer
     public LiltFeaturizer(LiltTokenizer tokenizer) => _tok = tokenizer;
 
     /// <summary>
-    /// Encodes one page. <paramref name="words"/> and <paramref name="boxes"/> are parallel (one box per
-    /// word, in page raster pixels); <paramref name="pageWidth"/>/<paramref name="pageHeight"/> are the
-    /// raster size used to normalize boxes. Empty words should be filtered by the caller (the training rig
-    /// drops empty tokens before featurizing).
+    /// Encodes one page (or a window of it, from <paramref name="startWord"/>). <paramref name="words"/>
+    /// and <paramref name="boxes"/> are parallel (one box per word, in page raster pixels);
+    /// <paramref name="pageWidth"/>/<paramref name="pageHeight"/> are the raster size used to normalize
+    /// boxes. <see cref="LiltFeatures.TokenToWord"/> carries ABSOLUTE word indices, so window results
+    /// merge directly. Empty words should be filtered by the caller (the training rig drops empty tokens
+    /// before featurizing).
     /// </summary>
     public LiltFeatures Encode(
-        IReadOnlyList<string> words, IReadOnlyList<BoundingBox> boxes, int pageWidth, int pageHeight)
+        IReadOnlyList<string> words, IReadOnlyList<BoundingBox> boxes, int pageWidth, int pageHeight,
+        int startWord = 0)
     {
         ArgumentNullException.ThrowIfNull(words);
         ArgumentNullException.ThrowIfNull(boxes);
@@ -61,7 +64,7 @@ public sealed class LiltFeaturizer
         var tokenToWord = new List<int>(LiltFeatures.MaxLen) { -1 };
 
         bool truncated = false;
-        for (int wi = 0; wi < words.Count && !truncated; wi++)
+        for (int wi = Math.Max(0, startWord); wi < words.Count && !truncated; wi++)
         {
             long[] norm = NormBox(boxes[wi], pageWidth, pageHeight);
             foreach (int sub in _tok.EncodeWord(words[wi]))

@@ -14,6 +14,7 @@ using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Foliant;
+using Foliant.Forms.Lilt;
 using Foliant.Pipeline;
 using Foliant.Templates;
 using Foliant.ScanUpscale.SuperResolution;
@@ -91,6 +92,17 @@ string? synthFormKvDir = null;        // synthetic-fill mode: fill blank templat
 int synthVariants = 1;                // synthetic filled variants generated per template page
 bool formKvEval = false;              // LiLT Gate-3 eval: score value-word predictions on filled AcroForms
 string liltModelDir = "models/form-kv-lilt";   // LiLT model dir (model.onnx + tokenizer files)
+bool liltExtract = false;             // --lilt-extract: add the learned LiLT arm to the Gate-3 extractor chain
+bool liltOnly = false;                // --lilt-only: learned arm ONLY (attribution runs; no AcroForm/profile)
+float liltConf = 0.65f;               // --lilt-conf: learned-arm confidence floor (abstain below)
+bool liltEmitUnpaired = false;        // --lilt-emit-unpaired: emit VALUE spans with no KEY (empty Name) — diagnostic
+string? gate3ScanPairsDir = null;     // --gate3-scanpairs <TD-41 dir>: scanned-holdout Gate 3 vs AcroForm truth
+string? gate3DumpSpurious = null;     // --gate3-dump-spurious <csv>: dump spurious predictions (filter design)
+string? gate3DumpCrossField = null;   // --gate3-dump-crossfield <csv>: dump CROSS-FIELD cases w/ straddle geometry
+string? gate3DumpMissing = null;      // --gate3-dump-missing <csv>: dump MISSING truth fields w/ recall-gap class
+string? gate3DumpGarbled = null;      // --gate3-dump-garbled <csv>: dump GARBLED cases w/ similarity (rec-lever design)
+bool refineWordBoxes = false;         // --refine-word-boxes: ink-trim emitted value boxes (box-fidelity rig;
+                                      // OUTPUT geometry only, model input unchanged; default OFF, measured on Gate 3)
 bool dumpWidgetFields = false;        // wire WidgetFormFieldExtractor + dump per-page FormFields (quality check)
 string? emitFormTemplate = null;      // --emit-form-template <blank.pdf>: emit a draft FormLayout JSON for review
 string? matchExtractPdf = null;       // --match-extract <filled.pdf>: validate template-aware extraction
@@ -111,6 +123,9 @@ string[]? importTpl = null;           // --import-template <db> <reviewed.json>
 string[]? unregTpl = null;            // --unregister <db> <id>
 bool noRetryLadder = false;           // --no-retry-ladder: disable the ADR-0004 low-res retry (A/B)
 bool noImageRecovery = false;         // --no-image-recovery: disable the ADR-0004 mixed-page merge (A/B)
+bool rowSplit = false;                // --row-split: enable merged-row det-box splitting (measured
+                                      // net-negative on Gate 3 2026-07-06: spurious 325→543 for
+                                      // garbled 95→94; default OFF, kept as a measurement rig)
 int samplePdfs = 0;                   // --sample-pdfs N: seeded random N-PDF subset (0 = all)
 int sampleSeed = 12345;               // --sample-seed S: reproducible subset across runs
 var tableBackend = TableBackend.TableTransformer;
@@ -141,6 +156,16 @@ for (int i = 0; i < args.Length; i++)
     if (args[i] == "--synth-variants" && i + 1 < args.Length) { synthVariants = int.Parse(args[++i]); continue; }
     if (args[i] == "--form-kv-eval") { formKvEval = true; continue; }
     if (args[i] == "--lilt-model" && i + 1 < args.Length) { liltModelDir = args[++i]; continue; }
+    if (args[i] == "--lilt-extract") { liltExtract = true; continue; }
+    if (args[i] == "--lilt-only") { liltExtract = true; liltOnly = true; continue; }
+    if (args[i] == "--lilt-conf" && i + 1 < args.Length) { liltConf = float.Parse(args[++i], CultureInfo.InvariantCulture); continue; }
+    if (args[i] == "--lilt-emit-unpaired") { liltEmitUnpaired = true; continue; }
+    if (args[i] == "--gate3-scanpairs" && i + 1 < args.Length) { gate3ScanPairsDir = args[++i]; liltExtract = true; liltOnly = true; continue; }
+    if (args[i] == "--gate3-dump-spurious" && i + 1 < args.Length) { gate3DumpSpurious = args[++i]; continue; }
+    if (args[i] == "--gate3-dump-crossfield" && i + 1 < args.Length) { gate3DumpCrossField = args[++i]; continue; }
+    if (args[i] == "--gate3-dump-missing" && i + 1 < args.Length) { gate3DumpMissing = args[++i]; continue; }
+    if (args[i] == "--gate3-dump-garbled" && i + 1 < args.Length) { gate3DumpGarbled = args[++i]; continue; }
+    if (args[i] == "--refine-word-boxes") { refineWordBoxes = true; continue; }
     if (args[i] == "--widget-form-fields") { dumpWidgetFields = true; continue; }
     if (args[i] == "--emit-form-template" && i + 1 < args.Length) { emitFormTemplate = args[++i]; continue; }
     if (args[i] == "--match-extract" && i + 2 < args.Length) { matchExtractPdf = args[++i]; matchExtractTemplate = args[++i]; continue; }
@@ -155,6 +180,7 @@ for (int i = 0; i < args.Length; i++)
     if (args[i] == "--gate8-dump") { gate8Dump = true; continue; }
     if (args[i] == "--no-retry-ladder") { noRetryLadder = true; continue; }
     if (args[i] == "--no-image-recovery") { noImageRecovery = true; continue; }
+    if (args[i] == "--row-split") { rowSplit = true; continue; }
     if (args[i] == "--sample-pdfs" && i + 1 < args.Length) { samplePdfs = int.Parse(args[++i]); continue; }
     if (args[i] == "--sample-seed" && i + 1 < args.Length) { sampleSeed = int.Parse(args[++i]); continue; }
     if (args[i] == "--register" && i + 2 < args.Length) { regBlank = args[++i]; regDb = args[++i]; continue; }
@@ -327,7 +353,7 @@ if (pdfDir == null || !Directory.Exists(pdfDir))
 {
     Console.Error.WriteLine(
         "Usage: Foliant.Verification <pdf-dir> [out-dir] [--models <dir>] [--ocr-only] " +
-        "[--gate3 <truth.csv>] [--gate3-extract <truth.csv>] [--gate5 <truth-dir>] [--gate6 <truth-dir>] " +
+        "[--gate3 <truth.csv>] [--gate3-extract <truth.csv>] [--gate3-scanpairs <td41-dir>] [--gate3-dump-crossfield <csv>] [--gate3-dump-missing <csv>] [--gate3-dump-garbled <csv>] [--refine-word-boxes] [--lilt-extract] [--lilt-only] [--lilt-conf <f>] [--gate5 <truth-dir>] [--gate6 <truth-dir>] " +
         "[--gate7 <born-digital-dir> [--gate7-pages N]] " +
         "[--gate8 <born-digital-dir> [--gate8-pages N]] " +
         "[--orient-check [--orient-pages N]] [--no-orientation] [--enumerator-order] " +
@@ -370,14 +396,28 @@ if (formKvEval)
 
 Directory.CreateDirectory(outDir);
 // Gate 3 extraction mode wires the composite form-field extractor (AcroForm + the SF-33 geometric
-// profile); every other mode uses the default (AcroForm only).
+// profile); every other mode uses the default (AcroForm only). --lilt-extract appends the learned
+// LiLT arm (last in the chain: exact sources win, the model only sees pages they abstain on);
+// --lilt-only runs the learned arm alone for attribution.
+using LiltFormKvModel? liltKvModel = liltExtract
+    ? new LiltFormKvModel(liltModelDir)
+    : null;
 IFormFieldExtractor? formExtractor =
     dumpWidgetFields ? new WidgetFormFieldExtractor()
+    : liltOnly ? new LiltFormFieldExtractor(liltKvModel!) { MinConfidence = liltConf, EmitUnpairedValues = liltEmitUnpaired, RefineWordBoxes = refineWordBoxes }
     : gate3ExtractCsv != null
         ? new CompositeFormFieldExtractor(
-            new AcroFormFieldExtractor(),
-            new GeometricFormFieldExtractor(new[] { SampleProfiles.Sf33Solicitation }))
-        : null;
+            new IFormFieldExtractor[]
+                {
+                    new AcroFormFieldExtractor(),
+                    new GeometricFormFieldExtractor(new[] { SampleProfiles.Sf33Solicitation }),
+                }
+                .Concat(liltKvModel is not null
+                    ? new IFormFieldExtractor[] { new LiltFormFieldExtractor(liltKvModel) { MinConfidence = liltConf, EmitUnpairedValues = liltEmitUnpaired, RefineWordBoxes = refineWordBoxes } }
+                    : Array.Empty<IFormFieldExtractor>())
+                .ToArray())
+        : liltKvModel is not null ? new LiltFormFieldExtractor(liltKvModel) { MinConfidence = liltConf, EmitUnpairedValues = liltEmitUnpaired, RefineWordBoxes = refineWordBoxes } : null;
+if (liltExtract) Console.WriteLine($"Mode: --lilt-{(liltOnly ? "only" : "extract")} (learned form-KV arm; model: {liltModelDir})");
 // --with-templates wires the per-page router over the bundled federal templates into the full pipeline,
 // so matched pages get deterministic, label-bound fields + an appended template-field Markdown section.
 IPageTemplateRouter? pipelineRouter = withTemplates
@@ -388,7 +428,8 @@ IScanUpscaler? superResUpscaler = superResModel != null
         { UseCuda = superResCuda, FallbackTile = superResTile })
     : null;
 using var processor = FoliantProcessor.CreateDefault(modelsDir, tableBackend, readingOrder, formExtractor, pipelineRouter,
-    recognitionModelPath: recModel, recognitionDictPath: recDict, scanUpscaler: superResUpscaler);
+    recognitionModelPath: recModel, recognitionDictPath: recDict, scanUpscaler: superResUpscaler,
+    splitMergedOcrRows: rowSplit);
 if (recModel != null) Console.WriteLine($"Mode: --rec-model '{recModel}' (A/B recognition model; dict: {recDict ?? "catalog default"})");
 if (superResModel != null) Console.WriteLine($"Mode: --super-res '{superResModel}' (ML super-resolution on low-DPI scans; tile {superResTile})");
 if (withTemplates) Console.WriteLine("Mode: --with-templates (per-page template routing on; bundled federal templates)");
@@ -405,15 +446,22 @@ var options = new ProcessingOptions
     TextLayer = ocrOnly ? TextLayerMode.Never : TextLayerMode.Auto,
     DetectOrientation = !noOrientation,
     EnumeratorReadingOrder = enumeratorOrder,
-    ExtractFormFields = gate3ExtractCsv != null || dumpWidgetFields,
+    ExtractFormFields = gate3ExtractCsv != null || dumpWidgetFields || liltExtract,
     UpscaleLowResolutionScans = superResModel != null,   // --super-res turns on the low-DPI upscale path
     RetryLowResolutionPages = !noRetryLadder,            // --no-retry-ladder: ADR-0004 Gate 9b A/B
     RecoverEmbeddedImageText = !noImageRecovery,         // --no-image-recovery: ADR-0004 Gate 9b A/B
 };
+// Scanned-holdout Gate 3: short-circuits the corpus sweep — pairs are enumerated from the TD-41
+// dir itself (digital twins = truth, scanned twins = input through the learned arm wired above).
+if (gate3ScanPairsDir != null)
+    return await Gate3ScanPairsRunner.RunAsync(processor, gate3ScanPairsDir, options, gate3DumpSpurious, gate3DumpCrossField, gate3DumpMissing, gate3DumpGarbled) ? 0 : 1;
+
 if (enumeratorOrder) Console.WriteLine("Mode: --enumerator-order (numbered-mosaic reading-order post-pass on)");
 if (ocrOnly) Console.WriteLine("Mode: --ocr-only (text layer disabled for extraction; still used as recall truth)");
 if (noRetryLadder) Console.WriteLine("Mode: --no-retry-ladder (ADR-0004 low-res retry OFF — 1.4.0-equivalent A/B arm)");
 if (noImageRecovery) Console.WriteLine("Mode: --no-image-recovery (ADR-0004 mixed-page OCR merge OFF — 1.4.0-equivalent A/B arm)");
+if (rowSplit) Console.WriteLine("Mode: --row-split (merged-row OCR det-box splitting ON — measured net-negative Gate 3 2026-07-06; experiment arm)");
+if (refineWordBoxes) Console.WriteLine("Mode: --refine-word-boxes (ink-trim emitted value boxes — box-fidelity rig; OUTPUT geometry only, model input unchanged)");
 if (noOrientation) Console.WriteLine("Mode: --no-orientation (page-orientation detection disabled; faster, recall on upright corpora unchanged)");
 
 // Inspect mode: dump one page's geometry for debugging — layout overlay PNG,

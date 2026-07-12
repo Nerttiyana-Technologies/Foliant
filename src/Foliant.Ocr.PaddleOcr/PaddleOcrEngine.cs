@@ -43,6 +43,22 @@ public sealed class PaddleOcrEngine : IOcrEngine
     private readonly int _recHeight;   // read from model input dims (v4=32/48, v5=48)
     private readonly TextlineOrientationClassifier? _orientation;
 
+    // Merged-row splitting (2026-07-06, TD-41 GARBLED diagnosis) — MEASURED NET-NEGATIVE,
+    // DEFAULT OFF. The mechanism is real: on blurry upscaled scans (96-DPI source rendered
+    // at 300 DPI) the DB prob map bridges vertically adjacent text rows, one component spans
+    // label + fill-in value lines, and the rec model mangles the squashed 2-row crop
+    // (SSN "932-24-3130" → "(digit) 2.3130" @0.61; the valley split recovers it @0.93; raw-OCR
+    // bench over 244 holdout fields: +2 recoveries, 0 regressions). But through the full
+    // extractor path the Gate 3 scanned-holdout ledger (2026-07-06, kv3 + sliding window,
+    // floor 0.50) went from correct 787 / garbled 95 / spurious 325 to
+    // correct 786 / garbled 94 / SPURIOUS 543 (+67%): splitting emits more, shorter lines,
+    // junk bands pass keep-better ("mean of junk" beats "whole-of-junk"), and the learned
+    // extractor mints junk fields from them. The surviving garbled class is dominated by
+    // rec confusions on blur ("0"→"o", "$"→"5", truncated city/state) — a recognition-quality
+    // problem, not box geometry. Kept as a measurement rig (harness --no-row-split is the
+    // OFF arm; enable via ctor for future rec-model/tuning experiments).
+    private readonly bool _splitMergedRows;
+
     /// <param name="detModelPath">DB text-detection ONNX model path.</param>
     /// <param name="recModelPath">CTC recognition ONNX model path.</param>
     /// <param name="dictPath">Character dictionary for the recognition model.</param>
@@ -50,10 +66,19 @@ public sealed class PaddleOcrEngine : IOcrEngine
     /// Optional textline-orientation ONNX model. When absent, vertical candidates are
     /// recognized at both ±90° and the higher-confidence reading wins (slower but model-free).
     /// </param>
+    /// <param name="splitMergedRows">
+    /// Split detection boxes that span multiple text rows (merged label + value lines on
+    /// blurry scans) at ink-projection valleys; the split reading is kept only when its
+    /// confidence beats the whole-box reading. DEFAULT OFF: measured net-negative on the
+    /// Gate 3 scanned-holdout ledger (spurious 325→543 for garbled 95→94) — see the
+    /// field comment above for the evidence; enable only for measurement experiments.
+    /// </param>
     public PaddleOcrEngine(
         string detModelPath, string recModelPath, string dictPath,
-        string? orientationModelPath = null)
+        string? orientationModelPath = null,
+        bool splitMergedRows = false)
     {
+        _splitMergedRows = splitMergedRows;
         _det = new InferenceSession(detModelPath);
         _rec = new InferenceSession(recModelPath);
         _dict = File.ReadAllLines(dictPath);
@@ -72,18 +97,113 @@ public sealed class PaddleOcrEngine : IOcrEngine
         var boxes = DetectTextBoxes(bitmap);
         var lines = new List<TextLine>();
         foreach (var box in boxes)
-        {
-            var (text, conf) = RecognizeLine(bitmap, box);
-            if (text.Length > 0)
-                lines.Add(new TextLine(
-                    new BoundingBox(box.Left, box.Top, box.Right, box.Bottom),
-                    text, conf, TextSource.Ocr));
-        }
+            lines.AddRange(RecognizeBox(bitmap, box));
         // top-to-bottom, then left-to-right (crude; reading-order stage does the real work)
         return lines
             .OrderBy(l => Math.Round(l.Bounds.Y1 / 20.0))
             .ThenBy(l => l.Bounds.X1)
             .ToList();
+    }
+
+    /// <summary>
+    /// Recognizes one detection box, splitting merged multi-row boxes when that reads better.
+    /// Returns one TextLine normally; one per text row when a split wins (tighter per-row
+    /// bounds also improve downstream geometry — layout, form-field pairing).
+    /// </summary>
+    private List<TextLine> RecognizeBox(SKBitmap page, SKRect box)
+    {
+        var result = new List<TextLine>(1);
+        var (text, conf) = RecognizeLine(page, box);
+
+        int rawW = Math.Max(1, (int)box.Width);
+        int rawH = Math.Max(1, (int)box.Height);
+        bool verticalCandidate = rawH > VerticalAspectThreshold * rawW && rawH >= 3 * _recHeight;
+
+        if (_splitMergedRows && !verticalCandidate)
+        {
+            using var raw = new SKBitmap(rawW, rawH, SKColorType.Bgra8888, SKAlphaType.Opaque);
+            using (var canvas = new SKCanvas(raw))
+                canvas.DrawBitmap(page, box, new SKRect(0, 0, rawW, rawH));
+
+            var bands = RowBands(raw);
+            if (bands.Count >= 2)
+            {
+                var reads = new List<(int Top, int Bottom, string Text, float Conf)>();
+                foreach (var (top, bottom) in bands)
+                {
+                    using var band = new SKBitmap(rawW, bottom - top, SKColorType.Bgra8888, SKAlphaType.Opaque);
+                    using (var canvas = new SKCanvas(band))
+                        canvas.DrawBitmap(raw, SKRect.Create(0, top, rawW, bottom - top),
+                                          new SKRect(0, 0, rawW, bottom - top));
+                    var (t, c) = RecognizeHorizontal(band);
+                    if (t.Length > 0) reads.Add((top, bottom, t, c));
+                }
+
+                // Keep-better: split wins only on strictly higher mean confidence.
+                if (reads.Count > 0 && (text.Length == 0 || reads.Average(r => r.Conf) > conf))
+                {
+                    foreach (var r in reads)
+                        result.Add(new TextLine(
+                            new BoundingBox(box.Left, box.Top + r.Top, box.Right, box.Top + r.Bottom),
+                            r.Text, r.Conf, TextSource.Ocr));
+                    return result;
+                }
+            }
+        }
+
+        if (text.Length > 0)
+            result.Add(new TextLine(
+                new BoundingBox(box.Left, box.Top, box.Right, box.Bottom),
+                text, conf, TextSource.Ocr));
+        return result;
+    }
+
+    /// <summary>
+    /// Splits a box crop into vertical text-row bands at ink-projection valleys.
+    /// "Blank" is relative (≤ max(2, 5% of the peak row-ink)) because dotted leaders and
+    /// JPEG noise leave a few ink pixels in real inter-row gaps (measured on TD-41 scans).
+    /// Returns a single full-height band unless ≥2 plausible rows are found.
+    /// </summary>
+    internal static List<(int Top, int Bottom)> RowBands(SKBitmap crop, int minBandHeight = 8, int minGapRows = 3)
+    {
+        int w = crop.Width, h = crop.Height;
+        var px = crop.Pixels;
+        var ink = new int[h];
+        int maxInk = 0;
+        for (int y = 0; y < h; y++)
+        {
+            int row = y * w, n = 0;
+            for (int x = 0; x < w; x++)
+                if (Luma(px[row + x]) < 160) n++;
+            ink[y] = n;
+            if (n > maxInk) maxInk = n;
+        }
+        var whole = new List<(int, int)> { (0, h) };
+        if (maxInk == 0) return whole;
+
+        float blankThreshold = Math.Max(2f, 0.05f * maxInk);
+        var bands = new List<(int, int)>();
+        int start = -1, gap = 0;
+        for (int y = 0; y < h; y++)
+        {
+            if (ink[y] > blankThreshold)
+            {
+                if (start < 0) start = y;
+                gap = 0;
+            }
+            else if (start >= 0)
+            {
+                gap++;
+                if (gap >= minGapRows)
+                {
+                    bands.Add((start, y - gap + 1));
+                    start = -1;
+                }
+            }
+        }
+        if (start >= 0) bands.Add((start, h));
+        bands.RemoveAll(b => b.Item2 - b.Item1 < minBandHeight);
+        return bands.Count >= 2 ? bands : whole;
     }
 
     // ── Detection (DB) ──────────────────────────────────────────────────────
