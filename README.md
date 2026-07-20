@@ -90,7 +90,7 @@ verifiability as a feature:
 | [`Foliant.Models`](https://www.nuget.org/packages/Foliant.Models) | Model catalog + SHA-256-verified local cache |
 | [`Foliant.Templates`](https://www.nuget.org/packages/Foliant.Templates) | Template-aware extraction + bring-your-own-template library: register a blank form, route matching uploads to deterministic field/checkbox binding (else the default pipeline). 12 U.S. federal Standard Forms bundled. Also extracts **scanned/flattened** federal forms (no widgets) by their printed **designation + GSA revision** — generalizing across agencies of the same revision |
 | [`Foliant.Specs.Hardware`](https://www.nuget.org/packages/Foliant.Specs.Hardware) | Opt-in, deterministic **hardware-spec extraction** for federal solicitations — reads server/desktop/laptop/workstation/component specs (CPU, memory, storage, GPU, form factor, quantity, part number, warranty) and appends a generated summary section. Behind the `IHardwareSpecExtractor` seam |
-| [`Foliant.Mcp`](https://www.nuget.org/packages/Foliant.Mcp) | [MCP](https://modelcontextprotocol.io) server (`foliant-mcp` dotnet tool) — drive the fully-local pipeline from any MCP client (Claude Desktop, Cursor, Copilot). See below |
+| `Foliant.Mcp` (in-repo) | [MCP](https://modelcontextprotocol.io) server — drive the fully-local pipeline from any MCP client (Claude Desktop, Cursor, Copilot). Ships in the repo; run from source or the built DLL (not on NuGet — see below) |
 
 Model weights (~280 MB) are not inside the packages. They download on first use into the
 local cache (`~/.local/share/Foliant/models` on macOS/Linux, `%LocalAppData%\Foliant\models`
@@ -427,7 +427,7 @@ breaking it now requires a 2.0. 1.0 is a stability commitment over the proven, m
 below (GPU/ML super-res, ML form understanding, post-OCR LM correction, multilingual OCR, more
 `Foliant.Forms.*` packs) all lands additively on top of the frozen contract.
 
-Shipped in 1.8.0: an **MCP server** (`Foliant.Mcp`, the `foliant-mcp` dotnet tool) so any MCP client can
+Shipped in 1.8.1: an **MCP server** (`Foliant.Mcp`, in-repo — run from source) so any MCP client can
 drive the fully-local pipeline conversationally (run-ticket extraction, form fields, template matching,
 health), and opt-in **hardware-spec extraction** (`Foliant.Specs.Hardware`) — a deterministic
 document-level pass that reads server/desktop/laptop/workstation/component specs out of federal
