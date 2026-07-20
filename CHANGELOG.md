@@ -1,5 +1,50 @@
 # Changelog
 
+## 1.8.0 — 2026-07-21 (MCP server + opt-in hardware-spec extraction)
+
+Minor, **additive and non-breaking**. Two new opt-in packages; the default PDF → Markdown pipeline is
+unchanged and byte-identical.
+
+### Added
+- **MCP server** (`Foliant.Mcp`, the `foliant-mcp` dotnet tool) — drives the fully-local pipeline from any
+  [MCP](https://modelcontextprotocol.io) client (Claude Desktop, Cursor, Copilot, MCP Inspector) so a
+  document can be extracted conversationally, on your machine. Run-ticket pattern for large documents
+  (`start_extraction` → `get_extraction_status` → `get_extraction_result` in ≤ 20-page windows), plus
+  `extract_summary`, `get_form_fields`, `match_template`, and `server_health`. Tool returns are capped in
+  code (page windows, hard limits) because everything a tool returns is read by the client's model; the
+  honesty machinery carries through the protocol (recall summaries are always accompanied by
+  `pagesNeedingReview`). A per-page **privacy gate** (`Privacy__BlockSensitivePages`) can withhold the
+  content of CUI/classification-marked pages from tool returns. Models load lazily on the first extraction
+  call. `dotnet tool install -g Foliant.Mcp`. See ADR-0005 and the README "Use with an AI assistant" section.
+- **Hardware-spec extraction** (`Foliant.Specs.Hardware`, opt-in) — a deterministic, fully-local
+  **document-level** pass that reads server / desktop / laptop / workstation / component specifications
+  (CPU, memory, storage, GPU, form factor, quantity, part number, warranty) out of a composed federal
+  solicitation and appends a single generated section — a paragraph built from the specs plus a
+  per-component list — at the bottom of the document Markdown. Three strategies over the already-composed
+  document (CLIN / QTY tables, `Label: value` spec sheets, component bullets) feed a shared vocabulary
+  recognizer with unit normalization (GB/TB, GHz, DDRx, NVMe, rack U). Behind a new `IHardwareSpecExtractor`
+  seam, so a learned / LLM backend can replace it later with no downstream change. Enable with
+  `ProcessingOptions.ExtractHardwareSpecs` (default **off**; a no-op unless an extractor is wired) or the
+  `extractHardwareSpecs` parameter on the MCP `start_extraction` / `extract_summary` tools:
+  ```csharp
+  var processor = FoliantProcessor.CreateDefault(
+      modelsDir, hardwareSpecs: new HardwareSpecExtractor());
+  var result = await processor.ProcessAsync(
+      pdf, new ProcessingOptions { ExtractHardwareSpecs = true });
+  ```
+  **Additive only** — the base page Markdown is untouched, so it cannot regress recall or reading order,
+  and a document that describes no hardware appends nothing. **Measured** on the initial SAM.gov fixtures:
+  append-safety holds byte-for-byte on every document; the two hardware-free solicitations append nothing
+  (zero fabrication); the hardware documents yield the headline specs (e.g. AMD EPYC 9555 64-core /
+  64 GB DDR5 ×8 / 12.8 TB NVMe / RTX PRO 6000, 3U, 5-year). See ADR-0006.
+
+### Notes
+- `IHardwareSpecExtractor` is document-level (post-composition), unlike the per-page `IFormFieldExtractor`.
+  It is wired into both `DocumentProcessor` and `DocumentOrchestrator` — the latter re-assembles the
+  document Markdown on the ZeroDep fast lane, so it runs the append itself over the merged page set.
+- Hardware-spec extraction is **PDF-only** in this release; `.docx` ingestion and cross-file package
+  correlation across a solicitation's files are deferred (ADR-0006 §2.1).
+
 ## 1.7.1 — 2026-07-11 (ship the Foliant.Forms.Lilt package)
 
 Patch. Corrects 1.7.0, which announced the opt-in learned form key-value extractor but did not publish

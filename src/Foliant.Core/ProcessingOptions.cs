@@ -185,6 +185,18 @@ public sealed record ProcessingOptions
     /// </summary>
     public bool UseTemplateRouting { get; init; } = true;
 
+    /// <summary>
+    /// After normal composition, run the injected <see cref="IHardwareSpecExtractor"/> over the whole
+    /// document and append a single generated hardware-specification section (a paragraph built from the
+    /// specs plus a per-component list) at the very bottom of the document Markdown (ADR-0006). For
+    /// federal solicitations that procure servers / desktops / laptops / workstations / components, this
+    /// surfaces the hardware in a compact, machine-usable form. Off by default and a no-op unless an
+    /// <see cref="IHardwareSpecExtractor"/> is wired into the pipeline. Additive only — the base page
+    /// Markdown is untouched, so it cannot regress recall or reading order; a document that describes no
+    /// hardware appends nothing. Starts opt-in; the default flip is ledger-gated (ADR-0006 §4).
+    /// </summary>
+    public bool ExtractHardwareSpecs { get; init; } = false;
+
     /// <summary>1-based page numbers to process; null processes all pages.</summary>
     public IReadOnlyCollection<int>? Pages { get; init; }
 

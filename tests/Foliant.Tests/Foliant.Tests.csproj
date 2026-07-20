@@ -12,6 +12,7 @@
     <ProjectReference Include="..\..\src\Foliant.Tables.TableTransformer\Foliant.Tables.TableTransformer.csproj" />
     <ProjectReference Include="..\..\src\Foliant.Forms.Lilt\Foliant.Forms.Lilt.csproj" />
     <ProjectReference Include="..\..\src\Foliant.Templates\Foliant.Templates.csproj" />
+    <ProjectReference Include="..\..\src\Foliant.Specs.Hardware\Foliant.Specs.Hardware.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -61,7 +61,8 @@ public static class FoliantProcessor
         string? recognitionModelPath = null,
         string? recognitionDictPath = null,
         IScanUpscaler? scanUpscaler = null,
-        bool splitMergedOcrRows = false)
+        bool splitMergedOcrRows = false,
+        IHardwareSpecExtractor? hardwareSpecs = null)
     {
         string Require(string fileName)
         {
@@ -117,7 +118,8 @@ public static class FoliantProcessor
             scanResolution: new PdfImageScanResolutionEstimator(),
             scanUpscaler: scanUpscaler ?? new ClassicalScanUpscaler(),
             formFields: formFields ?? new AcroFormFieldExtractor(),
-            templateRouter: templateRouter);
+            templateRouter: templateRouter,
+            hardwareSpecs: hardwareSpecs);
         // The default ClassicalScanUpscaler serves the RETRY-ONLY role (ADR-0004): it runs solely
         // on low-resolution pages whose first OCR pass produced ~nothing, where the baseline is an
         // empty page and keep-better makes the retry monotone. The Gate 8 verdicts stand: always-on
@@ -142,12 +144,13 @@ public static class FoliantProcessor
         string? recognitionModelPath = null,
         string? recognitionDictPath = null,
         IScanUpscaler? scanUpscaler = null,
-        bool splitMergedOcrRows = false)
+        bool splitMergedOcrRows = false,
+        IHardwareSpecExtractor? hardwareSpecs = null)
     {
         cache ??= new ModelCache();
         await cache.GetPathsAsync(ModelCatalog.DefaultPipeline, downloadProgress, cancellationToken)
             .ConfigureAwait(false);
         return CreateDefault(cache.CacheDirectory, tableBackend, readingOrder, formFields, templateRouter,
-            recognitionModelPath, recognitionDictPath, scanUpscaler, splitMergedOcrRows);
+            recognitionModelPath, recognitionDictPath, scanUpscaler, splitMergedOcrRows, hardwareSpecs);
     }
 }
