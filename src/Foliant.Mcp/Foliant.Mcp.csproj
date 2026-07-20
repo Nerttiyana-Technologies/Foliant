@@ -3,9 +3,16 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <RootNamespace>Foliant.Mcp</RootNamespace>
-    <Description>MCP server for Foliant — layout-aware PDF document AI that runs fully local. Exposes extraction (run-ticket pattern for large documents), typed form-field extraction, and federal-form template matching to any MCP client over stdio. Install as a dotnet tool: dotnet tool install -g Foliant.Mcp; command: foliant-mcp.</Description>
+    <Description>MCP server for Foliant — layout-aware PDF document AI that runs fully local. Exposes extraction (run-ticket pattern for large documents), typed form-field extraction, and federal-form template matching to any MCP client over stdio. Run from source (dotnet run) or the built DLL.</Description>
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>foliant-mcp</ToolCommandName>
+    <!-- NOT published to NuGet. Packed as a dotnet tool, this bundles the pipeline's native runtime
+         assets (ONNX Runtime + SkiaSharp + pdfium for every RID, incl. ~244 MB of Windows SkiaSharp
+         debug symbols) → ~352 MB, over nuget.org's 250 MB limit (push returns 413). The server ships
+         in-repo and runs from source / the built DLL; a NuGet-published tool needs per-RID tool
+         packaging or symbol trimming — deferred (ADR-0005 follow-up). Keep PackAsTool so a future
+         RID-specific tool package is a one-line flip. -->
+    <IsPackable>false</IsPackable>
     <!-- Package validation compares a library's public API surface across versions; a tool executable
          has no consumable API surface, so it is disabled here (ADR-0005 open item 2). -->
     <EnablePackageValidation>false</EnablePackageValidation>

@@ -1,12 +1,28 @@
 # Changelog
 
+## 1.8.1 — 2026-07-21 (complete the 1.8.0 release)
+
+Patch. **1.8.0 published only partially** — the release push aborted on the `Foliant.Mcp` tool package
+(a cross-platform dotnet tool that bundles ONNX Runtime + SkiaSharp + pdfium native assets for every RID,
+~352 MB, over nuget.org's 250 MB limit → HTTP 413), leaving some 1.8.0 packages live and others (including
+`Foliant.Core`) missing — so `Foliant.Pipeline` 1.8.0 could not restore. 1.8.1 republishes **all library
+packages together with consistent versions**; the partial 1.8.0 packages are unlisted.
+
+### Changed
+- **`Foliant.Mcp` is no longer packed for NuGet** (`IsPackable=false`). The MCP server ships in the repo
+  and runs from source / the built DLL (README "Use with an AI assistant"); a NuGet-published tool needs
+  per-RID tool packaging or symbol trimming to fit the size limit — deferred (ADR-0005 follow-up).
+
+Everything in **1.8.0** below — the MCP server and opt-in hardware-spec extraction — ships in 1.8.1
+unchanged; only the packaging of `Foliant.Mcp` differs.
+
 ## 1.8.0 — 2026-07-21 (MCP server + opt-in hardware-spec extraction)
 
 Minor, **additive and non-breaking**. Two new opt-in packages; the default PDF → Markdown pipeline is
 unchanged and byte-identical.
 
 ### Added
-- **MCP server** (`Foliant.Mcp`, the `foliant-mcp` dotnet tool) — drives the fully-local pipeline from any
+- **MCP server** (`Foliant.Mcp`, `src/Foliant.Mcp`) — drives the fully-local pipeline from any
   [MCP](https://modelcontextprotocol.io) client (Claude Desktop, Cursor, Copilot, MCP Inspector) so a
   document can be extracted conversationally, on your machine. Run-ticket pattern for large documents
   (`start_extraction` → `get_extraction_status` → `get_extraction_result` in ≤ 20-page windows), plus
@@ -15,7 +31,9 @@ unchanged and byte-identical.
   honesty machinery carries through the protocol (recall summaries are always accompanied by
   `pagesNeedingReview`). A per-page **privacy gate** (`Privacy__BlockSensitivePages`) can withhold the
   content of CUI/classification-marked pages from tool returns. Models load lazily on the first extraction
-  call. `dotnet tool install -g Foliant.Mcp`. See ADR-0005 and the README "Use with an AI assistant" section.
+  call. **Ships in-repo — run from source / the built DLL** (see the README "Use with an AI assistant"
+  section); it is **not on NuGet yet** (packed as a cross-platform dotnet tool it bundles native runtimes
+  for every RID and exceeds nuget.org's 250 MB limit — a per-RID tool package is a follow-up). See ADR-0005.
 - **Hardware-spec extraction** (`Foliant.Specs.Hardware`, opt-in) — a deterministic, fully-local
   **document-level** pass that reads server / desktop / laptop / workstation / component specifications
   (CPU, memory, storage, GPU, form factor, quantity, part number, warranty) out of a composed federal
