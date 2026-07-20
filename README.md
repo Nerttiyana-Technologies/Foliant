@@ -89,6 +89,8 @@ verifiability as a feature:
 | [`Foliant.Tables.PaddleStructure`](https://www.nuget.org/packages/Foliant.Tables.PaddleStructure) | SLANet-plus table backend for raster/screenshot tables (opt-in) |
 | [`Foliant.Models`](https://www.nuget.org/packages/Foliant.Models) | Model catalog + SHA-256-verified local cache |
 | [`Foliant.Templates`](https://www.nuget.org/packages/Foliant.Templates) | Template-aware extraction + bring-your-own-template library: register a blank form, route matching uploads to deterministic field/checkbox binding (else the default pipeline). 12 U.S. federal Standard Forms bundled. Also extracts **scanned/flattened** federal forms (no widgets) by their printed **designation + GSA revision** — generalizing across agencies of the same revision |
+| [`Foliant.Specs.Hardware`](https://www.nuget.org/packages/Foliant.Specs.Hardware) | Opt-in, deterministic **hardware-spec extraction** for federal solicitations — reads server/desktop/laptop/workstation/component specs (CPU, memory, storage, GPU, form factor, quantity, part number, warranty) and appends a generated summary section. Behind the `IHardwareSpecExtractor` seam |
+| [`Foliant.Mcp`](https://www.nuget.org/packages/Foliant.Mcp) | [MCP](https://modelcontextprotocol.io) server (`foliant-mcp` dotnet tool) — drive the fully-local pipeline from any MCP client (Claude Desktop, Cursor, Copilot). See below |
 
 Model weights (~280 MB) are not inside the packages. They download on first use into the
 local cache (`~/.local/share/Foliant/models` on macOS/Linux, `%LocalAppData%\Foliant\models`
@@ -113,6 +115,111 @@ dotnet run -c Release --project samples/Foliant.Sample.Console -- path/to/docume
 **Requirements:** .NET 10 SDK. Windows, macOS, and Linux (x64 + arm64). CPU-only works
 everywhere; ONNX Runtime execution providers (CoreML, DirectML, CUDA) are a configuration
 option for acceleration.
+
+## Use with an AI assistant (MCP server)
+
+Foliant ships an [MCP](https://modelcontextprotocol.io) server — `src/Foliant.Mcp`, command
+`foliant-mcp` — so any MCP client (Claude Desktop, MCP Inspector, Copilot, Cursor…) can drive
+the pipeline conversationally: *"extract this 400-page RFP and tell me which pages need
+review."* Everything runs on your machine; the documents never leave it (see the privacy note
+below for what does).
+
+```jsonc
+// Claude Desktop → Settings → Developer → Edit Config (claude_desktop_config.json)
+{
+  "mcpServers": {
+    "foliant": {
+      "command": "dotnet",
+      "args": ["/path/to/Foliant/src/Foliant.Mcp/bin/Release/net10.0/Foliant.Mcp.dll"],
+      "env": { "Foliant__ModelsDir": "/path/to/models" }
+    }
+  }
+}
+```
+
+(Once published, `dotnet tool install -g Foliant.Mcp` and `"command": "foliant-mcp"` replace
+the dll path.)
+
+### Tools
+
+| Tool | What it does |
+|---|---|
+| `start_extraction` | Begin extracting a PDF in the background; returns a `runId` immediately (run-ticket pattern for large documents) |
+| `get_extraction_status` | Per-page progress of a run: pending / running / completed / failed |
+| `get_extraction_result` | Read a completed run in windows of ≤ 20 pages — per-page Markdown, source, recall, needs-review and sensitivity flags — never the whole document at once |
+| `extract_summary` | Synchronous whole-document Markdown + verification summary for small PDFs (≤ 10 pages by default) |
+| `get_form_fields` | Typed key-value fields: exact AcroForm values, template-bound federal Standard Form values, geometric/learned association elsewhere — each with confidence, source, and the `possiblyTruncated` honesty flag |
+| `match_template` | Which pages match a known form template (bundled federal + customer-registered). Model-free and instant |
+| `server_health` | Configuration diagnosis — models dir, processor state, caps, privacy gate — without loading anything heavy |
+
+The server startup is instant: ONNX models load lazily on the first extraction call (seconds
+when `Foliant__ModelsDir` points at pre-staged models; otherwise a one-time verified download
+into the local cache). Returns are deliberately small — hard caps, page windows, and
+`totalCount` fields are enforced in code — because everything a tool returns is read by the
+client's model. Foliant's honesty machinery carries through the protocol: recall summaries are
+always accompanied by `pagesNeedingReview`, so a document can't claim 100% recall while
+silently missing content.
+
+### Configuration
+
+Environment variables (what MCP client `env` blocks supply) override `appsettings.json`:
+
+| Env var | Default | Purpose |
+|---|---|---|
+| `Foliant__ModelsDir` | *(empty)* | Pre-staged ONNX models; empty → verified cache, download on first use |
+| `Foliant__TemplatesDbPath` | *(empty)* | Customer template store (SQLite); empty → bundled federal templates only |
+| `Foliant__MaxPages` | `2000` | Hard cap on pages per extraction run |
+| `Foliant__SummarySyncPageLimit` | `10` | Max pages for the synchronous `extract_summary` |
+| `Privacy__BlockSensitivePages` | `false` | Withhold content of sensitivity-marked pages from returns |
+
+### Privacy note
+
+A local server means your documents, models, and processing stay on your machine — but
+whatever a **tool returns** is sent to whichever model the MCP client runs, and for hosted
+clients (Claude Desktop, Copilot) that model runs in the provider's cloud. Foliant detects CUI
+and classification banner markings during extraction, so the server surfaces
+`sensitivityMarkedPages` on every extraction return, and setting
+`Privacy__BlockSensitivePages=true` withholds those pages' content entirely (replaced with a
+notice naming the marking). Whether extracted text may cross that wire is your data-governance
+call — the flag is the switch.
+
+### Testing without a client
+
+```bash
+dotnet build src/Foliant.Mcp
+npx @modelcontextprotocol/inspector --cli \
+  dotnet "$(pwd)/src/Foliant.Mcp/bin/Debug/net10.0/Foliant.Mcp.dll" --method tools/list
+```
+
+Point the Inspector at the **built DLL**, not `dotnet run` — build chatter on stdout corrupts
+the stdio JSON-RPC stream.
+
+## Hardware-spec extraction (opt-in)
+
+Federal solicitations that procure IT hardware express the specs in no single format — free-text SOW
+bullets, `Label: value` spec sheets, CLIN line-item tables, Description/Qty grids — but the *vocabulary*
+(processor, memory, DDR5, NVMe, GPU, rack **U**, quantity, part number, warranty) is consistent.
+`Foliant.Specs.Hardware` is a deterministic, fully-local **document-level** pass over the already-composed
+output that reads those specs and **appends a generated section** — a paragraph built from the specs plus a
+per-component list — at the bottom of the document Markdown:
+
+```csharp
+using Foliant.Specs.Hardware;
+
+using var processor = FoliantProcessor.CreateDefault(
+    modelsDir, hardwareSpecs: new HardwareSpecExtractor());
+
+var result = await processor.ProcessAsync(
+    pdf, new ProcessingOptions { ExtractHardwareSpecs = true });
+// result.Markdown ends with:  ## Hardware Specifications (extracted) …
+```
+
+Off by default and a no-op unless an `IHardwareSpecExtractor` is wired. **Additive only** — the base page
+Markdown is untouched, so it cannot regress recall or reading order, and a document that describes no
+hardware appends nothing (no fabrication). Deterministic-first behind the `IHardwareSpecExtractor` seam, so
+a learned/LLM backend can drop in later. Over MCP, pass `extractHardwareSpecs: true` to `start_extraction`
+or `extract_summary`. PDF-only in this release.
+
 
 ## Performance
 
@@ -293,7 +400,7 @@ documents, that's a bug report we want.
 ## Repository layout
 
 ```
-src/        shipping packages (Core, Pipeline, backends, Models)
+src/        shipping packages (Core, Pipeline, backends, Models) + the MCP server (Foliant.Mcp)
 tests/      unit tests + the verification/scorecard harness
 samples/    console sample (ASP.NET and Blazor samples planned)
 spike/      Phase 0 throwaway prototype + measured results (RESULTS.md) — kept for history
@@ -319,6 +426,13 @@ breaking it now requires a 2.0. 1.0 is a stability commitment over the proven, m
 (Gates 1–8, 99.7% reference recall, in production use) — not a new feature. The parked roadmap
 below (GPU/ML super-res, ML form understanding, post-OCR LM correction, multilingual OCR, more
 `Foliant.Forms.*` packs) all lands additively on top of the frozen contract.
+
+Shipped in 1.8.0: an **MCP server** (`Foliant.Mcp`, the `foliant-mcp` dotnet tool) so any MCP client can
+drive the fully-local pipeline conversationally (run-ticket extraction, form fields, template matching,
+health), and opt-in **hardware-spec extraction** (`Foliant.Specs.Hardware`) — a deterministic
+document-level pass that reads server/desktop/laptop/workstation/component specs out of federal
+solicitations and appends a generated summary section. Both additive and non-breaking; the default
+pipeline is unchanged. New `IHardwareSpecExtractor` seam (deterministic-first, learned backend later).
 
 Shipped in 1.3.2: **by-identity extraction for scanned & flattened federal forms** (no AcroForm
 widgets). A page is recognized by its printed Standard-Form designation **and GSA revision**, then bound

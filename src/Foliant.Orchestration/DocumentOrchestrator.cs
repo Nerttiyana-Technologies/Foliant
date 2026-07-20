@@ -1,3 +1,4 @@
+using Foliant.Pipeline;              // HardwareSpecSection (internal renderer, ADR-0006)
 using ZeroDep;                       // PdfAnalyzer (entry point)
 using ZD = ZeroDep.Abstractions;     // analysis result types
 
@@ -20,6 +21,7 @@ public sealed class DocumentOrchestrator : IDocumentProcessor, IUnifiedDocumentP
     private readonly IPageClassificationReader _reader;
     private readonly FastLanePageBuilder _builder;
     private readonly Func<byte[], ZD.DocumentAnalysis> _analyze;
+    private readonly IHardwareSpecExtractor? _hardwareSpecs;
 
     /// <param name="foliantPipeline">The inner Foliant pipeline (the heavy lane / pass-through).</param>
     /// <param name="options">Orchestration options; defaults to fast lane off (pass-through).</param>
@@ -29,17 +31,26 @@ public sealed class DocumentOrchestrator : IDocumentProcessor, IUnifiedDocumentP
     /// The ZeroDep analysis step; defaults to <c>PdfAnalyzer.Analyze</c>. Injectable so the executor can be
     /// unit-tested without a real PDF or the engine.
     /// </param>
+    /// <param name="hardwareSpecs">
+    /// Optional document-level hardware-spec extractor (ADR-0006). Needed HERE, not only in the inner
+    /// pipeline, because the fast-lane path re-assembles the document Markdown from per-page output and
+    /// would otherwise drop the document-level section. When supplied and
+    /// <see cref="ProcessingOptions.ExtractHardwareSpecs"/> is on, the section is appended over the full
+    /// merged page set (fast + heavy). Null disables it. Additive only; empty ⇒ no-op.
+    /// </param>
     public DocumentOrchestrator(
         IDocumentProcessor foliantPipeline,
         OrchestrationOptions? options = null,
         IPageClassificationReader? reader = null,
         FastLanePageBuilder? fastLaneBuilder = null,
-        Func<byte[], ZD.DocumentAnalysis>? analyze = null)
+        Func<byte[], ZD.DocumentAnalysis>? analyze = null,
+        IHardwareSpecExtractor? hardwareSpecs = null)
     {
         _foliant = foliantPipeline ?? throw new ArgumentNullException(nameof(foliantPipeline));
         _options = options ?? new OrchestrationOptions();
         _reader = reader ?? new ZeroDepClassificationReader();
         _builder = fastLaneBuilder ?? new FastLanePageBuilder(new ZeroDepTypeAdapter());
+        _hardwareSpecs = hardwareSpecs;
         _analyze = analyze ?? (static bytes =>
         {
             using var ms = new MemoryStream(bytes, writable: false);
@@ -164,12 +175,19 @@ public sealed class DocumentOrchestrator : IDocumentProcessor, IUnifiedDocumentP
                 fastResults[entry.PageNumber] = fastPage;
         }
 
-        // Heavy lane = planned-heavy ∪ abstained, in one batched Foliant call (models load once).
+        // Heavy lane = planned-heavy ∪ abstained, in one batched Foliant call (models load once). The
+        // hardware-spec append is stripped from this inner call: it would run over only the heavy subset
+        // and land in a document string we discard below. The append runs once, here, over the full
+        // merged page set (ADR-0006 open item #5).
         var heavyNumbers = plan.HeavyPageNumbers.Concat(abstained).Distinct().OrderBy(n => n).ToList();
         DocumentResult? heavy = heavyNumbers.Count > 0
             ? await _foliant.ProcessAsync(
                     pdf,
-                    (options ?? ProcessingOptions.Default) with { Pages = heavyNumbers },
+                    (options ?? ProcessingOptions.Default) with
+                    {
+                        Pages = heavyNumbers,
+                        ExtractHardwareSpecs = false,
+                    },
                     cancellationToken)
                 .ConfigureAwait(false)
             : null;
@@ -197,8 +215,25 @@ public sealed class DocumentOrchestrator : IDocumentProcessor, IUnifiedDocumentP
             "\n\n",
             pages.Where(p => !string.IsNullOrWhiteSpace(p.Markdown)).Select(p => p.Markdown));
 
+        // Document-level hardware-spec section (ADR-0006). The inner pipeline appends this on the direct
+        // path, but the fast-lane merge rebuilt the document Markdown just above from per-page output, so
+        // the document-level pass runs again here over the full merged page set (fast-lane text pages carry
+        // Lines for the bullet/key-value strategies; escalated pages carry table Regions). Additive — an
+        // empty profile appends nothing.
+        markdown = AppendHardwareSpecs(markdown, pages, options);
+
         return new UnifiedDocument(
             new DocumentResult(pages, markdown), plan, Array.Empty<DocumentChunk>(), provenance);
+    }
+
+    // ADR-0006: append the document-level hardware-spec section to a freshly-merged fast-lane document.
+    // No-op unless the flag is on, an extractor is wired, and the document actually describes hardware.
+    private string AppendHardwareSpecs(string markdown, IReadOnlyList<PageResult> pages, ProcessingOptions? options)
+    {
+        if (options?.ExtractHardwareSpecs != true || _hardwareSpecs is null) return markdown;
+        var profile = _hardwareSpecs.Extract(pages);
+        if (profile.Components.Count == 0) return markdown;
+        return markdown + "\n\n---\n\n" + HardwareSpecSection.Render(profile);
     }
 
     private bool ShouldAbstain(PageKind kind, int structureRuns, double textDecodeConfidence, PageResult fastPage)
