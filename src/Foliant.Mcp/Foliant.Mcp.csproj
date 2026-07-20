@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>Foliant.Mcp</RootNamespace>
+    <Description>MCP server for Foliant — layout-aware PDF document AI that runs fully local. Exposes extraction (run-ticket pattern for large documents), typed form-field extraction, and federal-form template matching to any MCP client over stdio. Install as a dotnet tool: dotnet tool install -g Foliant.Mcp; command: foliant-mcp.</Description>
+    <PackAsTool>true</PackAsTool>
+    <ToolCommandName>foliant-mcp</ToolCommandName>
+    <!-- Package validation compares a library's public API surface across versions; a tool executable
+         has no consumable API surface, so it is disabled here (ADR-0005 open item 2). -->
+    <EnablePackageValidation>false</EnablePackageValidation>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Foliant.Pipeline\Foliant.Pipeline.csproj" />
+    <ProjectReference Include="..\Foliant.Templates\Foliant.Templates.csproj" />
+    <ProjectReference Include="..\Foliant.Orchestration\Foliant.Orchestration.csproj" />
+    <ProjectReference Include="..\Foliant.Specs.Hardware\Foliant.Specs.Hardware.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Official C# MCP SDK (stable). Hosting + DI + stdio transport + attribute-based tools. -->
+    <PackageReference Include="ModelContextProtocol" Version="1.4.0" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.9" />
+    <PackageReference Update="MinVer" Version="7.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="appsettings.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+</Project>

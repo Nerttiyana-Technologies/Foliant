@@ -30,6 +30,9 @@
 
   <ItemGroup>
     <InternalsVisibleTo Include="Foliant.Tests" />
+    <!-- The orchestrator re-assembles the document Markdown on the fast-lane path, so it must run the
+         document-level hardware-spec append itself (ADR-0006 open item #5) using this internal renderer. -->
+    <InternalsVisibleTo Include="Foliant.Orchestration" />
   </ItemGroup>
 
 </Project>

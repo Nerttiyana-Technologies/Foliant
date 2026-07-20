@@ -26,6 +26,7 @@ public sealed class DocumentProcessor : IDocumentProcessor, IDisposable
     private readonly IScanUpscaler? _upscaler;
     private readonly IFormFieldExtractor? _formFields;
     private readonly IPageTemplateRouter? _templateRouter;
+    private readonly IHardwareSpecExtractor? _hardwareSpecs;
     private readonly MarkdownComposer _composer;
     private readonly bool _ownsComponents;
 
@@ -57,6 +58,10 @@ public sealed class DocumentProcessor : IDocumentProcessor, IDisposable
     /// <see cref="ProcessingOptions.UseTemplateRouting"/> is on, a page recognized as a known form gets
     /// deterministic, label-bound fields plus an appended template-field Markdown section. Null disables it
     /// (the default pipeline wires none).</param>
+    /// <param name="hardwareSpecs">Optional document-level hardware-spec extractor (ADR-0006). When supplied
+    /// and <see cref="ProcessingOptions.ExtractHardwareSpecs"/> is on, the whole document is read for
+    /// server/desktop/laptop/workstation/component specs and a single generated section is appended at the
+    /// bottom of the document Markdown. Additive only. Null disables it (the default pipeline wires none).</param>
     public DocumentProcessor(
         IPageRenderer renderer,
         ILayoutDetector layout,
@@ -70,7 +75,8 @@ public sealed class DocumentProcessor : IDocumentProcessor, IDisposable
         IScanResolutionEstimator? scanResolution = null,
         IScanUpscaler? scanUpscaler = null,
         IFormFieldExtractor? formFields = null,
-        IPageTemplateRouter? templateRouter = null)
+        IPageTemplateRouter? templateRouter = null,
+        IHardwareSpecExtractor? hardwareSpecs = null)
     {
         _renderer = renderer;
         _layout = layout;
@@ -84,6 +90,7 @@ public sealed class DocumentProcessor : IDocumentProcessor, IDisposable
         _upscaler = scanUpscaler;
         _formFields = formFields;
         _templateRouter = templateRouter;
+        _hardwareSpecs = hardwareSpecs;
         _composer = new MarkdownComposer(readingOrder, tables);
         _ownsComponents = ownsComponents;
     }
@@ -129,6 +136,17 @@ public sealed class DocumentProcessor : IDocumentProcessor, IDisposable
             if (md.Length > 0) md.AppendLine().AppendLine("---").AppendLine();
             md.AppendLine($"<!-- page {page.PageNumber} -->").AppendLine();
             md.Append(page.Markdown);
+        }
+
+        // ── Hardware specifications (opt-in, ADR-0006) ───────────────────────
+        // A document-level post-pass over the composed pages. Additive: unmatched documents append
+        // nothing, and the per-page Markdown above is untouched, so recall/reading order cannot regress
+        // (same guarantee as the per-page template section). No-op unless an extractor is wired.
+        if (options.ExtractHardwareSpecs && _hardwareSpecs is not null)
+        {
+            var profile = _hardwareSpecs.Extract(pages);
+            if (profile.Components.Count > 0)
+                md.AppendLine().AppendLine("---").AppendLine().Append(HardwareSpecSection.Render(profile));
         }
 
         return new DocumentResult(pages, md.ToString());

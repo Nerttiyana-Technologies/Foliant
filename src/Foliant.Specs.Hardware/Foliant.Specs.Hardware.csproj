@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Description>Deterministic, fully-local hardware-specification extractor for Foliant (ADR-0006). Reads server / desktop / laptop / workstation / component specs (CPU, memory, storage, GPU, form factor, quantity, part number, warranty) out of a composed federal solicitation and rolls them into a document-level HardwareSpecProfile. Opt-in companion to Foliant.Core (wired behind the IHardwareSpecExtractor seam); the core stays dependency-free.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Foliant.Core\Foliant.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- The three strategies are internal (only the extractor + recognizer are the public seam); the
+         unit tests exercise each strategy directly. -->
+    <InternalsVisibleTo Include="Foliant.Tests" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Update="MinVer" Version="7.0.0" />
+  </ItemGroup>
+
+</Project>
