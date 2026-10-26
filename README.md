@@ -33,12 +33,12 @@ string json = result.ToJson(indented: true); // structured regions, tables, boun
 
 ## The gap this fills
 
-Python has a rich open-source document-understanding ecosystem (surya, marker, docling,
-unstructured). .NET has excellent text extraction (PdfPig, iText) but essentially nothing
-open-source for *layout-aware* understanding: region classification, reading-order inference,
-table-structure extraction. Handing whole pages to a general vision-language model produces
-plausible-looking output that silently fabricates details — checkbox states, names, field
-values — which is disqualifying wherever the answers matter.
+Python has a rich open-source document-understanding ecosystem. .NET has excellent text
+extraction libraries but essentially nothing open-source for *layout-aware* understanding:
+region classification, reading-order inference, table-structure extraction. Handing whole pages
+to a general vision-language model produces plausible-looking output that silently fabricates
+details — checkbox states, names, field values — which is disqualifying wherever the answers
+matter.
 
 Foliant takes the decomposition approach the commercial services use, with open models:
 
