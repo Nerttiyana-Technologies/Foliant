@@ -10,8 +10,8 @@
     <Authors>Suresh Subramanian</Authors>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <PackageTags>pdf;document-ai;layout-detection;ocr;table-extraction;onnx;document-understanding</PackageTags>
-    <PackageProjectUrl>https://github.com/Nerttiyana/Foliant</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/Nerttiyana/Foliant</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/Nerttiyana-Technologies/Foliant</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/Nerttiyana-Technologies/Foliant</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <IsPackable>true</IsPackable>

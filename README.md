@@ -3,7 +3,7 @@
 **Layout-aware PDF document AI for .NET — fully local, no Python sidecar, no cloud APIs.**
 
 [![NuGet](https://img.shields.io/nuget/v/Foliant.Pipeline.svg)](https://www.nuget.org/packages/Foliant.Pipeline)
-[![CI](https://github.com/Nerttiyana/Foliant/actions/workflows/ci.yml/badge.svg)](https://github.com/Nerttiyana/Foliant/actions/workflows/ci.yml)
+[![CI](https://github.com/Nerttiyana-Technologies/Foliant/actions/workflows/ci.yml/badge.svg)](https://github.com/Nerttiyana-Technologies/Foliant/actions/workflows/ci.yml)
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 
 > **Why this isn’t another PDF parser**
@@ -106,7 +106,7 @@ dotnet add package Foliant.Pipeline
 Or run the sample against any PDF:
 
 ```bash
-git clone https://github.com/Nerttiyana/Foliant.git
+git clone https://github.com/Nerttiyana-Technologies/Foliant.git
 cd Foliant
 dotnet run -c Release --project samples/Foliant.Sample.Console -- path/to/document.pdf
 # → sample-out/document.md + sample-out/document.json
@@ -499,7 +499,7 @@ documented in [`API-STABILITY.md`](API-STABILITY.md).
 ## Built on
 
 [ONNX Runtime](https://onnxruntime.ai/) ·
-[DocLayout-YOLO](https://github.com/opendatalab/DocLayout-YOLO) (Apache 2.0) ·
+[DocLayout-YOLO](https://github.com/opendatalab/DocLayout-YOLO) DocStructBench weights (Apache 2.0 per the [model card](https://huggingface.co/juliozhao/DocLayout-YOLO-DocStructBench); Foliant runs the ONNX weights only and does not use the AGPL-3.0 training code) ·
 [PaddleOCR](https://github.com/PaddlePaddle/PaddleOCR) (Apache 2.0) ·
 [TableTransformer](https://github.com/microsoft/table-transformer) (MIT) ·
 [PDFtoImage](https://github.com/sungaila/PDFtoImage) / PDFium ·
