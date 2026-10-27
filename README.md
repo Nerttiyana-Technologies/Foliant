@@ -281,7 +281,7 @@ dotnet run -c Release --project tests/Foliant.Verification -- <pdf-dir>
 ### What was tested
 
 **3,704 documents · 98,652 pages · 21 corpora**, spanning multiple governments and
-development banks, many agencies, courts, and forty years of PDF-generation technology —
+development banks, many agencies, courts, and decades of PDF-generation technology —
 chosen to be adversarial, not flattering.
 
 By document category:
